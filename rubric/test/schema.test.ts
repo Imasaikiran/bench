@@ -62,7 +62,7 @@ describe("rubric.yaml", () => {
   });
 
   it("every dimension has a non-empty rationale", () => {
-    for (const [chName, ch] of Object.entries(rubric.chapters)) {
+    for (const ch of Object.values(rubric.chapters)) {
       for (const d of ch.dimensions) {
         expect(d.rationale.length).toBeGreaterThan(10);
       }
