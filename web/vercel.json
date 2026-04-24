@@ -1,0 +1,7 @@
+{
+  "buildCommand": "pnpm -C ../rubric test && pnpm -C web build",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "crons": []
+}
