@@ -1,4 +1,4 @@
-type Dim = {
+export type Dim = {
   id: number;
   name: string;
   weight: number;
@@ -8,7 +8,7 @@ type Dim = {
   sources: string[];
 };
 
-type Rubric = {
+export type Rubric = {
   version: string;
   chapters: Record<string, { slot_labels: string[]; dimensions: Dim[] }>;
 };
