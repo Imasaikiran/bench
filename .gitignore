@@ -13,3 +13,4 @@ coverage/
 .turbo/
 bench-scan.json
 bench-scan.html
+cli/rubric.yaml

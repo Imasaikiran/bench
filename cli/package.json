@@ -1,0 +1,26 @@
+{
+  "name": "@imasaikiran/bench",
+  "version": "0.0.1-alpha.0",
+  "type": "module",
+  "bin": { "bench": "./dist/index.js" },
+  "files": ["dist/", "rubric.yaml"],
+  "scripts": {
+    "pretest": "cp ../rubric/rubric.yaml ./rubric.yaml",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prebuild": "cp ../rubric/rubric.yaml ./rubric.yaml",
+    "build": "tsc -p . && chmod +x dist/index.js",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "js-yaml": "4.1.0",
+    "nanoid": "5.0.7",
+    "picocolors": "1.1.1"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "4.0.9",
+    "@types/node": "20.14.10",
+    "typescript": "5.5.4",
+    "vitest": "2.0.5"
+  }
+}
