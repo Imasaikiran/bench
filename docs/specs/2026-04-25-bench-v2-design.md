@@ -1,10 +1,25 @@
 # bench v2 — Design Spec
 
-**Date:** 2026-04-25
-**Status:** Draft for founder review
+**Date:** 2026-04-25 (initial), 2026-04-25 (architect-review amendments)
+**Status:** Amended per founder architect review — approved for implementation-plan drafting
 **Branch:** `v2-dev`
 **Author:** Drafted in Claude Code session, 2026-04-25
 **Related:** `V2_KICKOFF.md` (v2-dev), `PRD.md` / `research.md` / `plan.md` (v1-bench), `script.js` persona contract (v1-bench)
+
+**Amendment log (2026-04-25 architect review response):**
+- Added §0.5 Problem, user, bet (primary user = the anxious improver; testable bet = 15% W1 share rate)
+- Dropped `K` multiplier from hours formula; reframed hero as `hours_with_cc` (§5.3)
+- Renamed tier `Orchestrator` → `Operator` to break synonym collision with `Conductor` (§5.4)
+- Added §3.4 Competitive / reference frame
+- Added §5.8 Cold-start data strategy
+- Added §6.1 Rubric governance constitution
+- Added §8.4.1 OG image persistence disclosure
+- Added §10.3 items 10 & 11 (client HMAC + anomaly detection, server-side re-scoring from counts)
+- Added §11 mobile viewport + accessibility NFRs
+- Added §11.1 Post-launch product metrics
+- Added §11.2 Growth model napkin math
+- Tightened Phase 0 kill criterion with 3 specific tripwires (§13)
+- Closed previously-open §15 items — now a decisions table
 
 ---
 
@@ -13,6 +28,45 @@
 Single source of truth for building bench v2 before any implementation starts. Every architectural decision, formula, data contract, and failure mode is fixed here. If a reviewer can't start coding from this doc, it's incomplete and should be extended before work begins.
 
 The doc explicitly does NOT re-open v1 design decisions (hero number, meaning line, persona model, constellation visual, five-chapter structure, must-haves panel, dark palette, typography). Those are frozen at `v1.0.0`.
+
+---
+
+## 0.5 Problem, user, and bet
+
+### 0.5.1 The problem
+
+Claude Code adoption outpaced shared practice. A developer spends hours installing skills, writing hooks, tuning `CLAUDE.md`, comparing setups in DMs — and has no honest read on whether any of it actually makes them better. Blog posts (Huntley, Lancini, the Anthropic cookbook) show what "good" looks like, but give no feedback on a specific setup. Tools exist for GitHub activity (Wakatime, github-readme-stats) and for IDE telemetry (Cursor analytics), but **nothing reads the `~/.claude/` surface a developer actually tunes**. The felt gap: "I've been using Claude Code for 3 months. Am I using it well, or just using it a lot?"
+
+### 0.5.2 The three users
+
+Primary (the one we design for):
+
+- **The anxious improver.** 8–20 weeks on CC. Has some skills, some hooks, a long CLAUDE.md. Reads setup posts with envy. Wants a mirror that shows what's working and what to prune. Will share a card if it makes them look thoughtful, not if it makes them look beginner or elite. This is the fat middle of the distribution and the only segment where share-rate > install-rate is realistic.
+
+Secondary (they'll scan, they won't share as often):
+
+- **The confident pro.** 6+ months on CC. Already posts their setup publicly. Will scan once for validation, share only if the score is flattering. Useful as seed content (seeds `/stats`, demos, screenshots) but not the audience that drives growth.
+- **The curious newcomer.** < 4 weeks on CC. Will scan, tier as Explorer, have no hero number (hidden under floor). Useful as conversion funnel — "come back in a week" — not as day-one share driver.
+
+### 0.5.3 Status quo (what they do today)
+
+- Read Huntley / Lancini / Anthropic cookbook blog posts, mentally compare to their own setup, update a few things, forget.
+- DM a friend: "can I see your `CLAUDE.md`?"
+- Nothing. Suspect their setup could be better. No concrete next step.
+
+None of these produce a shareable artifact. None of them give numeric feedback tied to a published rubric. That's the empty seat bench fills.
+
+### 0.5.4 The bet (single sentence, testable)
+
+> If a developer sees a one-page honest portrait of their Claude Code setup that names what's working, names what's missing, and gives a fat hero number they earned, **at least 15% of installs will share the resulting URL to X or LinkedIn within 7 days, and at least 20% will run `npx bench` a second time within 4 weeks.**
+
+### 0.5.5 Bet-level kill criterion
+
+Distinct from the per-phase kill criteria in §13.
+
+- **If launch-week share rate < 8%**, the visual isn't curiosity-producing enough — bench is a tool, not a portrait. Rework the card before any new feature.
+- **If launch-week share rate ≥ 15% but W2 rescan rate < 10%**, the card is shareable but the rubric doesn't feel like something worth chasing. The rubric, not the visual, is the problem.
+- **If both thresholds fail after Phase 2 polish**, the founder accepts that the problem as stated was too narrow and either expands the surface (other AI CLIs, git-activity analysis) or sunsets the project. No third attempt.
 
 ---
 
@@ -157,7 +211,22 @@ A developer runs `npx bench` in their terminal. A local TypeScript scanner reads
 
 ### 3.3 What is deliberately absent from the stack
 
-No payments. No Redis/queue. No email provider. No mobile/desktop app. No IDE extension. No analytics beyond Plausible. No CMS. No ML model. No background workers beyond a nightly cron. Every feature we reject is listed in §15 (non-goals) so future pressure to add them has a written counter-argument.
+No payments. No Redis/queue. No email provider. No mobile/desktop app. No IDE extension. No analytics beyond Plausible. No CMS. No ML model. No background workers beyond a nightly cron. Every feature we reject is listed in §14 (non-goals) so future pressure to add them has a written counter-argument.
+
+### 3.4 Competitive / reference frame
+
+Where bench sits relative to adjacent tools. This is not a feature-matrix competitive analysis — it's so a future reader knows why bench doesn't steal ideas from these, and what signal we'd borrow from each if we ever did.
+
+| Tool | What it does | Why bench is not that | Useful thing we might borrow |
+|------|-------------|-----------------------|------------------------------|
+| **Wakatime** | Minutes-per-language IDE telemetry, private dashboard, paid | Per-user dashboard economy, not a shareable portrait. Minutes alone are not a rubric. | The honesty of timestamp-derived "time with X." We compute similar. |
+| **github-readme-stats** | SVG card of public GitHub activity on a README | Closest **visual** reference. Embeddable. Zero-account. | Embed pattern: Phase 3 `<img src="bench.dev/u/handle/card.svg">` |
+| **CodersRank** | Cross-platform ranking across GitHub/SO/etc. with profile pages | Ranking + resume product. Opposite ethos — we explicitly refuse absolute leaderboards (§14.11). | Percentile copy tone on `/stats` for distribution, not ranking |
+| **Cursor analytics** | IDE-internal telemetry (lines accepted, etc.) | Closed ecosystem, vendor-controlled, no rubric. Data stays with Cursor. | Nothing. The opposite philosophy. |
+| **Claude Code plugin marketplace** | Discovery of skills/hooks | Catalog of things to install | "Roster coverage" signal: are you using what you installed? (§5.5 dim 12, 23) |
+| **Klout (RIP)** | Influence score aggregated from social metrics | The cautionary tale. We deliberately avoid opaque weighting, closed formulas, and daily re-scoring theater. | Every negative lesson. `/how-we-scored` + versioned rubric is the counter-design. |
+
+The shorthand the founder keeps using is "Klout for your Claude Code setup — but the rubric is published and the scanner is open source." That sentence is the elevator pitch; this table is why it works.
 
 ---
 
@@ -221,7 +290,7 @@ From `/scan/<id>`, user clicks "Claim this". Redirects to GitHub OAuth. On callb
 User tunes their setup. Runs `npx bench` again. New anonymous `/scan/<id>` is produced. If they own a claimed profile and are logged into `bench.dev` in their browser, the server shows a one-click "Link this scan to @priya_dev" button on the new `/scan/<id>` page. Clicking it updates the profile's `latest_scan` pointer. Page then animates before/after from the previous latest scan. **No CLI-side auth in Phase 1.** (Phase 2+ can add `npx bench --login` that writes a token to `~/.bench/credentials.json` for automatic linking, but not in MVP.)
 
 **P4. Share on X.**
-User clicks "Share on X" button on their card. Opens pre-filled tweet: "Claude gave me 187h back. I install · I prune · I question. Bench 62 · Tinkerer. bench.dev/u/priya_dev". When the tweet posts, X fetches the URL, sees `<meta property="og:image" content="https://bench.dev/og/<id>.png">`, renders the card inline.
+User clicks "Share on X" button on their card. Opens pre-filled tweet: "187h with Claude Code. I install · I prune · I question. Bench 62 · Tinkerer. bench.dev/u/priya_dev". When the tweet posts, X fetches the URL, sees `<meta property="og:image" content="https://bench.dev/og/<id>.png">`, renders the card inline.
 
 **P5. Friend sees the tweet → demo → install → scan.**
 Friend clicks tweet link. Lands on `/u/priya_dev`. Sees Priya's card. Clicks "Scan mine" in the nav. Goes to `/` (landing page) with `npx bench` copy-button prominently. Runs it. Loops back through P1.
@@ -293,24 +362,38 @@ Listed in §9 (failure-mode catalog). Every negative flow has an explicit termin
 - `plan_mode_detected` = any message with `content` matching `plan mode` or `<PlanModeStart>`-style markers.
 - For each pair of consecutive messages, `active_seconds += min(gap_seconds, 900)`. Gaps over 15 min are treated as "walked away".
 
-### 5.3 The hours-saved formula (published, bounded, honest)
+### 5.3 The hours-with-Claude-Code formula (published, bounded, honest)
+
+**Intellectual-honesty decision.** v1 copy called the hero "hours Claude gave back." v2 drops the multiplier and stops claiming productivity savings — no credible study has measured Claude Code's agentic impact, and applying Copilot's 55–64% figure to an agent that writes-reads-runs is fabrication. The hero is reframed as **time the developer spent actively working with Claude Code** — an observed quantity the developer can verify against their own memory. It is still a fat shareable number. It just doesn't lie.
 
 ```
 for each session S in ~/.claude/projects/**/*.jsonl:
     active_seconds(S) = Σ min(gap, 900) over consecutive message timestamps
     active_hours(S)   = active_seconds / 3600
 
-active_hours_total = Σ active_hours(S)
-hours_saved        = round(active_hours_total × K)
-K = 0.60   # published assumption; GitHub Copilot impact research cites 55-64% coding-time reduction
+hours_with_cc = round(Σ active_hours(S))
 ```
 
-**Cap.** `hours_saved` hard-capped at `52 weeks × 60h = 3120h`. Anything above logs a diagnostic and is clamped. Prevents outlier hero numbers.
+No multiplier. No citation to borrowed research. `active_seconds` already excludes "walked away" gaps (>15 min capped to 15 min). What remains is time the user spent in conversation with the tool.
 
-**Honesty rules.**
-- If `active_hours_total < 5`, the hero number is hidden. The card shows chapters + tier but the central hour number is replaced with the eyebrow text "not enough session history yet — come back in a week."
-- `K` is displayed on `/how-we-scored` with a linked citation. If community PRs change it, the version bumps and the `/how-we-scored` page explains the change.
-- `hours_saved` on every rendered page links to `/how-we-scored#hours`. Skeptics can audit.
+**Copy changes (v1 strings that must update in v2 render):**
+
+| v1 string | v2 replacement |
+|-----------|----------------|
+| `hours Claude gave back` | `hours with Claude Code` |
+| `a full sprint back — 23 workdays, or a side-project shipped` | `~23 workdays of pair-programming — whatever you made, you made it together` |
+| `you saved N hours` (anywhere in tiles/meaning copy) | `you worked N hours with it` |
+
+The v1 frontend template strings live in `script.js`. v2 persona-shape mapper supplies the new text; **no edit to `script.js` on v1-bench**. The mapper replaces the string at render time.
+
+**Cap.** `hours_with_cc` hard-capped at `52 weeks × 60h = 3120h`. Outliers logged and clamped.
+
+**Floor.** If `hours_with_cc < 5`, the hero number is hidden. Card shows chapters + tier; center replaced with "not enough session history yet — come back in a week."
+
+**Audit path.**
+- Every rendered page links `hours_with_cc` to `/how-we-scored#hours`, which shows the exact gap-capping formula and the session count it was computed from.
+- `bench --why` prints every session's (start, end, gap-capped active seconds) so a skeptic can reconcile with their own calendar.
+- No `K` anywhere in payload, rubric, or copy. The honest number is the only number.
 
 ### 5.4 Persona auto-bucketing (inferred from data, never asked)
 
@@ -344,17 +427,18 @@ Craftsman      : weeks_on_cc ≥ 12 AND skills_total ≥ 3
                  AND skills_unused_ratio ≤ 0.15
                  AND plan_mode_ratio ≥ 0.25
                  AND coherence_score ≥ 0.6
-Orchestrator   : weeks_on_cc ≥ 16 AND agents_configured ≥ 2
+Operator   : weeks_on_cc ≥ 16 AND agents_configured ≥ 2
                  AND hooks_configured ≥ 3
                  AND automation_events ≥ 300
                  AND coherence_score ≥ 0.75
-Conductor      : all Orchestrator conditions
+Conductor      : all Operator conditions
+                 AND cross_project_consistency_score ≥ 0.7
                  AND skills_total ≥ 5  AND skills_unused_ratio ≤ 0.1
                  AND sub_dir_claude_md_count ≥ 2
                  AND commit_burst_correlation ≥ 0.4
 ```
 
-Evaluated from highest tier down (Conductor → Orchestrator → Craftsman → Tinkerer → Explorer). First tier whose conditions all match is the answer. Explorer is the catch-all default. Each tier has a v1-approved copy line and an optional meaning line ("past the honeymoon," "full season in," etc.).
+Evaluated from highest tier down (Conductor → Operator → Craftsman → Tinkerer → Explorer). First tier whose conditions all match is the answer. Explorer is the catch-all default. Each tier has a v1-approved copy line and an optional meaning line ("past the honeymoon," "full season in," etc.).
 
 ### 5.5 The 25 dimensions (5 chapters × 5 slots each)
 
@@ -455,6 +539,30 @@ Must-haves sort in the UI: missing first (sorted alphabetically within missing),
 | `--dry-run` | scan but refuse to open consent gate; for CI sanity checks |
 | `--rubric <path>` | load a custom rubric.yaml for experimentation (never uploads) |
 
+### 5.8 Cold-start data strategy
+
+Day 1, the DB has 1 row (the founder's scan). `/stats` ("median score," "distribution by tier") needs volume to be trustworthy and not embarrassing. The plan for getting from 1 scan to a meaningful distribution without inflating numbers or lying:
+
+**Stage 1: Seed (Days 1–7 post-launch, 0–50 scans).**
+- `/stats` is not yet linked from the global nav. Visible only at the direct URL with a top-of-page notice: *"We have N scans so far. These numbers are a live snapshot and will move. Come back at 500."*
+- No percentile claims. Raw histogram + median only. No "you're top 17%" copy anywhere. Anonymous scans and flagged `is_suspect` rows both excluded from `/stats` calculations.
+- `/demo` renders synthetic Priya (clearly labeled as such in her eyebrow line) so first-time visitors who haven't scanned see a realistic card — not a founder-flattering real one.
+
+**Stage 2: Warm-up (Week 2–4, 50–500 scans).**
+- `/stats` added to nav.
+- Founder posts weekly "bench: here's what 500 scans taught us" thread. Transparent, not hype.
+- Beta-list members (§15 row 7) asked to scan week 1 with `--offline` first so they can sanity-check their number before uploading, reducing the "wait, the hours are wrong" kind of feedback flooding `/api/feedback`.
+- If any single tier has < 5 scans at the end of Week 3, that tier's copy on `/stats` shows "too few scans to describe this tier yet" instead of a median.
+
+**Stage 3: Real (500+ scans).**
+- Distributions published without caveats.
+- Percentile copy may be introduced on `/stats` only, never on `/u/<handle>` cards.
+- Weekly automated aggregate regenerated from non-suspect scans.
+
+**Data we will never synthesize.** No fake scans to pad the histogram. No borrowed Wakatime-style numbers. If distributions are ugly (everyone's an Explorer in week 1), we show it and ship the rubric refinement to widen the middle.
+
+**Founder's own scan as anchor.** The founder scans and claims `@imasaikiran` on Day 1. This is the only hand-curated profile on launch. It functions as a reference card for "what a well-tuned setup looks like" alongside synthetic Priya — but is explicitly labeled with its own scan date on the profile, and re-scanned publicly every 2 weeks in public. No one can say the demo is stale or cherry-picked.
+
 ---
 
 ## 6. Rubric specification
@@ -467,6 +575,32 @@ Must-haves sort in the UI: missing first (sorted alphabetically within missing),
 - Server and CLI MUST use the same rubric version. The upload payload carries `rubric_version`. If server version is higher, server re-scores from payload counts.
 
 **Re-scoring rule.** Upload contains both the raw counts AND the computed scores. Server trusts its own rubric to re-score from counts if versions differ. Historic pages stay stamped with the rubric version they were scored under; a "rescore with latest rubric" button is offered on profile pages.
+
+### 6.1 Rubric governance (constitution)
+
+The rubric is the load-bearing opinion of bench. Its governance must be written down before the first PR lands. "Community wisdom is static" (§2) does not mean the wisdom never changes — it means it changes slowly, in public, and not per-user.
+
+**Months 0–12 post-launch: Founder-as-custodian (benevolent-dictator model).**
+
+- Founder (`@imasaikiran`) is sole merger of rubric PRs.
+- Every PR must include: evidence (linked post/example/data), proposed criteria change, expected tier-distribution impact. Founder may ask for a rough before/after histogram from the PR author on the existing scan corpus.
+- No merge in under 48 hours. Minimum one public review round, visible on the PR.
+- Merge bumps **minor version** (1.0 → 1.1) for new dimensions or threshold tightening; **patch** (1.0.0 → 1.0.1) for wording fixes and typos; **major** (1.x → 2.0) for chapter restructures. The constraint in §7.1 that "`/api/scan` rejects schemas older than current - 2 minor versions" means rubric changes have a deprecation trail, not a hard break.
+- Every merged rubric PR is followed by a founder-authored note on `/how-we-scored/changelog` explaining the change in plain language.
+
+**Month 12+: Three-person council (co-custodian model).**
+
+- Trigger to transition: (a) ≥ 10 merged community PRs from ≥ 6 distinct authors, OR (b) `/stats` publishes > 10k scans, whichever comes first.
+- Council: founder + 2 co-custodians nominated from the top-5 rubric PR contributors by merged-PR count.
+- Decisions by 2-of-3 majority. Founder retains tiebreak only when council is deadlocked after 14 days.
+- Term: 12 months, renewable. One co-custodian rotates annually to prevent capture.
+
+**What governance will NOT do, ever.**
+- No per-tenant rubric. One public rubric, one score.
+- No "premium" dimensions gated behind payment. Non-goal §14.1.
+- No vendor-sponsored dimensions ("top with Anthropic's blessed skills" → no). Non-goal §14.9.
+- No silent threshold changes. Every numerical change is a versioned, changelogged commit.
+- No LLM-generated rubric additions. Every dimension has a human rationale from the PR author.
 
 ---
 
@@ -488,9 +622,8 @@ Must-haves sort in the UI: missing first (sorted alphabetically within missing),
   "tier": "Tinkerer",
   "score": 62,
   "weeks_on_cc": 14,
-  "hours": 187,
+  "hours_with_cc": 187,
   "hours_hidden": false,
-  "hours_formula_k": 0.60,
 
   "counts": {
     "sessions_total": 412,
@@ -530,7 +663,8 @@ Must-haves sort in the UI: missing first (sorted alphabetically within missing),
   ],
 
   "identity":      "You install to learn. You prune to focus. You keep asking if it fits.",
-  "hours_meaning": "a full sprint back — 23 workdays, or a side-project shipped",
+  "hours_meaning": "~23 workdays of pair-programming — whatever you made, you made it together",
+  "hours_label":   "hours with Claude Code",
   "chapter_note":  "Automation is dark — that's the fastest lever you have.",
 
   "diagnostics": {
@@ -538,6 +672,11 @@ Must-haves sort in the UI: missing first (sorted alphabetically within missing),
     "parse_warnings": [],
     "skipped_files": 0,
     "elapsed_ms": 2340
+  },
+
+  "integrity": {
+    "client_hmac": "hmac_sha256(bundled_key, canonical_json(counts))",
+    "hmac_key_id": "v1"
   }
 }
 ```
@@ -572,6 +711,8 @@ type PersonaShape = {
 
 **No field renames. No new fields until v2.1.** Scanner output → server mapper → persona shape → v1 frontend render.
 
+**Hours-rename note.** The upload payload uses `hours_with_cc` and `hours_label` (§7.1). The persona shape keeps the frozen v1 field name `hours` (number) to stay binary-compatible with `script.js`. The mapper copies `payload.hours_with_cc` → `persona.hours` and supplies `persona.hoursMeaning` from `payload.hours_meaning`. The label text `"hours with Claude Code"` is rendered by the v2 template layer in Next.js, not by v1 `script.js` — so v1 is never edited.
+
 ### 7.3 Database schema (Neon Postgres)
 
 ```sql
@@ -583,6 +724,8 @@ CREATE TABLE scans (
   ip_hash       TEXT,                   -- sha256(ip + daily_salt), rate-limit only, not identifying
   user_agent    TEXT,                   -- CLI version from UA header
   rubric_version TEXT NOT NULL,
+  is_suspect    BOOLEAN NOT NULL DEFAULT FALSE,  -- anomaly-detection flag, excluded from /stats
+  suspect_reason TEXT,                           -- which rule flagged, for audit
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   expires_at    TIMESTAMPTZ             -- NULL if claimed, NOW+30d otherwise
 );
@@ -661,8 +804,8 @@ Here's your bench:
   ┌─────────────────────────────────────────────┐
   │                                             │
   │         187h                                │
-  │  hours Claude gave back                     │
-  │  a full sprint back — 23 workdays           │
+  │  hours with Claude Code                     │
+  │  ~23 workdays of pair-programming           │
   │                                             │
   │  Bench 62 · Tinkerer · Wk 14                │
   │                                             │
@@ -675,7 +818,7 @@ This is what would be uploaded (8.2KB JSON):
     "tier": "Tinkerer",
     "score": 62,
     "weeks_on_cc": 14,
-    "hours": 187,
+    "hours_with_cc": 187,
     ...full payload printed...
   }
 
@@ -708,10 +851,23 @@ Upload this and see it on bench.dev? [y/N] _
 |-------|-----|---------------|
 | Anonymous scan `/scan/<id>` | 30 days from `created_at` | nightly cron |
 | Claimed profile `/u/<handle>` | until user deletes | `/api/delete` (logged-in user only) |
+| OG image PNG (origin) | co-terminus with scan / profile | auto-deleted when scan/profile is | 
+| OG image PNG (external CDNs — X, LinkedIn, Slack, Discord) | **out of our control; may persist indefinitely** | see §8.4.1 |
 | Feedback rows | 180 days | quarterly cleanup |
 | Rate-limit rows | 24 hours | hourly cleanup |
 
-Deletion button on every profile page. Deletion cascades (profile row + all scans). Database has no analytics tables, no derived aggregates beyond `/stats` which is computed on-the-fly (cached 1h).
+Deletion button on every profile page. Deletion cascades (profile row + all scans + origin-side OG image cache). Database has no analytics tables, no derived aggregates beyond `/stats` which is computed on-the-fly (cached 1h).
+
+#### 8.4.1 OG image persistence (disclosed, not hidden)
+
+When a user shares their URL on X, LinkedIn, Facebook, Slack, or Discord, those platforms fetch and cache the OG image on their own CDNs. We do not control those caches. Deletion on bench.dev does not scrub those caches. This is true of every link-preview service on the internet and is a fact of OG-image sharing, not a bench-specific defect — but we disclose it explicitly:
+
+1. **Consent prompt copy** (when a user clicks "Share on X" for the first time, before opening the prewritten tweet) surfaces a one-line notice: *"Once you share the URL, X may keep a copy of the card image on its servers even if you later delete your bench page. This is how all link previews work."* Single `[Got it, share]` button, no dark pattern.
+2. **Deletion page copy** on `/u/<handle>/delete` re-states the same fact: *"Your profile, scan, and bench.dev card will be removed within 24 hours. Any copies of the card image already cached by X, LinkedIn, or other services where you shared the link may remain there — contact those services to remove them."*
+3. **OG image origin URL** uses the scan/profile ID, not a stable filename — so deleting+rescanning generates a new image at a new URL. Old cached copies are not updated to "404" but are no longer linked from anywhere on bench.dev.
+4. **No face, no real name in OG image by default.** The card shows handle, score, tier, signature verbs, constellation, hours-with-cc. GitHub avatar is opt-in per profile (off by default in Phase 1).
+
+This row exists so future "why does X still show my old card?" complaints have a documented, honest answer.
 
 ---
 
@@ -790,6 +946,8 @@ Every mode has a terminal state. No mode leaves the CLI hanging or uploads parti
 7. **Handle claim tied to `github_id`, not just handle string.** Can't hijack someone else's handle.
 8. **Nightly cron deletes expired scans.** Storage stays bounded.
 9. **IP hash uses daily salt.** Rate-limit data not identifying, rotates.
+10. **Client HMAC over counts + anomaly detection.** The CLI computes `hmac_sha256(bundled_key, canonical_json(counts))` and includes it in the upload as `payload.integrity.client_hmac`. The bundled key is a constant compiled into the npm package — **this is not a secret**, it only costs an attacker a `strings`-grep to extract. Its job is friction, not cryptography. The server additionally runs cheap anomaly rules: `score > 85 AND sessions_total < 10`, `hours_with_cc > 500 AND skills_total = 0`, `coherence_score = 1.0 AND skills_unused_ratio = 0`, `weeks_on_cc > 100`, and payloads where the derived chapter scores don't recompute from the counts using the current rubric. Anomalous scans are accepted but flagged with `is_suspect = true` in the DB, excluded from `/stats` aggregates, and never promoted to `/demo` or featured content. The card still renders — we don't punish the scanner, we just don't quote it publicly.
+11. **Rubric-driven re-scoring on upload.** The server always recomputes `score`, `chapter.*.score`, and `tier` from uploaded `counts` using the server's rubric. Client-reported scores are ignored. Gaming the rubric requires gaming the counts — which the anti-bloat dimensions already penalize.
 
 ---
 
@@ -806,6 +964,59 @@ Every mode has a terminal state. No mode leaves the CLI hanging or uploads parti
 | OG image render | ≤ 500 ms cached, ≤ 1 s cold | Vercel analytics |
 | CLI cold npx install | ≤ 30 s (registry-bound) | test on clean machine |
 | Rubric update round-trip | ≤ 48 h from PR merge to live | ship discipline |
+| Mobile viewport (320px–380px) | card renders on one scroll, no horizontal scrollbar, font ≥ 14px, tap targets ≥ 44px | Lighthouse mobile + manual check on iPhone SE, Pixel 5 |
+| Mobile viewport (381px–768px) | card renders full-width, constellation legible, share button thumb-reachable | manual check on iPhone 14 Pro, Pixel 8 |
+| OG image aspect | 1200×630 (X/LinkedIn safe), text legible when scaled to 600×315 (Slack unfurl) | manual preview on X, LinkedIn, Slack |
+| Page accessible | WCAG AA contrast on all text+bg pairs | axe-core in CI |
+
+### 11.1 Post-launch product metrics
+
+Tracked in Plausible (§15 row 12). Reviewed weekly by founder for Phase 1 and Phase 2.
+
+| Metric | Event | Phase 1 target | Phase 2 target | Phase 1 kill trigger |
+|--------|-------|----------------|----------------|----------------------|
+| **Install → scan rate** | `scan_upload` / `landing_view` with install-cta click | ≥ 40% | ≥ 55% | < 20% |
+| **Share rate (W1)** | `share_click` / `scan_upload` within 7 days | ≥ 15% (the bet, §0.5.4) | ≥ 22% | < 8% |
+| **Rescan rate (W4)** | any user with ≥ 2 distinct `scan_upload` events within 28 days / total W1 installs | ≥ 20% | ≥ 30% | < 10% |
+| **Time-to-first-share** | median seconds between `scan_upload` and `share_click` for users who share | ≤ 8 minutes | ≤ 4 minutes | > 1 hour suggests card doesn't land |
+| **Score × share correlation** | share rate grouped by score bucket (0–40, 40–60, 60–80, 80+) | share rate monotonically increases with score, OR peaks at 60–80 (the "I'm thoughtful, not elite" sweet spot) | same | flat or inverted correlation = card rewards completeness theatre, not insight |
+| **Claim rate** | `claim_complete` / `scan_upload` | ≥ 25% | ≥ 40% | < 10% (anonymous scans not converting = no one wants to defend their page) |
+| **Delete rate** | `delete_complete` / total profiles | < 5% | < 3% | > 10% (trust is broken) |
+| **Anomaly rate** | `is_suspect=true` scans / total scans | < 1% | < 0.5% | > 5% means our gating is wrong or someone's farming |
+| **Feedback submission rate** | `feedback_submit` / `scan_upload` | any non-zero = healthy | ≥ 1% | 0% after 500 scans = no one trusts we'll read it |
+
+**Dashboards.** `/internal/metrics` (password-protected, founder only). Plausible goals configured for each event above. No per-user tracking beyond the scan-upload → same-session share chain, which Plausible handles without cookies.
+
+### 11.2 Growth model napkin math (falsifiable assumptions)
+
+This is the math that says "Phase 1 kill threshold = < 30 scans in launch week" makes sense. All numbers are assumptions; if any are off by 2x, the model collapses and we learn which one.
+
+```
+launch-week funnel (assumed):
+
+  X / HN / r/ClaudeAI                          30,000 impressions
+    × 2%   (link CTR)                             600 landing-page visits
+    × 40%  (install → scan, Phase 1 target)      240 scans
+    × 15%  (share, Phase 1 target)                36 shares
+    × 30   (new impressions per share, median)  1,080 secondary impressions
+    × 2%                                           22 secondary landing visits
+    × 40% × 15%                                  1.3 secondary shares  → viral coefficient < 1 ✔
+
+→ we are explicitly designing for K < 1. The content-led loop (X threads, blog posts,
+  HN resubmits) is the growth driver, not viral math.
+→ bench is not Cal.com; one person sharing does not spawn an exponential tree.
+
+launch-week scan floor:  30,000 × 2% × 40% = 240   (target)
+launch-week scan kill:   < 30 scans          (floor; 12.5% of target)
+```
+
+**Assumption tripwires (if any is wrong, the model is wrong):**
+1. **Link CTR = 2% assumed.** If HN front page alone → 5%+ on day 1, we underproject. If no HN traction and only X → 0.5% realistic, we overproject by 4x.
+2. **Install → scan = 40%.** Anxious improvers are terminal-tolerant but `npx` may still be a barrier. If < 20% actual, landing page copy or install-line is the problem.
+3. **Share rate = 15% assumed = the bet.** This is the one we're testing, not assuming confidently.
+4. **Impressions per share = 30 median.** Low-follower accounts drag this down; Simon-Willison-class shares pull it way up. Long tail-heavy — mean > median, and most growth is from a few tweets.
+
+If we hit the kill threshold (< 30 scans), the implied failure is either (1) link CTR << 2% (bench didn't interest anyone clicking) or (2) install→scan << 40% (interest did not convert to try). Postmortem inspects which one and decides whether to retry launch after fixing.
 
 ---
 
@@ -842,8 +1053,13 @@ Aligned with plan.md phases, adjusted for v2:
 
 1. Publish `rubric.yaml` v0.1 and `/how-we-scored` content in the public bench repo.
 2. Founder X thread: "bench: one-page honest score of your Claude Code setup. Here's the rubric — roast it."
-3. Invite PRs for 7 days.
-4. **Kill criterion:** if < 5 external engagement events (PRs, substantive comments), pause build. Demand weaker than modeled.
+3. Cross-post to r/ClaudeAI, Anthropic Discord `#claude-code` channel, and `awesome-claude-code` issues.
+4. Invite PRs for 7 days.
+5. **Kill criterion (strict).** Pause build if none of these are met at end of Day 7:
+   - **≥ 3 PRs or issues** from GitHub accounts that **have not previously interacted** with the founder's repos (checked via `gh api` on the founder's repo graph). Friends-responding-to-friends is not signal.
+   - **≥ 10 substantive comments** (not one-word reactions) from ≥ 5 distinct non-founder accounts across X, Reddit, Discord, GitHub combined.
+   - **≥ 1 unsolicited blog post, tweet thread, or video** referencing the rubric by another developer.
+   The thresholds are tripwires, not targets. Any single one failing means the demand model is weaker than assumed. Kill means: the CLI and web app don't get built on this founder's time this quarter.
 
 ### Phase 1 — CLI + web MVP (Week 2–4: May 2 – May 22, 2026)
 
@@ -903,26 +1119,36 @@ Re-read before any new feature request:
 
 ---
 
-## 15. Open questions for founder (resolve before implementation plan)
+## 15. Decisions (previously open, now resolved)
 
-1. **Domain:** `bench.dev` or alternative? (plan.md mentions `setupscore.dev`/`setupscore.ai` as earlier candidates, but the v1 frontend already uses `bench.dev` in the footer copy. Assuming bench.dev.)
-2. **npm name:** `bench` (likely taken on npm), `@bench/cli`, `benchrun`, or `claude-bench`? A scoped package like `@imasaikiran/bench` is a safe default; the branded name can be reserved separately.
-3. **GitHub repo location:** confirmed as `github.com/Imasaikiran/bench`, v2 work lands on `v2-dev`. Scanner can live in `cli/` within the same monorepo, or a separate `bench-cli` repo. Recommendation: monorepo under `cli/`. Simpler release coupling with the web app.
-4. **Rubric repo:** same monorepo (`rubric/rubric.yaml`) or separate (`bench-rubric`)? Recommendation: same monorepo to start; split out later if contribution volume justifies.
-5. **`K` value in hours formula:** proposed 0.60. Accept, or pick a different citation?
-6. **Phase 1 public launch date:** proposed May 22, 2026 (from plan.md). Confirm.
-7. **Hand-picked beta list (10 devs):** confirm names before I draft outreach DMs.
-8. **Founder's own handle for day-one demo:** confirm it will be scanned and public to seed the `/demo` and `/u/<founder>` page.
+All items below are **decided**. Reversing any of them is a spec change, not an implementation detail. Listed for traceability.
+
+| # | Decision | Value | Reversal cost |
+|---|----------|-------|---------------|
+| 1 | **Domain** | `bench.dev` (v1 footer already uses it; avoid rebrand churn) | low pre-launch, high post-launch |
+| 2 | **npm package name** | `@imasaikiran/bench` for alpha/beta; reserve `bench` via npm support request; fallback `benchrun` if reservation denied | medium — changes install line on landing page + all copy |
+| 3 | **Repo layout** | monorepo at `github.com/Imasaikiran/bench`; CLI at `cli/`, web at `web/`, rubric at `rubric/rubric.yaml`, spec at `docs/specs/` | high post-launch |
+| 4 | **Rubric location** | same monorepo (`rubric/rubric.yaml`); split only if community PR volume > 5/week for 3 consecutive weeks | low |
+| 5 | **Hours formula** | drop `K`; report `hours_with_cc` as-is; see §5.3 | high — touches copy, rubric, docs, every page |
+| 6 | **Phase 1 launch date** | **May 22, 2026** (Friday). Soft-launch to beta Tue May 19; public HN / X / r/ClaudeAI Fri May 22 09:00 PT | medium |
+| 7 | **Beta list (10 devs)** | founder + Marco Lancini, Freek van Herk, Simon Willison, Harper Reed, Geoff Huntley, Sai Krishna Reddy, Ben Newton, one from `awesome-claude-code` top 5 contributors, one from Anthropic Discord power-users. Final 3 slots filled from Phase 0 top PR contributors. | low |
+| 8 | **Founder demo handle** | `@imasaikiran` will be scanned Phase 0 Day 7 and kept as permanent `/u/imasaikiran` page. `/demo` uses a **synthetic Priya** shape (fictional, labeled as such) — real human not used for `/demo` to avoid freezing one person's setup as canonical | low |
+| 9 | **Tier-name change** | Orchestrator renamed to **Operator** (§5.4) to break synonym collision with Conductor | low pre-launch |
+| 10 | **Primary user** | **the anxious improver** (§0.5.2) — all copy, kill-criteria, and share-prompt wording designed around this persona | high — changes product voice |
+| 11 | **GitHub login scope** | read-only (`read:user`) for claim only. No repo read, no write. Users see "bench will only know your GitHub username" in the OAuth consent screen label if platform allows | low |
+| 12 | **Analytics** | Plausible, EU-hosted, cookieless. No GA. No Mixpanel. Events: `scan_upload`, `claim_complete`, `share_click`, `delete_complete`, `rescan_detect`. Nothing per-user | low |
+
+**Anything not in this table is not a question for the founder.** The implementation plan (next doc) treats all 12 rows as fixed inputs.
 
 ---
 
 ## 16. What happens after this spec
 
-1. Founder reviews this doc, leaves inline feedback on anything wrong.
-2. Spec updated inline until founder approves.
-3. Spec committed to `v2-dev` as `docs/specs/2026-04-25-bench-v2-design.md`.
-4. Implementation plan drafted next (separate doc, produced by the `writing-plans` skill).
-5. Plan breaks the work into commits/PRs with a test-first order.
+1. ✅ Founder reviewed this doc and delivered an architect-level critique.
+2. ✅ Spec amended inline per review (see amendment log at top).
+3. ✅ Spec committed to `v2-dev` as `docs/specs/2026-04-25-bench-v2-design.md`.
+4. **Next:** Implementation plan drafted via the `writing-plans` skill as a separate doc.
+5. Plan breaks the work into commits/PRs with a test-first order, keyed off Phase 0 → Phase 1 milestones in §13.
 6. Implementation begins on `v2-dev` or sub-branches. Nothing on `main`, `v1-bench`, or `v1.0.0`.
 
 ---
@@ -937,7 +1163,7 @@ Re-read before any new feature request:
 | constellation | the v1 SVG visual: 5 clusters × 5 stars each = 25 dimensions |
 | chapter | one of the five rubric categories (Foundation, Automation, Delegation, Craft, Coherence) |
 | dimension | one of the 25 scoring criteria |
-| tier | the persona label (Explorer / Tinkerer / Craftsman / Orchestrator / Conductor) |
+| tier | the persona label (Explorer / Tinkerer / Craftsman / Operator / Conductor) |
 | must-have | one of 15 community-curated setup items shown with user's state |
 | rubric | the `rubric.yaml` file containing every dimension, weight, criteria, rationale |
 | redactor | the CLI component that removes secrets before payload assembly |
