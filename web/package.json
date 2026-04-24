@@ -1,0 +1,27 @@
+{
+  "name": "@imasaikiran/bench-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "15.0.3",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "js-yaml": "4.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.0.1",
+    "@types/react-dom": "19.0.1",
+    "@types/node": "20.14.10",
+    "@types/js-yaml": "4.0.9",
+    "vitest": "2.0.5",
+    "typescript": "5.5.4"
+  }
+}
