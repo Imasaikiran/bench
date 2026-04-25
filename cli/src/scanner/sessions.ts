@@ -35,6 +35,8 @@ export type SessionsReport = {
   readBytesSum: number;
   readBytesCount: number;
   projectRoots: string[];
+  /** Sorted unique skill names invoked via the Skill tool across all sessions. */
+  usedSkills: string[];
   parseWarnings: string[];
 };
 
@@ -52,10 +54,12 @@ export async function readSessions(claudeHome: string): Promise<SessionsReport> 
     readBytesSum: 0,
     readBytesCount: 0,
     projectRoots: [],
+    usedSkills: [],
     parseWarnings: [],
   };
   let earliestMs: number | null = null;
   const projectRootsSet = new Set<string>();
+  const usedSkillsSet = new Set<string>();
 
   // Walk directory tree and collect all .jsonl file paths
   async function walk(dir: string): Promise<string[]> {
@@ -160,6 +164,16 @@ export async function readSessions(claudeHome: string): Promise<SessionsReport> 
                   report.readBytesCount++;
                 }
               }
+
+              if ((c as Record<string, unknown>)["name"] === "Skill") {
+                const input = (c as Record<string, unknown>)["input"];
+                if (input && typeof input === "object") {
+                  const skillName = (input as Record<string, unknown>)["skill"];
+                  if (typeof skillName === "string") {
+                    usedSkillsSet.add(skillName);
+                  }
+                }
+              }
             }
           }
 
@@ -206,6 +220,7 @@ export async function readSessions(claudeHome: string): Promise<SessionsReport> 
       ? Math.floor((Date.now() - earliestMs) / (7 * 86_400 * 1000))
       : 0;
   report.projectRoots = [...projectRootsSet];
+  report.usedSkills = [...usedSkillsSet].sort();
 
   return report;
 }

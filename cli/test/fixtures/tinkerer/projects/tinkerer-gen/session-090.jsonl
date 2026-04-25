@@ -1,0 +1,2 @@
+{"role":"user","content":[{"type":"text","text":"Task 090: implement feature 3"}],"timestamp":"2026-04-20T10:00:19.042Z","cwd":"/Users/dev/projects/tinkerer-core"}
+{"role":"assistant","content":[{"type":"tool_use","id":"tu_090_0","name":"Glob","input":{"command":"echo session-090"}},{"type":"text","text":"Done with step 1 of session 090."}],"timestamp":"2026-04-20T10:00:36.042Z","cwd":"/Users/dev/projects/tinkerer-core"}

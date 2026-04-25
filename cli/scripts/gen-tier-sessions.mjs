@@ -94,6 +94,16 @@ const cwdOptions = [
 
 const toolNames = ["Bash", "Read", "Edit", "Write", "Glob"];
 
+// Active skill names for the tinkerer fixture — cycling ensures all 4 appear
+// at least once across the generated sessions. writing-tests and
+// unused-old-skill are intentionally omitted so they remain "unused".
+const ACTIVE_SKILL_NAMES = [
+  "debugging-async",
+  "running-builds",
+  "using-fixtures",
+  "using-git",
+];
+
 for (let i = 0; i < count; i++) {
   const pad = String(i + 1).padStart(3, "0");
   const filename = `session-${pad}.jsonl`;
@@ -132,15 +142,33 @@ for (let i = 0; i < count; i++) {
     const contentBlocks = [];
 
     if (hasToolUse) {
-      const toolName = toolNames[rng(toolNames.length)];
-      const toolBlock = {
-        type: "tool_use",
-        id: `tu_${pad}_${a}`,
-        name: toolName,
-        input: toolName === "Read"
-          ? { file_path: `${cwd}/src/index.ts`, bytes_read: 1024 + rng(4096) }
-          : { command: `echo session-${pad}` },
-      };
+      // Every ~5th tool_use block (deterministically), emit a Skill tool_use
+      // instead of a standard tool. Cycle through the 4 active skill names so
+      // all 4 are guaranteed to appear across the full session set.
+      const globalToolIndex = i * 2 + a; // unique index across all sessions/turns
+      const emitSkill = (globalToolIndex % 5 === 0);
+
+      let toolBlock;
+      if (emitSkill) {
+        const skillIndex = Math.floor(globalToolIndex / 5) % ACTIVE_SKILL_NAMES.length;
+        const skillName = ACTIVE_SKILL_NAMES[skillIndex];
+        toolBlock = {
+          type: "tool_use",
+          id: `tu_${pad}_${a}_skill`,
+          name: "Skill",
+          input: { skill: skillName },
+        };
+      } else {
+        const toolName = toolNames[rng(toolNames.length)];
+        toolBlock = {
+          type: "tool_use",
+          id: `tu_${pad}_${a}`,
+          name: toolName,
+          input: toolName === "Read"
+            ? { file_path: `${cwd}/src/index.ts`, bytes_read: 1024 + rng(4096) }
+            : { command: `echo session-${pad}` },
+        };
+      }
       contentBlocks.push(toolBlock);
     }
 
