@@ -86,6 +86,11 @@ const rng = makePrng(`${tier}:${count}:${startDateStr}`);
 const outDir = join(__dirname, "..", "test", "fixtures", tier, "projects", `${tier}-gen`);
 await fs.mkdir(outDir, { recursive: true });
 
+// Tracks how many Skill blocks have been emitted so far. Incremented each time
+// a Skill tool_use is actually written, then used modulo 4 for true round-robin
+// name selection. Guarantees all 4 names appear (provided ≥4 emissions occur).
+let skillEmissionCounter = 0;
+
 const cwdOptions = [
   `/Users/dev/projects/${tier}-app`,
   `/Users/dev/projects/${tier}-core`,
@@ -143,15 +148,16 @@ for (let i = 0; i < count; i++) {
 
     if (hasToolUse) {
       // Every ~5th tool_use block (deterministically), emit a Skill tool_use
-      // instead of a standard tool. Cycle through the 4 active skill names so
-      // all 4 are guaranteed to appear across the full session set.
+      // instead of a standard tool. Use skillEmissionCounter % 4 for true
+      // round-robin name selection — guarantees all 4 names appear regardless
+      // of how many assistant messages each session has.
       const globalToolIndex = i * 2 + a; // unique index across all sessions/turns
       const emitSkill = (globalToolIndex % 5 === 0);
 
       let toolBlock;
       if (emitSkill) {
-        const skillIndex = Math.floor(globalToolIndex / 5) % ACTIVE_SKILL_NAMES.length;
-        const skillName = ACTIVE_SKILL_NAMES[skillIndex];
+        const skillName = ACTIVE_SKILL_NAMES[skillEmissionCounter % ACTIVE_SKILL_NAMES.length];
+        skillEmissionCounter++;
         toolBlock = {
           type: "tool_use",
           id: `tu_${pad}_${a}_skill`,

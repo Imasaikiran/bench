@@ -1,3 +1,3 @@
 {"role":"user","content":[{"type":"text","text":"Task 026: implement feature 648"}],"timestamp":"2026-03-24T12:42:26.851Z","cwd":"/Users/dev/projects/tinkerer-app"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_026_0_skill","name":"Skill","input":{"skill":"using-fixtures"}},{"type":"text","text":"Done with step 1 of session 026."}],"timestamp":"2026-03-24T12:43:21.851Z","cwd":"/Users/dev/projects/tinkerer-app"}
+{"role":"assistant","content":[{"type":"tool_use","id":"tu_026_0_skill","name":"Skill","input":{"skill":"using-git"}},{"type":"text","text":"Done with step 1 of session 026."}],"timestamp":"2026-03-24T12:43:21.851Z","cwd":"/Users/dev/projects/tinkerer-app"}
 {"role":"assistant","content":[{"type":"text","text":"Done with step 2 of session 026."}],"timestamp":"2026-03-24T12:44:13.851Z","cwd":"/Users/dev/projects/tinkerer-app"}

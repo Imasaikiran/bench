@@ -151,7 +151,7 @@ export async function scan(
   return {
     counts,
     diagnostics: {
-      redaction_hits: 0,
+      redaction_hits: 0, // TODO(1.14): wired by payload assembler / redactor pass
       parse_warnings: [
         ...cfg.parseWarnings,
         ...skills.parseWarnings,
@@ -162,8 +162,8 @@ export async function scan(
         ...sessions.parseWarnings,
         ...git.skipped,
       ],
-      skipped_files: 0,
-      elapsed_ms: 0,
+      skipped_files: 0, // TODO(1.10+): track files skipped during scan
+      elapsed_ms: 0, // TODO(1.15): wall-clock measurement around scan()
     },
     raw: { cfg, skills, hooks, cmds, agents, mcp, sessions, git },
   };
