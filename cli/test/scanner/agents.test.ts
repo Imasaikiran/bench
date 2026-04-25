@@ -25,4 +25,9 @@ describe("readAgents", () => {
     expect(r.reviewAgent).toBe(true);
     expect(r.testAgent).toBe(false);
   });
+
+  it("happy path: parseWarnings is empty array", async () => {
+    const r = await readAgents("test/fixtures/operator");
+    expect(r.parseWarnings).toEqual([]);
+  });
 });

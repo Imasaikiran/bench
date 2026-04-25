@@ -1,18 +1,21 @@
 import { promises as fs } from "node:fs";
 import type { Dirent } from "node:fs";
-import { join, basename } from "node:path";
+import { basename, extname, join } from "node:path";
 import { readConfigSurface } from "./config.js";
 
 export type HooksReport = {
   configured: number;
   orphaned: number;
   events: Record<string, string[]>;
+  parseWarnings: string[];
 };
 
 // Valid hook file extensions per Claude Code convention
 const HOOK_EXTENSIONS = new Set([".js", ".ts", ".py", ".sh"]);
 
 export async function readHooks(claudeHome: string): Promise<HooksReport> {
+  const warnings: string[] = [];
+
   // Read disk hook files (non-recursive, one level under hooks/)
   const hooksDir = join(claudeHome, "hooks");
   const diskFiles: string[] = [];
@@ -20,18 +23,26 @@ export async function readHooks(claudeHome: string): Promise<HooksReport> {
     const entries: Dirent[] = await fs.readdir(hooksDir, { withFileTypes: true });
     for (const e of entries) {
       if (e.isFile()) {
-        const ext = e.name.slice(e.name.lastIndexOf("."));
+        const ext = extname(e.name);
         if (HOOK_EXTENSIONS.has(ext)) {
           diskFiles.push(e.name);
         }
       }
     }
-  } catch {
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== "ENOENT") {
+      warnings.push(
+        `${hooksDir}: ${(e as NodeJS.ErrnoException).code ?? "UNKNOWN"} — skipped`
+      );
+    }
     // no hooks dir — fine
   }
 
   // Read settings to extract event → command[] map
   const config = await readConfigSurface(claudeHome);
+  for (const w of config.parseWarnings) {
+    warnings.push(w);
+  }
   const hooksSettings = config.settings["hooks"];
 
   const events: Record<string, string[]> = {};
@@ -62,7 +73,9 @@ export async function readHooks(claudeHome: string): Promise<HooksReport> {
     }
   }
 
-  // Collect all basenames referenced in settings commands
+  // Match by basename only — settings commands like `~/.claude/hooks/x.sh` and a disk file
+  // `x.sh` should both count even when paths differ. Trade-off: distinct hook files sharing a
+  // basename across dirs would alias.
   const referencedBasenames = new Set<string>();
   for (const cmds of Object.values(events)) {
     for (const cmd of cmds) {
@@ -81,5 +94,5 @@ export async function readHooks(claudeHome: string): Promise<HooksReport> {
     }
   }
 
-  return { configured, orphaned, events };
+  return { configured, orphaned, events, parseWarnings: warnings };
 }

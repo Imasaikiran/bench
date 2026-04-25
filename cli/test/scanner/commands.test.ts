@@ -19,4 +19,15 @@ describe("readCommands", () => {
     expect(r.total).toBe(1);
     expect(r.withDescription).toBe(1);
   });
+
+  it("treats whitespace-only description as missing", async () => {
+    const r = await readCommands("test/fixtures/empty-description-cmd");
+    expect(r.total).toBe(1);
+    expect(r.withDescription).toBe(0);
+  });
+
+  it("happy path: parseWarnings is empty array", async () => {
+    const r = await readCommands("test/fixtures/operator");
+    expect(r.parseWarnings).toEqual([]);
+  });
 });

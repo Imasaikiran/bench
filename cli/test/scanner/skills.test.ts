@@ -13,4 +13,8 @@ describe("readSkills", () => {
     expect(r.total).toBe(1);
     expect(r.items[0].name).toBeNull();
   });
+  it("happy path: parseWarnings is empty array", async () => {
+    const r = await readSkills("test/fixtures/tinkerer");
+    expect(r.parseWarnings).toEqual([]);
+  });
 });

@@ -19,4 +19,9 @@ describe("readMcp", () => {
     expect(r.servers).toEqual(["github"]);
     expect(r.hasGithub).toBe(true);
   });
+
+  it("happy path: parseWarnings is empty array", async () => {
+    const r = await readMcp("test/fixtures/operator");
+    expect(r.parseWarnings).toEqual([]);
+  });
 });

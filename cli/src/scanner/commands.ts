@@ -1,20 +1,26 @@
 import { promises as fs } from "node:fs";
 import type { Dirent } from "node:fs";
 import { join } from "node:path";
-import { load as yamlLoad } from "js-yaml";
+import { parseFrontmatter } from "./frontmatter.js";
 
-export type CommandsReport = { total: number; withDescription: number };
+export type CommandsReport = { total: number; withDescription: number; parseWarnings: string[] };
 
 export async function readCommands(claudeHome: string): Promise<CommandsReport> {
   const root = join(claudeHome, "commands");
   let total = 0;
   let withDescription = 0;
+  const warnings: string[] = [];
 
   async function walk(dir: string): Promise<void> {
     let entries: Dirent[];
     try {
       entries = await fs.readdir(dir, { withFileTypes: true });
-    } catch {
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code !== "ENOENT") {
+        warnings.push(
+          `${dir}: ${(e as NodeJS.ErrnoException).code ?? "UNKNOWN"} — skipped`
+        );
+      }
       return;
     }
     for (const e of entries) {
@@ -22,8 +28,16 @@ export async function readCommands(claudeHome: string): Promise<CommandsReport> 
       if (e.isDirectory()) {
         await walk(p);
       } else if (e.isFile() && e.name.endsWith(".md")) {
+        let text: string;
+        try {
+          text = await fs.readFile(p, "utf8");
+        } catch (err) {
+          warnings.push(
+            `${p}: ${(err as NodeJS.ErrnoException).code ?? "UNKNOWN"} — skipped`
+          );
+          continue;
+        }
         total++;
-        const text = await fs.readFile(p, "utf8");
         const fm = parseFrontmatter(text);
         const description = fm["description"];
         if (typeof description === "string" && description.trim().length > 0) {
@@ -34,15 +48,5 @@ export async function readCommands(claudeHome: string): Promise<CommandsReport> 
   }
 
   await walk(root);
-  return { total, withDescription };
-}
-
-function parseFrontmatter(text: string): Record<string, unknown> {
-  const m = text.match(/^---\n([\s\S]*?)\n---/);
-  if (!m) return {};
-  try {
-    return (yamlLoad(m[1] ?? "") as Record<string, unknown>) ?? {};
-  } catch {
-    return {};
-  }
+  return { total, withDescription, parseWarnings: warnings };
 }

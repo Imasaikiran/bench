@@ -25,4 +25,9 @@ describe("readHooks", () => {
     expect(r.orphaned).toBe(1);
     expect(r.events).toEqual({});
   });
+
+  it("happy path: parseWarnings is empty array", async () => {
+    const r = await readHooks("test/fixtures/operator");
+    expect(r.parseWarnings).toEqual([]);
+  });
 });
