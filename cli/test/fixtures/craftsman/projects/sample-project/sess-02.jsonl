@@ -1,0 +1,7 @@
+{"type":"start","session_id":"sess_craftsman_02","start":"2026-01-26T14:02:00Z","cwd":"/Users/dev/sample-project"}
+{"type":"user_message","content":"add unicode tests"}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"writing-tests"}}
+{"type":"tool_use","name":"Write","input":{"file_path":"src/parser.test.ts"}}
+{"type":"tool_use","name":"Bash","input":{"command":"pnpm test"}}
+{"type":"assistant_message","content":"All 142 tests green, including 18 new unicode cases."}
+{"type":"end","end":"2026-01-26T15:00:18Z"}

@@ -1,0 +1,4 @@
+{"type":"start","session_id":"sess_explorer_05","start":"2026-04-24T16:21:33Z","cwd":"/Users/dev/hello-world"}
+{"type":"user_message","content":"format this file"}
+{"type":"assistant_message","content":"Done — ran prettier and saved the result."}
+{"type":"end","end":"2026-04-24T16:24:02Z"}

@@ -1,0 +1,11 @@
+{"type":"start","session_id":"sess_conductor_a04","start":"2026-04-02T10:00:00Z","cwd":"/Users/dev/proj-a"}
+{"type":"user_message","content":"ship proj-a v3.0.0"}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"deploy-safely"}}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"using-git"}}
+{"type":"tool_use","name":"Bash","input":{"command":"pnpm test"}}
+{"type":"tool_use","name":"Bash","input":{"command":"pnpm test:soak"}}
+{"type":"tool_use","name":"Bash","input":{"command":"pnpm build"}}
+{"type":"tool_use","name":"Bash","input":{"command":"git tag v3.0.0"}}
+{"type":"tool_use","name":"Task","input":{"subagent":"release-driver","prompt":"watch the v3.0.0 deploy"}}
+{"type":"assistant_message","content":"Tagged v3.0.0; release-driver watching."}
+{"type":"end","end":"2026-04-02T11:42:09Z"}

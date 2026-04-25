@@ -1,0 +1,7 @@
+{"type":"start","session_id":"sess_craftsman_04","start":"2026-03-09T13:45:00Z","cwd":"/Users/dev/sample-project"}
+{"type":"user_message","content":"design the new public API for the queue"}
+{"type":"plan_mode_enter","timestamp":"2026-03-09T13:46:11Z"}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"plan-first"}}
+{"type":"tool_use","name":"Read","input":{"file_path":"docs/adr/0007-queue-redesign.md"}}
+{"type":"assistant_message","content":"Plan: 4 endpoints, three of them stable, one experimental behind a flag."}
+{"type":"end","end":"2026-03-09T15:22:09Z"}

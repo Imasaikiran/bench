@@ -1,0 +1,6 @@
+{"type":"start","session_id":"sess_tinkerer_02","start":"2026-02-08T10:15:00Z","cwd":"/Users/dev/sample-project"}
+{"type":"user_message","content":"add the first vitest test"}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"writing-tests"}}
+{"type":"tool_use","name":"Write","input":{"file_path":"src/foo.test.ts"}}
+{"type":"assistant_message","content":"Added a smoke test for the foo module."}
+{"type":"end","end":"2026-02-08T10:48:23Z"}

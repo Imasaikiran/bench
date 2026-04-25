@@ -1,0 +1,12 @@
+{"type":"start","session_id":"sess_conductor_a01","start":"2025-12-01T08:30:00Z","cwd":"/Users/dev/proj-a"}
+{"type":"user_message","content":"start the v3 wire-format migration"}
+{"type":"plan_mode_enter","timestamp":"2025-12-01T08:30:48Z"}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"plan-first"}}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"api-design"}}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"docs-driven"}}
+{"type":"tool_use","name":"Read","input":{"file_path":"docs/wire-format.md"}}
+{"type":"tool_use","name":"Write","input":{"file_path":"docs/adr/0021-wire-v3.md"}}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"using-git"}}
+{"type":"tool_use","name":"Bash","input":{"command":"git commit -m 'docs(adr): wire v3 plan'"}}
+{"type":"assistant_message","content":"ADR drafted; ready for code-reviewer."}
+{"type":"end","end":"2025-12-01T10:18:09Z"}

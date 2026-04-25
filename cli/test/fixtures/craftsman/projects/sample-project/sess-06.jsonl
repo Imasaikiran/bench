@@ -1,0 +1,8 @@
+{"type":"start","session_id":"sess_craftsman_06","start":"2026-04-22T16:30:00Z","cwd":"/Users/dev/sample-project"}
+{"type":"user_message","content":"prep the v2.4 release"}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"using-git"}}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"running-builds"}}
+{"type":"tool_use","name":"Bash","input":{"command":"pnpm test"}}
+{"type":"tool_use","name":"Bash","input":{"command":"pnpm build"}}
+{"type":"assistant_message","content":"All green; tagged v2.4.0."}
+{"type":"end","end":"2026-04-22T17:09:44Z"}

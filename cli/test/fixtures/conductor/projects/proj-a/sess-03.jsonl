@@ -1,0 +1,11 @@
+{"type":"start","session_id":"sess_conductor_a03","start":"2026-02-19T09:14:00Z","cwd":"/Users/dev/proj-a"}
+{"type":"user_message","content":"flaky soak test under load"}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"debugging-async"}}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"running-builds"}}
+{"type":"tool_use","name":"Read","input":{"file_path":"src/queue.ts"}}
+{"type":"tool_use","name":"Edit","input":{"file_path":"src/queue.ts"}}
+{"type":"tool_use","name":"Bash","input":{"command":"pnpm test:soak"}}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"using-git"}}
+{"type":"tool_use","name":"Bash","input":{"command":"git commit -m 'fix(queue): close shutdown race under load'"}}
+{"type":"assistant_message","content":"Soak ran 30 minutes clean."}
+{"type":"end","end":"2026-02-19T11:30:18Z"}

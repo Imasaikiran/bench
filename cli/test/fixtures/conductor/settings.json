@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff)",
+      "Read",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Write",
+      "WebFetch",
+      "Bash(npm test)",
+      "Bash(npm run build)",
+      "Bash(pnpm test)",
+      "Task"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "*", "hooks": [{ "type": "command", "command": ".claude/hooks/pre-tool-use.sh" }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "*", "hooks": [{ "type": "command", "command": ".claude/hooks/post-tool-use.sh" }] }
+    ],
+    "Stop": [
+      { "matcher": "*", "hooks": [{ "type": "command", "command": ".claude/hooks/stop.sh" }] }
+    ]
+  },
+  "mcpServers": {
+    "filesystem": { "command": "mcp-filesystem" },
+    "sqlite": { "command": "mcp-sqlite" }
+  }
+}

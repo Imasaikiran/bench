@@ -1,0 +1,4 @@
+{"type":"start","session_id":"sess_explorer_04","start":"2026-04-21T08:45:00Z","cwd":"/Users/dev/hello-world"}
+{"type":"user_message","content":"why is npm install slow?"}
+{"type":"assistant_message","content":"Cold installs fetch the full dependency graph; subsequent ones use the cache."}
+{"type":"end","end":"2026-04-21T08:47:18Z"}
