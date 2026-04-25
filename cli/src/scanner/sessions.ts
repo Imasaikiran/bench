@@ -6,7 +6,8 @@ import { join } from "node:path";
 
 const GAP_CAP_MS = 15 * 60 * 1000;
 
-// Regex matching plan-mode markers in any content blob
+// Plan-mode markers emitted by Claude Code when /plan is active. Gated on
+// assistant role to avoid false positives from user text containing the phrase.
 const PLAN_MODE_RE = /plan mode|<PlanModeStart>|<\|plan_mode\|>/i;
 
 export function computeActiveSeconds(sortedMs: number[]): number {
@@ -103,12 +104,13 @@ export async function readSessions(claudeHome: string): Promise<SessionsReport> 
 
     try {
       for await (const line of rl) {
-        if (!line.trim()) continue;
+        const trimmed = line.replace(/^\uFEFF/, "").trim();
+        if (!trimmed) continue;
 
         // Bug 4 fix: JSON.parse returns unknown, narrow carefully
         let msg: Record<string, unknown>;
         try {
-          const parsed: unknown = JSON.parse(line);
+          const parsed: unknown = JSON.parse(trimmed);
           if (
             !parsed ||
             typeof parsed !== "object" ||
@@ -137,55 +139,51 @@ export async function readSessions(claudeHome: string): Promise<SessionsReport> 
           msg["role"] === "assistant" &&
           Array.isArray(msg["content"])
         ) {
-          const content = msg["content"] as unknown[];
-
-          // Count tool_use blocks
-          const hasToolUse = content.some(
-            (c) =>
-              typeof c === "object" &&
-              c !== null &&
+          // Sum bytes across ALL Read tool_use blocks in this message (not just
+          // the first). Also count every distinct tool_use block.
+          for (const c of msg["content"] as unknown[]) {
+            if (
+              typeof c === "object" && c !== null &&
               (c as Record<string, unknown>)["type"] === "tool_use"
-          );
-          if (hasToolUse) {
-            report.toolUseCount++;
-          }
+            ) {
+              report.toolUseCount++;
 
-          // Bug 1 fix: use find so the binding is in scope
-          const readUse = content.find(
-            (c): c is {
-              type: string;
-              name: string;
-              input?: { bytes_read?: unknown };
-            } =>
-              typeof c === "object" &&
-              c !== null &&
-              (c as Record<string, unknown>)["type"] === "tool_use" &&
-              (c as Record<string, unknown>)["name"] === "Read"
-          );
-          if (readUse) {
-            const bytes = Number(readUse.input?.bytes_read);
-            if (!Number.isNaN(bytes)) {
-              report.readBytesSum += bytes;
-              report.readBytesCount++;
+              if ((c as Record<string, unknown>)["name"] === "Read") {
+                const input = (c as Record<string, unknown>)["input"];
+                const bytes = Number(
+                  input && typeof input === "object"
+                    ? (input as Record<string, unknown>)["bytes_read"]
+                    : undefined,
+                );
+                if (!Number.isNaN(bytes)) {
+                  report.readBytesSum += bytes;
+                  report.readBytesCount++;
+                }
+              }
             }
           }
-        }
 
-        // Plan-mode detection: stringify the content blob and regex-match
-        const blob = JSON.stringify(msg["content"] ?? "");
-        if (PLAN_MODE_RE.test(blob)) {
-          planMode = true;
+          // Plan-mode detection: gated on assistant role to avoid false
+          // positives from user text containing the phrase.
+          const blob = JSON.stringify(msg["content"]);
+          if (PLAN_MODE_RE.test(blob)) {
+            planMode = true;
+          }
         }
 
         // Bug 3 fix: typeof guard for cwd
         if (typeof msg["cwd"] === "string") {
-          projectRootsSet.add(msg["cwd"]);
+          // TODO(1.10): normalise cwd before dedup — `~/foo` vs `/Users/x/foo` vs
+          // trailing-slash variants currently dedupe wrong.
+          projectRootsSet.add(msg["cwd"] as string);
         }
       }
     } catch (e) {
       report.parseWarnings.push(
         `${path}: ${(e as NodeJS.ErrnoException).code ?? "UNKNOWN"} — read error`
       );
+    } finally {
+      rl.close();
     }
 
     timestamps.sort((a, b) => a - b);
@@ -202,6 +200,7 @@ export async function readSessions(claudeHome: string): Promise<SessionsReport> 
   }
 
   report.earliestStart = earliestMs !== null ? new Date(earliestMs).toISOString() : null;
+  // TODO(1.12): consider injecting `now` so test fixtures pin a stable value.
   report.weeksOnCc =
     earliestMs !== null
       ? Math.floor((Date.now() - earliestMs) / (7 * 86_400 * 1000))
