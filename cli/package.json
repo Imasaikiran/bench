@@ -2,13 +2,15 @@
   "name": "@imasaikiran/bench",
   "version": "0.0.1-alpha.0",
   "type": "module",
+  "engines": { "node": ">=20.10" },
   "bin": { "bench": "./dist/index.js" },
-  "files": ["dist/", "rubric.yaml"],
+  "files": ["dist/", "rubric.yaml", "package.json"],
   "scripts": {
-    "pretest": "cp ../rubric/rubric.yaml ./rubric.yaml",
+    "copy:rubric": "cp ../rubric/rubric.yaml ./rubric.yaml",
+    "pretest": "pnpm copy:rubric",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "prebuild": "cp ../rubric/rubric.yaml ./rubric.yaml",
+    "prebuild": "pnpm copy:rubric",
     "build": "tsc -p . && chmod +x dist/index.js",
     "prepack": "pnpm build"
   },
