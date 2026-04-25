@@ -79,6 +79,16 @@ function computeCoherenceScore({
   return clamp(0, 1, 1 - (duplicateSkills + orphanedHooks + 0.15 * claudeMdOverLong));
 }
 
+/**
+ * Count of `permissions.allow` entries in settings; 0 if missing or wrong shape.
+ */
+function permissionsAllowCount(settings: Record<string, unknown>): number {
+  const perms = settings["permissions"];
+  if (perms === null || typeof perms !== "object" || Array.isArray(perms)) return 0;
+  const allow = (perms as Record<string, unknown>)["allow"];
+  return Array.isArray(allow) ? allow.length : 0;
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -118,27 +128,46 @@ export async function scan(
     0,
   );
 
+  const dupFrac = duplicateSkillFraction(skills);
+  const orphanFrac = orphanedFraction(hooks);
+
   const counts = {
     sessions_total: sessions.sessionsTotal,
     plan_mode_sessions: sessions.planModeSessions,
+    plan_mode_ratio: round(
+      sessions.planModeSessions / Math.max(sessions.sessionsTotal, 1),
+      3,
+    ),
     skills_total: skills.total,
     skills_active: skillsActive,
     skills_unused_ratio: round(skillsUnusedRatio, 3),
+    duplicate_skill_fraction: round(dupFrac, 3),
     hooks_configured: hooks.configured,
+    orphaned_hooks_fraction: round(orphanFrac, 3),
+    any_hook_present:
+      hooks.configured > 0 || Object.keys(hooks.events).length > 0,
     agents_configured: agents.total,
+    review_agent: agents.reviewAgent,
+    test_agent: agents.testAgent,
     commands_total: cmds.total,
     mcp_servers: mcp.servers.length,
+    mcp_has_github: mcp.hasGithub,
     automation_events: automationEvents,
     // TODO(1.10+): implement worktrees reader (dim 18)
     worktrees_detected: 0,
     claude_md_lines: cfg.claudeMd?.lines ?? 0,
+    distinct_heading_count: cfg.claudeMd?.distinctHeadings ?? 0,
     // TODO(1.10+): implement sub-directory CLAUDE.md reader
     sub_dir_claude_md_count: 0,
+    permissions_allow_count: permissionsAllowCount(cfg.settings),
+    settings_nonempty: Object.keys(cfg.settings).length > 0,
+    project_root_count: sessions.projectRoots.length,
     coherence_score: computeCoherenceScore({
-      duplicateSkills: duplicateSkillFraction(skills),
-      orphanedHooks: orphanedFraction(hooks),
+      duplicateSkills: dupFrac,
+      orphanedHooks: orphanFrac,
       claudeMdOverLong: (cfg.claudeMd?.lines ?? 0) > 300 ? 1 : 0,
     }),
+    conventional_ratio: round(git.conventionalRatio, 3),
     commit_burst_correlation: round(git.commitBurstCorrelation, 3),
     weeks_on_cc: sessions.weeksOnCc,
     active_hours_total: sessions.activeSecondsTotal / 3600,
