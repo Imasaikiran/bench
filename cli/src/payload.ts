@@ -1,5 +1,8 @@
 import { createHmac } from "node:crypto";
 
+// HMAC covers `counts` only — friction against casual tampering of the
+// score-driving field. The server re-signs the full payload with its own
+// server_hmac for trust at rest. See rubric §10.3 item 10.
 // NOT a secret — friction only. See rubric §10.3 item 10.
 const BUNDLED_HMAC_KEY = "bench-v1-integrity-key-public-do-not-treat-as-secret";
 
@@ -34,6 +37,8 @@ export type AssembleInput = {
     elapsed_ms: number;
   };
   tiles?: unknown[];
+  /** Injectable for snapshot/HMAC determinism tests. Defaults to current ISO timestamp. */
+  now?: () => string;
 };
 
 export type Payload = {
@@ -65,6 +70,12 @@ export type Payload = {
 };
 
 export function canonicalJson(v: unknown): string {
+  if (v === undefined) {
+    throw new Error("canonicalJson: undefined value not representable");
+  }
+  if (typeof v === "number" && !Number.isFinite(v)) {
+    throw new Error("canonicalJson: non-finite number not representable");
+  }
   if (v === null || typeof v !== "object") return JSON.stringify(v);
   if (Array.isArray(v)) return "[" + v.map(canonicalJson).join(",") + "]";
   const obj = v as Record<string, unknown>;
@@ -87,7 +98,7 @@ export function assemblePayload(input: AssembleInput): Payload {
     schema_version: "1.0",
     rubric_version: input.rubric_version,
     scanner_version: input.scanner_version,
-    scanned_at: new Date().toISOString(),
+    scanned_at: (input.now ?? (() => new Date().toISOString()))(),
     handle: input.handle ?? null,
     previous_scan_id: input.previous_scan_id ?? null,
     os: process.platform,
