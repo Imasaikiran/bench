@@ -1,0 +1,2 @@
+{"role":"user","content":[{"type":"text","text":"Task 059: implement feature 317"}],"timestamp":"2026-04-23T14:29:27.812Z","cwd":"/home/user/work/tinkerer"}
+{"role":"assistant","content":[{"type":"tool_use","id":"tu_059_0","name":"Edit","input":{"command":"echo session-059"}},{"type":"text","text":"Done with step 1 of session 059."}],"timestamp":"2026-04-23T14:30:04.812Z","cwd":"/home/user/work/tinkerer"}
