@@ -16,7 +16,7 @@ const CI_VARS = [
   "BUILDKITE",
   "TRAVIS",
   "JENKINS_URL",
-];
+] as const;
 
 export function detectEnvironment(
   env: NodeJS.ProcessEnv = process.env,
@@ -27,6 +27,7 @@ export function detectEnvironment(
     const v = env[k];
     return Boolean(v) && v !== "false" && v !== "0";
   });
+  // Whitespace-only override falls back to default rather than crashing.
   const override = env.CLAUDE_HOME?.trim();
   return {
     isRoot,

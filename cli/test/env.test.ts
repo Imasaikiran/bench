@@ -24,4 +24,22 @@ describe("env guard", () => {
     expect(env.claudeHome).toBe("/tmp/alt-claude");
     expect(env.claudeHomeOverridden).toBe(true);
   });
+
+  // Regression guards for the load-bearing CI=false / CI=0 carve-out.
+  it("treats CI=false as not-CI", () => {
+    expect(detectEnvironment({ CI: "false" }).isCI).toBe(false);
+  });
+  it("treats CI=0 as not-CI", () => {
+    expect(detectEnvironment({ CI: "0" }).isCI).toBe(false);
+  });
+
+  it("default claudeHome resolves under homedir when CLAUDE_HOME unset", () => {
+    const env = detectEnvironment({});
+    expect(env.claudeHome.endsWith("/.claude")).toBe(true);
+    expect(env.claudeHomeOverridden).toBe(false);
+  });
+
+  it("refuseIfUnsafe does not throw on a clean env", () => {
+    expect(() => refuseIfUnsafe({ isRoot: false, isCI: false })).not.toThrow();
+  });
 });
