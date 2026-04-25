@@ -11,7 +11,9 @@ describe("persona", () => {
     } as any)).toBe("Tinkerer");
   });
   it("caps hours at 3120", () => {
-    expect(computeHoursWithCc(5_000_000)).toBe(HOURS_CAP);
+    // 12_000_000s / 3600 = 3333h → capped to 3120 (HOURS_CAP).
+    // Plan §1888 test had a literal-arithmetic bug (5_000_000s = 1389h, below cap).
+    expect(computeHoursWithCc(12_000_000)).toBe(HOURS_CAP);
   });
   it("floors hours (returns null) when < 5h", () => {
     expect(computeHoursWithCc(60 * 60 * 4)).toBe(null);

@@ -1,7 +1,6 @@
-// 1300h ≈ 25h/week for one year; upper bound beyond which incremental hours
-// stop differentiating engagement. (Spec §5.3 lists 3120 but 5_000_000 s ≈ 1389 h
-// — the test input only reaches ~1389 h, so the cap must be ≤ 1389 to trigger.)
-export const HOURS_CAP = 1300;
+// 3120h = 60h/week × 52 weeks; upper bound on plausible human desk-hours/year.
+// Plan §1900 / §5.3. Do NOT lower this constant — it is load-bearing.
+export const HOURS_CAP = 3120;
 export const HOURS_FLOOR = 5;
 
 export function computeHoursWithCc(activeSecondsTotal: number): number | null {
