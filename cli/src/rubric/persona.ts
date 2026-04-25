@@ -3,7 +3,9 @@
 export const HOURS_CAP = 3120;
 export const HOURS_FLOOR = 5;
 
+/** Returns null when below HOURS_FLOOR (5h) or input is non-finite. */
 export function computeHoursWithCc(activeSecondsTotal: number): number | null {
+  if (!Number.isFinite(activeSecondsTotal)) return null;
   const h = Math.round(activeSecondsTotal / 3600);
   if (h < HOURS_FLOOR) return null;
   return Math.min(h, HOURS_CAP);
@@ -39,6 +41,9 @@ function isOperator(c: Counts): boolean {
     && num(c.coherence_score) >= 0.75;
 }
 
+// TODO(1.10+): cross_project_consistency_score / commit_burst_correlation /
+// sub_dir_claude_md_count are not yet derived in scan() — Conductor
+// classification stays dormant until those upstream signals land.
 function isConductor(c: Counts): boolean {
   return isOperator(c)
     && num(c.cross_project_consistency_score) >= 0.7
