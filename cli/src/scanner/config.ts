@@ -11,36 +11,55 @@ export type ClaudeMd = {
 
 export type ConfigSurface = {
   claudeMd: ClaudeMd | null;
-  settings: Record<string, any>;
-  settingsLocal: Record<string, any>;
+  settings: Record<string, unknown>;
+  settingsLocal: Record<string, unknown>;
   parseWarnings: string[];
 };
 
 const MAX_BYTES = 100 * 1024;
 
-async function readText(path: string, warnings: string[]): Promise<string | null> {
+type ReadTextResult = { text: string; truncated: boolean };
+
+async function readText(
+  path: string,
+  warnings: string[]
+): Promise<ReadTextResult | null> {
   try {
     const stat = await fs.stat(path);
-    if (!stat.isFile()) return null;
+    if (!stat.isFile()) {
+      warnings.push(`${path}: not a regular file — skipping`);
+      return null;
+    }
     if (stat.size > MAX_BYTES) {
       warnings.push(`${path} truncated (${stat.size}B > 100KB)`);
       const fd = await fs.open(path, "r");
-      const buf = Buffer.alloc(MAX_BYTES);
-      await fd.read(buf, 0, MAX_BYTES, 0);
-      await fd.close();
-      return buf.toString("utf8") + "\n<<truncated>>";
+      try {
+        const buf = Buffer.alloc(MAX_BYTES);
+        const { bytesRead } = await fd.read(buf, 0, MAX_BYTES, 0);
+        return { text: buf.subarray(0, bytesRead).toString("utf8"), truncated: true };
+      } finally {
+        await fd.close();
+      }
     }
-    return fs.readFile(path, "utf8");
-  } catch {
+    return { text: await fs.readFile(path, "utf8"), truncated: false };
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === "ENOENT") {
+      return null;
+    }
+    const code = (e as NodeJS.ErrnoException).code ?? "UNKNOWN";
+    warnings.push(`${path}: ${code} — using empty/null`);
     return null;
   }
 }
 
-async function readJson(path: string, warnings: string[]): Promise<Record<string, any>> {
-  const text = await readText(path, warnings);
-  if (text == null) return {};
+async function readJson(
+  path: string,
+  warnings: string[]
+): Promise<Record<string, unknown>> {
+  const result = await readText(path, warnings);
+  if (result == null) return {};
   try {
-    return JSON.parse(text) as Record<string, any>;
+    return JSON.parse(result.text) as Record<string, unknown>;
   } catch {
     warnings.push(`${path}: invalid JSON — using empty object`);
     return {};
@@ -49,18 +68,19 @@ async function readJson(path: string, warnings: string[]): Promise<Record<string
 
 export async function readConfigSurface(claudeHome: string): Promise<ConfigSurface> {
   const warnings: string[] = [];
-  const mdText = await readText(join(claudeHome, "CLAUDE.md"), warnings);
+  const mdResult = await readText(join(claudeHome, "CLAUDE.md"), warnings);
   let claudeMd: ClaudeMd | null = null;
-  if (mdText !== null) {
-    const headings = [...mdText.matchAll(/^#{1,6}\s+(.+)$/gm)].map(
+  if (mdResult !== null) {
+    const { text, truncated } = mdResult;
+    const headings = [...text.matchAll(/^#{1,6}\s+(.+)$/gm)].map(
       (m) => (m[1] ?? "").trim()
     );
     claudeMd = {
-      lines: mdText.split("\n").length,
-      bytes: Buffer.byteLength(mdText, "utf8"),
+      lines: text.split("\n").length,
+      bytes: Buffer.byteLength(text, "utf8"),
       headingCount: headings.length,
       distinctHeadings: new Set(headings.map((h) => h.toLowerCase())).size,
-      truncated: mdText.endsWith("<<truncated>>"),
+      truncated,
     };
   }
   return {
