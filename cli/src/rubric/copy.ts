@@ -16,7 +16,7 @@ export type DerivedCopy = {
 export function deriveCopy(ctx: CopyContext): DerivedCopy {
   const verbs = (ctx.signatureVerbs && ctx.signatureVerbs.length > 0
     ? [...ctx.signatureVerbs]
-    : ["build"]
+    : ["build"]  // Explorer-tier default verb when no git history available
   ).slice(0, 3);
 
   const h =
@@ -25,6 +25,7 @@ export function deriveCopy(ctx: CopyContext): DerivedCopy {
       : 0;
   const workdays = Math.round(h / 8);
 
+  // safe: fallback ["build"] above ensures verbs.length >= 1
   const v0 = verbs[0]!;
   const identity =
     verbs.length === 3

@@ -14,4 +14,15 @@ describe("deriveCopy", () => {
   it("hours_label fixed string", () => {
     expect(deriveCopy({} as any).hours_label).toBe("hours with Claude Code");
   });
+  it("uses 1-verb identity when no signature verbs", () => {
+    expect(deriveCopy({} as any).identity).toBe("You build.");
+  });
+  it("returns empty hours_meaning on NaN input", () => {
+    expect(deriveCopy({ hours_with_cc: NaN } as any).hours_meaning).toBe("");
+  });
+  it("silently drops the 2nd verb when only 2 supplied (1-verb fallback)", () => {
+    // Locks current contract: 3-verb identity requires exactly 3 verbs;
+    // 2-verb input renders as 1-verb (uses verbs[0] only).
+    expect(deriveCopy({ signatureVerbs: ["ship", "ignore"] } as any).identity).toBe("You ship.");
+  });
 });
