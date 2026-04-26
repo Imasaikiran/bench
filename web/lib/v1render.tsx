@@ -27,8 +27,17 @@ const v1HtmlPath = join(here, "..", "public", "v1", "index.html");
 const V1_HTML = readFileSync(v1HtmlPath, "utf8");
 
 function extractBody(html: string): string {
-  const m = html.match(/<body[^>]*>([\s\S]*?)<\/body>/);
-  return m?.[1] ?? "";
+  const m = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (!m || !m[1]) {
+    throw new Error("v1/index.html missing <body> — frozen markup invariant violated");
+  }
+  // Drop v1's bootstrap <script src="script.js"> — V1Page injects /v1/script.js
+  // itself with a defer attribute. Leaving the original tag would issue a
+  // 404 on every render (resolves relative to the route path, not /v1/).
+  return m[1].replace(
+    /<script\b[^>]*\bsrc=["']script\.js["'][^>]*><\/script>\s*/gi,
+    "",
+  );
 }
 
 /**

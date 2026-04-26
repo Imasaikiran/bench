@@ -73,4 +73,13 @@ describe("V1Page", () => {
     );
     expect(html).toContain("https://bench.dev/api/og/anonymous");
   });
+
+  it("strips v1's bootstrap <script src='script.js'> from extracted body", () => {
+    const html = renderToString(<V1Page persona={persona} />);
+    // Only the injected /v1/script.js path should remain. The relative
+    // "script.js" tag from v1/index.html would 404 against the route.
+    const matches = html.match(/src=["'][^"']*script\.js["']/g) ?? [];
+    expect(matches).toHaveLength(1);
+    expect(matches[0]).toContain("/v1/script.js");
+  });
 });
