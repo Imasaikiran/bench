@@ -4,7 +4,7 @@ type SpawnFn = (
   cmd: string,
   args: string[],
   opts: { stdio: "ignore"; detached: boolean },
-) => { unref: () => void };
+) => { unref: () => void; on?: (event: string, listener: (err: Error) => void) => void };
 
 /**
  * Returns the [command, args] pair needed to open `url` on the given platform.
@@ -21,6 +21,9 @@ export function openCommand(
     case "darwin":
       return ["open", [url]];
     case "win32":
+      // The "" is start's window-title positional arg — without it, start
+      // interprets a quoted URL as the title and never opens the browser.
+      // See https://ss64.com/nt/start.html
       return ["cmd", ["/c", "start", "", url]];
     case "linux":
       return ["xdg-open", [url]];
@@ -42,9 +45,10 @@ export function openUrl(
   const spawnFn: SpawnFn = opts?.spawn ?? nodeSpawn;
   const [cmd, args] = openCommand(platform, url);
   try {
-    spawnFn(cmd, args, { stdio: "ignore", detached: true }).unref();
+    const child = spawnFn(cmd, args, { stdio: "ignore", detached: true });
+    child.on?.("error", () => {});  // swallow async ENOENT etc; fire-and-forget contract
+    child.unref();
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    throw new Error(`failed to open browser: ${cmd} ${args.join(" ")}: ${msg}`);
+    throw new Error(`failed to open browser: ${cmd} ${args.join(" ")}`, { cause: err });
   }
 }
