@@ -27,6 +27,9 @@ const v1HtmlPath = join(here, "..", "public", "v1", "index.html");
 // Read once at module load -- cheap and avoids per-request I/O.
 const V1_HTML = readFileSync(v1HtmlPath, "utf8");
 
+// Read once at module load so every render doesn't re-inspect env.
+const PLAUSIBLE_DOMAIN = process.env["PLAUSIBLE_DOMAIN"] ?? "bench.dev";
+
 function extractBody(html: string): string {
   const m = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   if (!m || !m[1]) {
@@ -76,6 +79,11 @@ export function V1Page({ persona }: { persona: PersonaShape }): ReactElement {
         <meta property="og:image" content={ogImageUrl} />
         <meta property="og:title" content={`${persona.handle} on bench`} />
         <meta name="description" content={`${persona.handle} -- Bench ${persona.score} -- ${persona.tier}`} />
+        <script
+          defer
+          data-domain={PLAUSIBLE_DOMAIN}
+          src="https://plausible.io/js/script.js"
+        />
       </head>
       <body>
         {/* Shim must execute before v1 script.js so PERSONAS is overridden */}

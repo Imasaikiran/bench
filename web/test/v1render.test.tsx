@@ -74,12 +74,24 @@ describe("V1Page", () => {
     expect(html).toContain("https://bench.dev/api/og/anonymous");
   });
 
+  it("injects Plausible <script> tag in <head>", () => {
+    const html = renderToString(<V1Page persona={persona} />);
+    expect(html).toContain("plausible.io/js/script.js");
+    expect(html).toContain("data-domain");
+  });
+
   it("strips v1's bootstrap <script src='script.js'> from extracted body", () => {
     const html = renderToString(<V1Page persona={persona} />);
-    // Only the injected /v1/script.js path should remain. The relative
-    // "script.js" tag from v1/index.html would 404 against the route.
+    // The relative "script.js" tag from v1/index.html must be stripped
+    // (it would 404 against the route path). Only the injected /v1/script.js
+    // and the Plausible CDN script should remain.
     const matches = html.match(/src=["'][^"']*script\.js["']/g) ?? [];
-    expect(matches).toHaveLength(1);
-    expect(matches[0]).toContain("/v1/script.js");
+    // Expect exactly 2 matches: /v1/script.js (deferred boot) +
+    // https://plausible.io/js/script.js (analytics).
+    expect(matches).toHaveLength(2);
+    expect(matches.some((m) => m.includes("/v1/script.js"))).toBe(true);
+    expect(matches.some((m) => m.includes("plausible.io"))).toBe(true);
+    // Relative "script.js" (bare, no path prefix) must not appear.
+    expect(matches.some((m) => /src=["']script\.js["']/.test(m))).toBe(false);
   });
 });

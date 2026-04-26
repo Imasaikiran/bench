@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { PersonaShape } from "../../lib/mapper";
+import { plausible } from "../../lib/plausible";
 
 const STORAGE_KEY = "bench.og_disclosed";
 
@@ -82,10 +83,7 @@ export function linkedInIntent(url: string): string {
 }
 
 function fireShareClick(): void {
-  if (typeof window === "undefined") return;
-  // TODO(1.34): Plausible script + typed wrapper land in metrics task.
-  const w = window as { plausible?: (event: string) => void };
-  if (typeof w.plausible === "function") w.plausible("share_click");
+  plausible("share_click");
 }
 
 export function ShareBar({ persona }: { persona: PersonaShape }) {
