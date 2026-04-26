@@ -36,7 +36,7 @@ function deriveHoursMeaning(hours: number): string {
   return `${hours}h back — ${workdays} workdays, or a side-project shipped`;
 }
 
-function titleForTier(t: string): string {
+export function titleForTier(t: string): string {
   switch (t) {
     case "Explorer":  return "You're getting started.";
     case "Tinkerer":  return "You've been building.";
