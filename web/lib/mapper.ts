@@ -23,11 +23,9 @@ export type PersonaShape = {
   musthaves: State[];
 };
 
-// Derives a human-readable string from hours_with_cc.
-// Mirrors the workdays framing from cli/src/rubric/copy.ts but with
-// richer copy per §7.2 hero flex spec. Workdays @ 8h/day.
 /**
  * Derives the human-readable hours-meaning string from hours_with_cc.
+ * Mirrors the workdays framing from cli/src/rubric/copy.ts.
  * Tiered copy mirrors §7.2 hero flex spec. Workdays @ 8h/day.
  *
  * Tier boundaries use raw hours (not rounded workdays) so each bucket's
