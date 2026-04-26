@@ -3,5 +3,7 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs",
   "regions": ["iad1"],
-  "crons": []
+  "crons": [
+    { "path": "/api/cron/expire", "schedule": "0 3 * * *" }
+  ]
 }
