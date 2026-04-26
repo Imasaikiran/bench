@@ -5,9 +5,9 @@ export const runtime = "nodejs";
 
 export async function GET(req: NextRequest): Promise<Response> {
   // Bearer-token gate: Vercel cron sends Authorization: Bearer <CRON_SECRET>.
-  const expected = `Bearer ${process.env["CRON_SECRET"] ?? ""}`;
-  const got = req.headers.get("authorization") ?? "";
-  if (!process.env["CRON_SECRET"] || got !== expected) {
+  const secret = process.env["CRON_SECRET"];
+  if (!secret) return new Response("forbidden", { status: 403 });
+  if (req.headers.get("authorization") !== `Bearer ${secret}`) {
     return new Response("forbidden", { status: 403 });
   }
 
