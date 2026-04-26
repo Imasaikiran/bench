@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toPersonaShape } from "../lib/mapper";
+import { toPersonaShape, deriveHoursMeaning } from "../lib/mapper";
 
 describe("toPersonaShape", () => {
   const payload = {
@@ -39,5 +39,40 @@ describe("toPersonaShape", () => {
     const p = toPersonaShape({ ...payload, handle: null });
     expect(p.handle).toBe("@anonymous");
     expect(p.initial).toBe("•");
+  });
+});
+
+describe("deriveHoursMeaning", () => {
+  it("zero or negative → 'no time back yet'", () => {
+    expect(deriveHoursMeaning(0)).toBe("no time back yet");
+    expect(deriveHoursMeaning(-5)).toBe("no time back yet");
+    expect(deriveHoursMeaning(NaN)).toBe("no time back yet");
+  });
+  it("singular hour at h=1", () => {
+    expect(deriveHoursMeaning(1)).toBe("1 hour back — almost a workday");
+  });
+  it("sub-workday under 8h", () => {
+    expect(deriveHoursMeaning(7)).toBe("7 hours back — almost a workday");
+  });
+  it("singular workday at h=8", () => {
+    expect(deriveHoursMeaning(8)).toBe("8h back — about 1 workday");
+  });
+  it("plural workdays in <5wd band", () => {
+    expect(deriveHoursMeaning(24)).toBe("24h back — about 3 workdays");
+  });
+  it("upper edge of <5wd band (h=39)", () => {
+    expect(deriveHoursMeaning(39)).toMatch(/about 5 workdays/);
+  });
+  it("sprint band at h=40", () => {
+    expect(deriveHoursMeaning(40)).toBe("40h back — a sprint of workdays (5)");
+  });
+  it("upper edge of sprint band (h=79)", () => {
+    expect(deriveHoursMeaning(79)).toBe("79h back — a sprint of workdays (10)");
+  });
+  it("side-project band at h=80", () => {
+    expect(deriveHoursMeaning(80)).toBe("80h back — 10 workdays, or a side-project shipped");
+  });
+  it("spec fixture h=187", () => {
+    expect(deriveHoursMeaning(187)).toBe("187h back — 23 workdays, or a side-project shipped");
   });
 });

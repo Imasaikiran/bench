@@ -26,14 +26,29 @@ export type PersonaShape = {
 // Derives a human-readable string from hours_with_cc.
 // Mirrors the workdays framing from cli/src/rubric/copy.ts but with
 // richer copy per §7.2 hero flex spec. Workdays @ 8h/day.
-// Empty-string handle ("") is falsy — treated as anonymous. Documented intent.
-function deriveHoursMeaning(hours: number): string {
+/**
+ * Derives the human-readable hours-meaning string from hours_with_cc.
+ * Tiered copy mirrors §7.2 hero flex spec. Workdays @ 8h/day.
+ *
+ * Tier boundaries use raw hours (not rounded workdays) so each bucket's
+ * displayed workdays count stays inside its narrative band:
+ *   <=0      → "no time back yet"
+ *   <8       → "Nh back — almost a workday"
+ *   <40      → "Nh back — about K workdays"        (1–4 wd)
+ *   <80      → "Nh back — a sprint of workdays (K)" (5–9 wd)
+ *   >=80     → "Nh back — K workdays, or a side-project shipped" (10+ wd)
+ *
+ * Singular/plural grammar handled (1 hour vs 2 hours, 1 workday vs 2 workdays).
+ */
+export function deriveHoursMeaning(hours: number): string {
   if (!Number.isFinite(hours) || hours <= 0) return "no time back yet";
+  const hLabel = hours === 1 ? "1 hour" : `${hours} hours`;
+  if (hours < 8) return `${hLabel} back — almost a workday`;
   const workdays = Math.round(hours / 8);
-  if (hours < 8) return `${hours} hours back — almost a workday`;
-  if (workdays < 5) return `${hours}h back — about ${workdays} workdays`;
-  if (workdays < 10) return `${hours}h back — a sprint of workdays (${workdays})`;
-  return `${hours}h back — ${workdays} workdays, or a side-project shipped`;
+  const wdLabel = workdays === 1 ? "1 workday" : `${workdays} workdays`;
+  if (hours < 40) return `${hours}h back — about ${wdLabel}`;
+  if (hours < 80) return `${hours}h back — a sprint of workdays (${workdays})`;
+  return `${hours}h back — ${wdLabel}, or a side-project shipped`;
 }
 
 export function titleForTier(t: string): string {
@@ -47,11 +62,11 @@ export function titleForTier(t: string): string {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function toPersonaShape(payload: any): PersonaShape {
   const handleStr = payload.handle ? `@${payload.handle}` : "@anonymous";
   // charAt(0) returns "" on empty string (safe) rather than undefined.
   // The outer `payload.handle ?` guard ensures handle is truthy (non-empty string).
+  // Empty-string handle ("") is falsy — treated as anonymous. Documented intent.
   const initial = payload.handle
     ? (payload.handle as string).charAt(0).toUpperCase()
     : "•";
@@ -62,8 +77,10 @@ export function toPersonaShape(payload: any): PersonaShape {
     weeks: payload.weeks_on_cc,
     eyebrow: `scanned just now · ${payload.weeks_on_cc} weeks on claude code`,
     title: titleForTier(payload.tier),
-    tiles: payload.tiles.slice(0, 4),
+    tiles: payload.tiles.slice(0, 4), // validator (Task 1.24) enforces length-4; slice is belt-and-suspenders
     identity: payload.identity,
+    // hours_with_cc is null when hours_hidden=true (§7.1). ?? 0 normalizes
+    // for downstream rendering — other field guards trust the validator.
     hours: payload.hours_with_cc ?? 0,
     hoursMeaning: deriveHoursMeaning(payload.hours_with_cc ?? 0),
     signature: `you ${payload.signature_verbs.join(" · you ")}`,
