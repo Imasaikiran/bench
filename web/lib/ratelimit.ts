@@ -14,11 +14,12 @@ export function hashIp(ip: string): string {
 const WINDOW_MS = 60 * 60 * 1000; // 1h
 const MAX_REQUESTS = 30; // 30 scans per IP per hour
 
-export async function rateLimitOk(ipHash: string): Promise<boolean> {
-  const windowStart = new Date(
-    Math.floor(Date.now() / WINDOW_MS) * WINDOW_MS,
-  ).toISOString();
-  // Upsert + count. Postgres ON CONFLICT path increments.
+export type RateLimitResult = { ok: boolean; retryAfterSec: number };
+
+export async function rateLimitOk(ipHash: string): Promise<RateLimitResult> {
+  const now = Date.now();
+  const windowStartMs = Math.floor(now / WINDOW_MS) * WINDOW_MS;
+  const windowStart = new Date(windowStartMs).toISOString();
   const rows = (await sql`
     INSERT INTO rate_limits (ip_hash, window_start, request_count)
     VALUES (${ipHash}, ${windowStart}, 1)
@@ -27,5 +28,6 @@ export async function rateLimitOk(ipHash: string): Promise<boolean> {
     RETURNING request_count
   `) as Array<{ request_count: number }>;
   const count = rows[0]?.request_count ?? 1;
-  return count <= MAX_REQUESTS;
+  const retryAfterSec = Math.max(1, Math.ceil((windowStartMs + WINDOW_MS - now) / 1000));
+  return { ok: count <= MAX_REQUESTS, retryAfterSec };
 }

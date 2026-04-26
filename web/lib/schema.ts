@@ -1,9 +1,11 @@
 import { z } from "zod";
 
 export const CURRENT_SCHEMA = "1.0";
-// Accept current and current-1 for forward compat. Plan §10 mentions "current - 2"
-// but we only have one version live; keep MIN_SCHEMA = CURRENT_SCHEMA for now.
-export const MIN_SCHEMA = "1.0";
+// Widen this when shipping a new schema while preserving back-compat for one
+// minor version. Today: only "1.0" is live.
+export const SUPPORTED_SCHEMAS = ["1.0"] as const;
+// Kept for back-compat with route imports that referenced MIN_SCHEMA.
+export const MIN_SCHEMA = SUPPORTED_SCHEMAS[0];
 
 const stateSchema = z.enum(["have", "partial", "missing"]);
 const chapterTagSchema = z.enum(["strong", "partial", "weak"]);

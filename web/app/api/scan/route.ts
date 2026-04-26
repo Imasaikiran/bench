@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid";
 import { createHash } from "node:crypto";
 import { sql } from "../../../lib/db";
-import { payloadSchema, CURRENT_SCHEMA, MIN_SCHEMA } from "../../../lib/schema";
+import { payloadSchema, CURRENT_SCHEMA, SUPPORTED_SCHEMAS } from "../../../lib/schema";
 import { verifyClientHmac } from "../../../lib/hmac";
 import { reScoreFromCounts } from "../../../lib/rubric";
 import { detectAnomalies } from "../../../lib/anomaly";
@@ -54,11 +54,14 @@ export async function POST(req: NextRequest): Promise<Response> {
     return NextResponse.json({ error: "integrity mismatch" }, { status: 400 });
   }
 
-  const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip = (req as unknown as { ip?: string }).ip ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const ipHash = hashIp(ip);
-  if (!(await rateLimitOk(ipHash))) {
-    return NextResponse.json({ error: "rate limited" }, { status: 429 });
+  const rl = await rateLimitOk(ipHash);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "rate limited" },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
+    );
   }
 
   const rescored = reScoreFromCounts(parsed.data.counts);
@@ -74,21 +77,29 @@ export async function POST(req: NextRequest): Promise<Response> {
     chapters: rescored.chapters,
   };
 
-  await sql`
-    INSERT INTO scans (id, payload, payload_hash, ip_hash, user_agent, rubric_version, is_suspect, suspect_reason, created_at, expires_at)
-    VALUES (
-      ${id},
-      ${JSON.stringify(stored)}::jsonb,
-      ${hash},
-      ${ipHash},
-      ${req.headers.get("user-agent") ?? ""},
-      ${rescored.rubricVersion},
-      ${isSuspect},
-      ${anomalies.join(";") || null},
-      NOW(),
-      NOW() + INTERVAL '30 days'
-    )
-  `;
+  try {
+    await sql`
+      INSERT INTO scans (id, payload, payload_hash, ip_hash, user_agent, rubric_version, is_suspect, suspect_reason, created_at, expires_at)
+      VALUES (
+        ${id},
+        ${JSON.stringify(stored)}::jsonb,
+        ${hash},
+        ${ipHash},
+        ${req.headers.get("user-agent") ?? ""},
+        ${rescored.rubricVersion},
+        ${isSuspect},
+        ${anomalies.join(";") || null},
+        NOW(),
+        NOW() + INTERVAL '30 days'
+      )
+    `;
+  } catch (err) {
+    console.error(`scan insert failed for id=${id}:`, err instanceof Error ? err.message : err);
+    return NextResponse.json(
+      { error: "storage unavailable" },
+      { status: 503, headers: { "Retry-After": "60" } },
+    );
+  }
 
   return NextResponse.json({
     id,
@@ -99,5 +110,5 @@ export async function POST(req: NextRequest): Promise<Response> {
 }
 
 function acceptSchema(v: string): boolean {
-  return v === CURRENT_SCHEMA || v === MIN_SCHEMA;
+  return (SUPPORTED_SCHEMAS as readonly string[]).includes(v);
 }

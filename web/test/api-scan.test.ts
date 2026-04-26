@@ -6,7 +6,7 @@ import { createHmac } from "node:crypto";
 vi.mock("../lib/db", () => ({ sql: vi.fn(async () => [{ id: "x" }]) }));
 vi.mock("../lib/ratelimit", () => ({
   hashIp: (ip: string) => `h:${ip}`,
-  rateLimitOk: vi.fn(async () => true),
+  rateLimitOk: vi.fn(async () => ({ ok: true, retryAfterSec: 3600 })),
 }));
 
 import { POST } from "../app/api/scan/route";
@@ -136,7 +136,7 @@ function req(body: unknown): Request {
 describe("/api/scan", () => {
   beforeEach(() => {
     delete process.env["OVER_CAPACITY"];
-    vi.mocked(rateLimitOk).mockResolvedValue(true);
+    vi.mocked(rateLimitOk).mockResolvedValue({ ok: true, retryAfterSec: 3600 });
   });
 
   it("returns 503 when OVER_CAPACITY=1", async () => {
@@ -206,7 +206,7 @@ describe("/api/scan", () => {
   });
 
   it("returns 429 when rate limited", async () => {
-    vi.mocked(rateLimitOk).mockResolvedValue(false);
+    vi.mocked(rateLimitOk).mockResolvedValue({ ok: false, retryAfterSec: 1800 });
     const r = await POST(req(validPayload()) as Parameters<typeof POST>[0]);
     expect(r.status).toBe(429);
     const j = await r.json();
