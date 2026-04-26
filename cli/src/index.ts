@@ -105,11 +105,13 @@ const CHAPTER_ORDER = [
   "Coherence",
 ] as const;
 
+type ChapterName = (typeof CHAPTER_ORDER)[number];
+
 /**
- * Pick the lowest-scoring chapter; format a brief note.
+ * Return the name and score of the lowest-scoring chapter.
+ * Tiebreak: first chapter in CHAPTER_ORDER wins (stable, deterministic).
  */
-function buildChapterNote(scored: ScoreResult): string {
-  type ChapterName = (typeof CHAPTER_ORDER)[number];
+function lowestChapter(scored: ScoreResult): { name: ChapterName; score: number } {
   let lowestName: ChapterName = CHAPTER_ORDER[0]!;
   let lowestScore = scored.chapters[lowestName]?.score ?? 100;
 
@@ -121,7 +123,15 @@ function buildChapterNote(scored: ScoreResult): string {
     }
   }
 
-  return `${lowestName}: ${lowestScore}/100 — focus area`;
+  return { name: lowestName, score: lowestScore };
+}
+
+/**
+ * Pick the lowest-scoring chapter; format a brief note.
+ */
+function buildChapterNote(scored: ScoreResult): string {
+  const { name, score } = lowestChapter(scored);
+  return `${name}: ${score}/100 — focus area`;
 }
 
 /**
@@ -129,18 +139,7 @@ function buildChapterNote(scored: ScoreResult): string {
  * chapter. Format: "#${id} ${dim.name}".
  */
 function deriveMusthaves(scored: ScoreResult, rubric: Rubric): string[] {
-  // Find lowest-scoring chapter
-  type ChapterName = (typeof CHAPTER_ORDER)[number];
-  let lowestName: ChapterName = CHAPTER_ORDER[0]!;
-  let lowestScore = scored.chapters[lowestName]?.score ?? 100;
-
-  for (const name of CHAPTER_ORDER) {
-    const s = scored.chapters[name]?.score ?? 100;
-    if (s < lowestScore) {
-      lowestScore = s;
-      lowestName = name;
-    }
-  }
+  const { name: lowestName } = lowestChapter(scored);
 
   const chapter = scored.chapters[lowestName];
   if (!chapter) return [];
@@ -203,6 +202,8 @@ export async function main(
     return 0;
   }
 
+  // TODO(1.20+): wire flags.debug to enable verbose tracing
+
   // 3. Safety checks
   const env = _detectEnv();
   _refuseIfUnsafe(env);
@@ -220,10 +221,16 @@ export async function main(
   // 7. Score
   const scored = _scoreFromCounts(scanResult.counts, rubric);
 
-  // 8. Tier
+  // 8. --why: only needs scored + rubric; skip tier/hours/copy/payload (incl. HMAC)
+  if (flags.why) {
+    out(_formatWhy(scored, rubric));
+    return 0;
+  }
+
+  // 9. Tier
   const tier = _inferTier(scanResult.counts) as Tier;
 
-  // 9. Hours
+  // 10. Hours
   const activeSecondsTotal =
     typeof scanResult.counts["active_hours_total"] === "number"
       ? (scanResult.counts["active_hours_total"] as number) * 3600
@@ -271,12 +278,6 @@ export async function main(
     },
   });
 
-  // 13. --why: print breakdown and exit
-  if (flags.why) {
-    out(_formatWhy(scored, rubric));
-    return 0;
-  }
-
   // 14. Print preview
   out(
     _renderPreview({
@@ -287,7 +288,7 @@ export async function main(
     }),
   );
 
-  // 15. --offline: write local export and exit
+  // 16. --offline: write local export and exit
   if (flags.offline) {
     await _writeLocalExport(
       process.cwd(),
@@ -298,12 +299,12 @@ export async function main(
     return 0;
   }
 
-  // 16. --dry-run: exit before consent/upload
+  // 17. --dry-run: exit before consent/upload
   if (flags.dryRun) {
     return 0;
   }
 
-  // 17. Ask for consent
+  // 18. Ask for consent
   const consent: ConsentOutput = await _askConsent(
     { redactionHits: payload.diagnostics.redaction_hits },
     _ttyPrompt,
@@ -319,10 +320,10 @@ export async function main(
     return 0;
   }
 
-  // 18. Upload
+  // 19. Upload
   try {
     const result = await _upload(payload);
-    _openUrl(result.url);
+    void _openUrl(result.url);
     out(result.url);
     return 0;
   } catch (e) {
@@ -338,5 +339,12 @@ export async function main(
 }
 
 if (isDirectInvocation(import.meta.url, process.argv[1])) {
-  main(process.argv.slice(2)).then((code) => process.exit(code));
+  main(process.argv.slice(2)).then(
+    (code) => process.exit(code),
+    (e: unknown) => {
+      const msg = e instanceof Error ? e.message : String(e);
+      process.stderr.write(`bench: ${msg}\n`);
+      process.exit(2);
+    }
+  );
 }

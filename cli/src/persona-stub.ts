@@ -13,13 +13,19 @@ import type { Payload } from "./payload.js";
  * PersonaShape type until it is finalised.
  */
 export function mapperToPersona(payload: Payload): unknown {
+  // STUB: this returns a flat projection. The real §7.2 PersonaShape mapper
+  // (Task 1.22) will additionally emit:
+  //   weeks_on_cc, tier_label, chapter_tags, musthaves, chapter_note,
+  //   hours_label, diagnostics
+  // and may rename additional payload keys. Do not depend on this shape
+  // outside of the local-export wiring path.
   return {
     score: payload.score,
     tier: payload.tier,
     handle: payload.handle,
     identity: payload.identity,
     signature_verbs: payload.signature_verbs,
-    hours: payload.hours_with_cc,
+    hours: payload.hours_with_cc, // §7.2 PersonaShape uses "hours", not "hours_with_cc"
     hours_meaning: payload.hours_meaning,
     chapters: payload.chapters,
   };
