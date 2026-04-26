@@ -8,6 +8,7 @@ export default {
   outputFileTracingRoot: resolve(__dirname, ".."),
   outputFileTracingIncludes: {
     "/how-we-scored": ["../rubric/rubric.yaml"],
+    "/api/scan": ["../rubric/rubric.yaml"],
   },
   experimental: { typedRoutes: true },
 };
