@@ -1,0 +1,97 @@
+name: e2e (Lighthouse + axe)
+
+on:
+  push:
+    branches: [main, v2-dev]
+  pull_request:
+    branches: [main, v2-dev]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web
+        run: pnpm -C web build
+
+      - name: Start web server
+        run: |
+          pnpm -C web start &
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:3000 > /dev/null; then
+              echo "server ready"
+              break
+            fi
+            sleep 1
+          done
+
+      # /demo and /scan/test-id are built in Tasks 1.25 + 1.28. Until they
+      # exist, both checks log warnings instead of failing the build. Tighten
+      # to fail-on-violation once routes ship.
+      - name: Check route availability
+        id: routes
+        run: |
+          if curl -fsS http://localhost:3000/demo > /dev/null; then
+            echo "demo_ok=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::/demo not yet built — Lighthouse/axe will skip it"
+            echo "demo_ok=0" >> "$GITHUB_OUTPUT"
+          fi
+          if curl -fsS http://localhost:3000/scan/test-id > /dev/null; then
+            echo "scan_ok=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::/scan/test-id not yet built — Lighthouse/axe will skip it"
+            echo "scan_ok=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Lighthouse CI
+        if: steps.routes.outputs.demo_ok == '1' || steps.routes.outputs.scan_ok == '1'
+        run: |
+          urls=()
+          if [ "${{ steps.routes.outputs.demo_ok }}" = "1" ]; then
+            urls+=(--collect.url=http://localhost:3000/demo)
+          fi
+          if [ "${{ steps.routes.outputs.scan_ok }}" = "1" ]; then
+            urls+=(--collect.url=http://localhost:3000/scan/test-id)
+          fi
+          npx -y @lhci/cli@latest autorun \
+            "${urls[@]}" \
+            --collect.numberOfRuns=1 \
+            --upload.target=temporary-public-storage \
+          || echo "::warning::Lighthouse run had failures"
+
+      - name: axe-core
+        if: steps.routes.outputs.demo_ok == '1' || steps.routes.outputs.scan_ok == '1'
+        run: |
+          urls=()
+          if [ "${{ steps.routes.outputs.demo_ok }}" = "1" ]; then
+            urls+=(http://localhost:3000/demo)
+          fi
+          if [ "${{ steps.routes.outputs.scan_ok }}" = "1" ]; then
+            urls+=(http://localhost:3000/scan/test-id)
+          fi
+          npx -y @axe-core/cli@latest "${urls[@]}" \
+            --exit \
+            --tags wcag2a,wcag2aa \
+          || echo "::warning::axe-core found violations (will fail-build once tightened)"
+
+      # TODO(1.36-followup): once routes exist, parse .lighthouseci/manifest.json
+      # and assert p90 totalBytes <= 400 * 1024 + fail on any axe violation of
+      # severity serious or higher.
+      - name: Page weight gate (placeholder)
+        run: |
+          echo "page weight p90 <= 400 KB gate: TODO -- wire after Task 1.25"
