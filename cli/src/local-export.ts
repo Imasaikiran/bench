@@ -4,6 +4,47 @@ import { fileURLToPath } from "node:url";
 import type { Payload } from "./payload.js";
 
 /**
+ * Escape a JSON string for safe embedding inside an HTML `<script>` block.
+ *
+ * JSON.stringify does NOT escape `<`, so a value containing `</script>` would
+ * prematurely close the script tag and allow runnable JS injection.
+ * This applies the OWASP HTML-script-context escapes.
+ */
+function htmlScriptEscape(json: string): string {
+  return json
+    .replace(/</g, "\\u003c")
+    .replace(/-->/g, "--\\u003e")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
+/**
+ * Substitute all three template tokens in a single regex pass over `tpl`.
+ *
+ * A single-pass approach prevents chain-replacement bugs where injected asset
+ * content (e.g. CSS containing the literal `__PERSONA_JSON__`) would be
+ * re-processed by a later replaceAll call.
+ *
+ * @param tpl         - The HTML template string.
+ * @param css         - Content for the `/*__STYLES__*\/` slot.
+ * @param js          - Content for the `/*__SCRIPT__*\/` slot.
+ * @param personaJson - HTML-script-escaped persona JSON for the `__PERSONA_JSON__` slot.
+ */
+export function substituteTemplate(
+  tpl: string,
+  css: string,
+  js: string,
+  personaJson: string,
+): string {
+  const map: Record<string, string> = {
+    "/*__STYLES__*/": css,
+    "/*__SCRIPT__*/": js,
+    "__PERSONA_JSON__": personaJson,
+  };
+  return tpl.replace(/\/\*__STYLES__\*\/|\/\*__SCRIPT__\*\/|__PERSONA_JSON__/g, (m) => map[m]!);
+}
+
+/**
  * Write a local export of a bench scan to `dir`.
  *
  * Emits two files:
@@ -41,13 +82,10 @@ export async function writeLocalExport(
     fs.readFile(join(assetsDir, "offline-template.html"), "utf8"),
   ]);
 
-  // Embed assets and persona into template.
-  // JSON.stringify produces valid JS for our payload (no undefined/Date/Function),
-  // so we embed it as a raw JS expression — no quote-escape gymnastics needed.
-  const html = tpl
-    .replaceAll("/*__STYLES__*/", css)
-    .replaceAll("/*__SCRIPT__*/", js)
-    .replaceAll("__PERSONA_JSON__", JSON.stringify(persona));
+  // HTML-script-context escape the persona JSON (I-1: prevents </script> injection).
+  // substituteTemplate performs a single-pass replacement (I-2: no chain substitution).
+  const safePersonaJson = htmlScriptEscape(JSON.stringify(persona));
+  const html = substituteTemplate(tpl, css, js, safePersonaJson);
 
   await fs.writeFile(join(dir, "bench-scan.html"), html);
 }

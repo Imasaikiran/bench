@@ -11,7 +11,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "prebuild": "pnpm copy:rubric",
-    "build": "tsc -p . && chmod +x dist/index.js",
+    "build": "tsc -p . && cp -R src/assets dist/assets && chmod +x dist/index.js",
     "prepack": "pnpm build"
   },
   "dependencies": {
