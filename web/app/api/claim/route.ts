@@ -47,33 +47,45 @@ export async function POST(req: NextRequest): Promise<Response> {
   const githubId = session.github_id;
 
   // -------------------------------------------------------------------------
-  // Handle collision check: is this handle PK owned by a different github_id?
-  // -------------------------------------------------------------------------
-  const existing = (await sql`
-    SELECT github_id FROM profiles WHERE handle = ${handle}
-  `) as Array<{ github_id: number }>;
-
-  if (existing.length > 0 && existing[0]?.github_id !== githubId) {
-    return NextResponse.json(
-      { error: "handle taken by another github account" },
-      { status: 409 },
-    );
-  }
-
-  // -------------------------------------------------------------------------
-  // Upsert profile and mark scan as permanent (expires_at = NULL)
+  // Single-statement upsert with collision check — no TOCTOU race.
+  //
+  // The CTE attempts an INSERT on `handle` (unique index). The ON CONFLICT
+  // DO UPDATE only fires when the existing row's github_id matches ours
+  // (the WHERE clause). If another github_id owns `handle`, the UPDATE is
+  // skipped and RETURNING returns 0 rows → 409.
+  //
+  // Wrapping with sql.transaction([...]) ensures the profile upsert and the
+  // scan expiry update are atomic. neon@0.10.4 supports sql.transaction()
+  // as a batch HTTP transaction (see @neondatabase/serverless types).
   // -------------------------------------------------------------------------
   try {
-    await sql`
-      INSERT INTO profiles (handle, github_id, latest_scan)
-      VALUES (${handle}, ${githubId}, ${parsed.data.scan_id})
-      ON CONFLICT (github_id) DO UPDATE SET
-        latest_scan = EXCLUDED.latest_scan,
-        updated_at  = NOW()
-    `;
-    await sql`
-      UPDATE scans SET expires_at = NULL WHERE id = ${parsed.data.scan_id}
-    `;
+    const results = await sql.transaction([
+      sql`
+        WITH attempted AS (
+          INSERT INTO profiles (handle, github_id, latest_scan)
+          VALUES (${handle}, ${githubId}, ${parsed.data.scan_id})
+          ON CONFLICT (handle) DO UPDATE
+            SET latest_scan = EXCLUDED.latest_scan,
+                updated_at  = NOW()
+            WHERE profiles.github_id = EXCLUDED.github_id
+          RETURNING github_id
+        )
+        SELECT github_id FROM attempted
+      `,
+      sql`
+        UPDATE scans SET expires_at = NULL WHERE id = ${parsed.data.scan_id}
+      `,
+    ]);
+
+    // results[0] is the rows from the CTE SELECT.
+    const rows = results[0] as Array<{ github_id: number | string }>;
+    if (rows.length === 0) {
+      // Conflict on handle but github_id didn't match — handle is taken.
+      return NextResponse.json(
+        { error: "handle taken by another github account" },
+        { status: 409 },
+      );
+    }
   } catch (err) {
     console.error(
       "claim insert failed:",

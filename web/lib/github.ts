@@ -72,18 +72,26 @@ export function signState(nonce: string): string {
   return buildToken({ nonce, ts: Date.now() });
 }
 
-/** Return true iff the state token has a valid HMAC and is within TTL. */
-export function verifyState(token: string): boolean {
+/**
+ * Verify the state token HMAC and TTL.
+ * Returns `{ nonce }` on success, or `null` on any failure.
+ * Also rejects future-dated tokens (negative age) to guard against clock skew.
+ */
+export function verifyState(token: string): { nonce: string } | null {
   const data = parseToken(token);
   if (
     data === null ||
     typeof data !== "object" ||
+    !("nonce" in (data as object)) ||
     !("ts" in (data as object))
   ) {
-    return false;
+    return null;
   }
-  const { ts } = data as { ts: number };
-  return typeof ts === "number" && Date.now() - ts < STATE_TTL_MS;
+  const { nonce, ts } = data as { nonce: unknown; ts: unknown };
+  if (typeof nonce !== "string" || typeof ts !== "number") return null;
+  const age = Date.now() - ts;
+  if (age < 0 || age >= STATE_TTL_MS) return null; // rejects future-dated tokens
+  return { nonce };
 }
 
 // ---------------------------------------------------------------------------

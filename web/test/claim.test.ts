@@ -15,7 +15,10 @@ import { POST } from "../app/api/claim/route";
 import { sql } from "../lib/db";
 import { verifySession } from "../lib/github";
 
-const sqlMock = sql as unknown as ReturnType<typeof vi.fn>;
+// sql is mocked; we need access to sql.transaction as well.
+const sqlMock = sql as unknown as ReturnType<typeof vi.fn> & {
+  transaction: ReturnType<typeof vi.fn>;
+};
 const verifySessionMock = verifySession as unknown as ReturnType<typeof vi.fn>;
 
 function req(body: unknown, cookie?: string): Request {
@@ -31,6 +34,8 @@ function req(body: unknown, cookie?: string): Request {
 describe("/api/claim", () => {
   beforeEach(() => {
     sqlMock.mockReset();
+    // Attach transaction mock to the sql mock function.
+    sqlMock.transaction = vi.fn();
     verifySessionMock.mockReset();
   });
 
@@ -72,7 +77,8 @@ describe("/api/claim", () => {
       login: "priya_dev",
       exp: 9e12,
     });
-    sqlMock.mockResolvedValueOnce([{ github_id: 111 }]); // existing different github_id
+    // CTE INSERT returns 0 rows → another github_id owns the handle.
+    sqlMock.transaction.mockResolvedValueOnce([[], []]);
     const r = await POST(req({ scan_id: "scan1" }, "abc") as never);
     expect(r.status).toBe(409);
   });
@@ -83,10 +89,8 @@ describe("/api/claim", () => {
       login: "Priya_Dev",
       exp: 9e12,
     });
-    sqlMock
-      .mockResolvedValueOnce([{ github_id: 111 }]) // collision check (same id)
-      .mockResolvedValueOnce([]) // INSERT
-      .mockResolvedValueOnce([]); // UPDATE
+    // CTE INSERT returns [{ github_id: 111 }] → success.
+    sqlMock.transaction.mockResolvedValueOnce([[{ github_id: 111 }], []]);
     const r = await POST(req({ scan_id: "scan1" }, "abc") as never);
     expect([302, 307]).toContain(r.status);
     expect(r.headers.get("location")).toMatch(/\/u\/priya_dev$/);
@@ -98,10 +102,8 @@ describe("/api/claim", () => {
       login: "alice",
       exp: 9e12,
     });
-    sqlMock
-      .mockResolvedValueOnce([]) // no existing
-      .mockResolvedValueOnce([]) // INSERT
-      .mockResolvedValueOnce([]); // UPDATE
+    // CTE INSERT returns [{ github_id: 111 }] → success.
+    sqlMock.transaction.mockResolvedValueOnce([[{ github_id: 111 }], []]);
     const r = await POST(req({ scan_id: "scan1" }, "abc") as never);
     expect([302, 307]).toContain(r.status);
     expect(r.headers.get("location")).toMatch(/\/u\/alice$/);
@@ -113,24 +115,19 @@ describe("/api/claim", () => {
       login: "BobSmith",
       exp: 9e12,
     });
-    sqlMock
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([]);
+    sqlMock.transaction.mockResolvedValueOnce([[{ github_id: 42 }], []]);
     const r = await POST(req({ scan_id: "scan42" }, "abc") as never);
     expect([302, 307]).toContain(r.status);
     expect(r.headers.get("location")).toMatch(/\/u\/bobsmith$/);
   });
 
-  it("503 on DB INSERT failure", async () => {
+  it("503 on DB transaction failure", async () => {
     verifySessionMock.mockReturnValueOnce({
       github_id: 111,
       login: "alice",
       exp: 9e12,
     });
-    sqlMock
-      .mockResolvedValueOnce([]) // collision check ok
-      .mockRejectedValueOnce(new Error("db down")); // INSERT fails
+    sqlMock.transaction.mockRejectedValueOnce(new Error("db down"));
     const r = await POST(req({ scan_id: "scan1" }, "abc") as never);
     expect(r.status).toBe(503);
   });

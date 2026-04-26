@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import {
   signState,
   verifyState,
@@ -17,7 +18,10 @@ export async function GET(req: NextRequest): Promise<Response> {
 
   if (!code) {
     // -----------------------------------------------------------------------
-    // Initiate OAuth flow: redirect to GitHub authorization URL
+    // Initiate OAuth flow: redirect to GitHub authorization URL.
+    // Generate a nonce, sign it into the state token, and also store the
+    // nonce in a short-lived httpOnly cookie so the callback can verify that
+    // the same browser initiated the flow (canonical OAuth CSRF defense).
     // -----------------------------------------------------------------------
     const clientId = process.env["GITHUB_CLIENT_ID"];
     if (!clientId) {
@@ -36,14 +40,41 @@ export async function GET(req: NextRequest): Promise<Response> {
     url.searchParams.set("state", stateToken);
     url.searchParams.set("redirect_uri", redirectUri);
 
-    return NextResponse.redirect(url.toString());
+    const res = NextResponse.redirect(url.toString());
+    res.cookies.set("bench_oauth_state", nonce, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env["NODE_ENV"] === "production",
+      maxAge: 600,
+      path: "/",
+    });
+    return res;
   }
 
   // -------------------------------------------------------------------------
-  // OAuth callback: validate state, exchange code, set session cookie
+  // OAuth callback: validate state token, verify cookie-bound nonce, exchange
+  // code, set session cookie, then redirect to /.
   // -------------------------------------------------------------------------
-  if (!state || !verifyState(state)) {
+
+  // 1. Verify state token HMAC + TTL and extract the nonce.
+  if (!state) {
     return NextResponse.json({ error: "invalid state" }, { status: 400 });
+  }
+  const verified = verifyState(state);
+  if (!verified) {
+    return NextResponse.json({ error: "invalid state" }, { status: 400 });
+  }
+
+  // 2. Compare the nonce from the state token against the cookie value.
+  //    timingSafeEqual prevents timing attacks; length check prevents
+  //    allocating mismatched buffers that would throw instead of returning false.
+  const cookieNonce = req.cookies.get("bench_oauth_state")?.value;
+  if (
+    !cookieNonce ||
+    cookieNonce.length !== verified.nonce.length ||
+    !timingSafeEqual(Buffer.from(cookieNonce), Buffer.from(verified.nonce))
+  ) {
+    return NextResponse.json({ error: "state nonce mismatch" }, { status: 400 });
   }
 
   let token: string;
@@ -65,8 +96,8 @@ export async function GET(req: NextRequest): Promise<Response> {
 
   const sessionCookie = signSession({ github_id: user.id, login: user.login });
 
-  const returnUrl = req.nextUrl.searchParams.get("return") ?? "/";
-  const res = NextResponse.redirect(`${req.nextUrl.origin}${returnUrl}`);
+  // Always redirect to / — no ?return= param to avoid open-redirect attacks.
+  const res = NextResponse.redirect(`${req.nextUrl.origin}/`);
   res.cookies.set("bench_session", sessionCookie, {
     httpOnly: true,
     sameSite: "lax",
@@ -74,5 +105,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     maxAge: 7 * 24 * 60 * 60,
     path: "/",
   });
+  // Clear the oauth state cookie now that the flow is complete.
+  res.cookies.set("bench_oauth_state", "", { maxAge: 0, path: "/" });
   return res;
 }
