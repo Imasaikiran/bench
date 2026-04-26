@@ -8,23 +8,26 @@ import { neon } from "@neondatabase/serverless";
 const migrationsDir = dirname(fileURLToPath(import.meta.url));
 
 if (!process.env["DATABASE_URL"]) {
-  console.error("DATABASE_URL not set");
+  console.error(
+    "DATABASE_URL not set — required for 'pnpm migrate'. Set it in web/.env.local or export it inline.",
+  );
   process.exit(1);
 }
 
 const sql = neon(process.env["DATABASE_URL"]);
 
 await sql`CREATE TABLE IF NOT EXISTS _migrations (id TEXT PRIMARY KEY, applied_at TIMESTAMPTZ DEFAULT NOW())`;
-const applied = new Set(
-  (await sql`SELECT id FROM _migrations`).map((r: { id: string }) => r.id),
-);
+const appliedRows = (await sql`SELECT id FROM _migrations`) as Array<{ id: string }>;
+const applied = new Set(appliedRows.map((r) => r.id));
 
 for (const f of readdirSync(migrationsDir)
   .filter((f) => f.endsWith(".sql"))
   .sort()) {
   if (applied.has(f)) continue;
   const text = readFileSync(`${migrationsDir}/${f}`, "utf8");
-  // Naive split — fine for our hand-authored DDL files; not safe for arbitrary SQL.
+  // Naive split: single-line `;`-terminated statements only. No functions,
+  // triggers, DO blocks, or `$$ ... $$` dollar-quoted bodies (would be
+  // sliced in half). Fine for our hand-authored DDL files.
   const stmts = text.split(/;\s*$/m).filter((s) => s.trim());
   try {
     for (const stmt of stmts) {
