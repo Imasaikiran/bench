@@ -33,11 +33,13 @@ async function lookupPayload(
   `) as ScanRow[];
   if (byScan.length > 0 && byScan[0]?.payload) return byScan[0].payload;
 
-  // Fall back to handle.
+  // Fall back to handle. Apply the same expiry guard as the scan-id branch
+  // so an expired latest_scan doesn't render an OG card while /scan/<id> 404s.
   const byHandle = (await sql`
     SELECT s.payload FROM profiles p
     JOIN scans s ON s.id = p.latest_scan
     WHERE p.handle = ${id.toLowerCase()}
+      AND (s.expires_at IS NULL OR s.expires_at > NOW())
     LIMIT 1
   `) as ScanRow[];
   if (byHandle.length > 0 && byHandle[0]?.payload) return byHandle[0].payload;
