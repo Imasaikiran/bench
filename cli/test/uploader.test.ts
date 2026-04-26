@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { upload, ALLOWED_ENDPOINT, BACKOFF_MS } from "../src/uploader";
+import { upload, ALLOWED_ENDPOINT, BACKOFF_MS, MAX_ATTEMPTS } from "../src/uploader";
 import type { Payload } from "../src/payload";
 
 // ---------------------------------------------------------------------------
@@ -42,21 +42,30 @@ const basePayload: Payload = {
 // Helper: build a mock fetch that returns a sequence of responses
 // ---------------------------------------------------------------------------
 function makeFetch(
-  ...responses: Array<{ status: number; body?: unknown }>
-): { fetch: typeof globalThis.fetch; attempts: () => number } {
+  ...responses: Array<{ status: number; body?: unknown; bodyText?: string; contentType?: string }>
+): { fetch: typeof globalThis.fetch; attempts: () => number; lastInit: () => RequestInit | undefined } {
   let callCount = 0;
+  let lastInit: RequestInit | undefined;
   const mockFetch = vi.fn(async (_url: string | URL | Request, _init?: RequestInit) => {
+    lastInit = _init;
     const resp = responses[callCount] ?? responses[responses.length - 1];
     callCount++;
     return {
       status: resp!.status,
       ok: resp!.status >= 200 && resp!.status < 300,
-      json: async () => resp!.body ?? {},
+      json: async () => {
+        if (resp!.bodyText !== undefined) {
+          // Simulate non-JSON body throwing on .json()
+          throw new SyntaxError("Unexpected token < in JSON at position 0");
+        }
+        return resp!.body ?? {};
+      },
     } as Response;
   });
   return {
     fetch: mockFetch as unknown as typeof globalThis.fetch,
     attempts: () => callCount,
+    lastInit: () => lastInit,
   };
 }
 
@@ -82,7 +91,7 @@ describe("plan stub required tests", () => {
     );
     await expect(
       upload(basePayload, { fetch, sleep: async () => {} })
-    ).rejects.toThrow(/server 503/i);
+    ).rejects.toThrow(/upload failed after 3 attempts/i);
     expect(attempts()).toBe(3);
   });
 });
@@ -120,11 +129,31 @@ describe("extended uploader tests", () => {
     expect(attempts()).toBe(1);
   });
 
+  it("426 with non-JSON body → throws /stale-client: unknown/ AND attempts === 1", async () => {
+    const { fetch, attempts } = makeFetch({
+      status: 426,
+      bodyText: "<html>oops</html>",
+      contentType: "text/html",
+    });
+    await expect(
+      upload(basePayload, { fetch, sleep: async () => {} })
+    ).rejects.toThrow(/stale-client: unknown/);
+    expect(attempts()).toBe(1);
+  });
+
   it("400 → throws and attempts === 1 (terminal)", async () => {
     const { fetch, attempts } = makeFetch({ status: 400 });
     await expect(
       upload(basePayload, { fetch, sleep: async () => {} })
     ).rejects.toThrow();
+    expect(attempts()).toBe(1);
+  });
+
+  it("302 → throws /http 302/ AND attempts === 1 (terminal)", async () => {
+    const { fetch, attempts } = makeFetch({ status: 302 });
+    await expect(
+      upload(basePayload, { fetch, sleep: async () => {} })
+    ).rejects.toThrow(/http 302/);
     expect(attempts()).toBe(1);
   });
 
@@ -157,8 +186,12 @@ describe("extended uploader tests", () => {
     expect(callCount).toBe(2);
   });
 
-  it("BACKOFF_MS is [1000, 3000, 8000] (lock the schedule)", () => {
-    expect(BACKOFF_MS).toEqual([1000, 3000, 8000]);
+  it("BACKOFF_MS is [1000, 3000] (lock the schedule)", () => {
+    expect(BACKOFF_MS).toEqual([1000, 3000]);
+  });
+
+  it("MAX_ATTEMPTS is 3 (lock the attempt count constant)", () => {
+    expect(MAX_ATTEMPTS).toBe(3);
   });
 
   it("Backoff sleeps are called with the right delays", async () => {
@@ -170,10 +203,36 @@ describe("extended uploader tests", () => {
     const sleep = vi.fn(async (_ms: number) => {});
     await expect(
       upload(basePayload, { fetch, sleep })
-    ).rejects.toThrow(/server 503/i);
+    ).rejects.toThrow(/upload failed after 3 attempts/i);
     // Two sleeps between 3 attempts: first after attempt 1, second after attempt 2
     expect(sleep).toHaveBeenCalledTimes(2);
     expect(sleep).toHaveBeenNthCalledWith(1, 1000);
     expect(sleep).toHaveBeenNthCalledWith(2, 3000);
+    // N-1: the dead 8000 entry must never be scheduled
+    expect(sleep).not.toHaveBeenCalledWith(8000);
+  });
+
+  it("I-3: CRLF in scanner_version is sanitized in User-Agent header", async () => {
+    const crlfPayload = { ...basePayload, scanner_version: "1.0.0\r\nX-Inject: bad" };
+    const { fetch, lastInit } = makeFetch({
+      status: 200,
+      body: { id: "abc", url: "https://bench.dev/scan/abc" },
+    });
+    await upload(crlfPayload, { fetch });
+    const userAgent = (lastInit()?.headers as Record<string, string>)?.["User-Agent"] ?? "";
+    expect(userAgent).not.toMatch(/\r/);
+    expect(userAgent).not.toMatch(/\n/);
+  });
+
+  it("S-1: final throw message includes attempt count", async () => {
+    const { fetch, attempts } = makeFetch(
+      { status: 503 },
+      { status: 503 },
+      { status: 503 }
+    );
+    await expect(
+      upload(basePayload, { fetch, sleep: async () => {} })
+    ).rejects.toThrow(/upload failed after 3 attempts/);
+    expect(attempts()).toBe(3);
   });
 });

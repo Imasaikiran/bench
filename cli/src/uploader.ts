@@ -2,7 +2,9 @@ import type { Payload } from "./payload.js";
 
 export const ALLOWED_ENDPOINT = "https://bench.dev/api/scan";
 
-export const BACKOFF_MS = [1000, 3000, 8000] as const;
+export const BACKOFF_MS = [1000, 3000] as const;
+
+export const MAX_ATTEMPTS = 3;
 
 /** Thrown for errors that should NOT be retried (4xx responses). */
 class TerminalError extends Error {
@@ -30,14 +32,16 @@ export async function upload(
   const doSleep =
     opts.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
 
+  const safeVersion = payload.scanner_version.replace(/[^\w.\-+]/g, "_");
+
   let lastErr: unknown;
-  for (let i = 0; i < BACKOFF_MS.length; i++) {
+  for (let i = 0; i < MAX_ATTEMPTS; i++) {
     try {
       const res = await doFetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "User-Agent": `bench/${payload.scanner_version}`,
+          "User-Agent": `bench/${safeVersion}`,
         },
         body: JSON.stringify(payload),
       });
@@ -46,8 +50,8 @@ export async function upload(
         throw new TerminalError("rate-limited");
       }
       if (res.status === 426) {
-        const j = (await res.json()) as { required_version?: string };
-        throw new TerminalError(`stale-client: ${j.required_version}`);
+        const j = (await res.json().catch(() => ({}))) as { required_version?: string };
+        throw new TerminalError(`stale-client: ${j.required_version ?? "unknown"}`);
       }
       if (res.status >= 400 && res.status < 500) {
         throw new TerminalError(`http ${res.status}`);
@@ -55,7 +59,7 @@ export async function upload(
       if (res.status >= 500) {
         throw new Error(`server ${res.status}`);
       }
-      if (!res.ok) {
+      if (res.status >= 300) {
         throw new TerminalError(`http ${res.status}`);
       }
       return (await res.json()) as { id: string; url: string };
@@ -65,10 +69,10 @@ export async function upload(
         throw e;
       }
       lastErr = e;
-      if (i < BACKOFF_MS.length - 1) {
+      if (i < BACKOFF_MS.length) {
         await doSleep(BACKOFF_MS[i] as number);
       }
     }
   }
-  throw lastErr;
+  throw new Error(`upload failed after ${MAX_ATTEMPTS} attempts: ${String(lastErr)}`, { cause: lastErr });
 }
