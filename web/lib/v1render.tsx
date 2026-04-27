@@ -72,13 +72,24 @@ function htmlScriptEscape(json: string): string {
 export function V1Page({ persona }: { persona: PersonaShape }): ReactElement {
   const personaJson = htmlScriptEscape(JSON.stringify(persona));
 
-  // Shim injects persona data under "priya" key (v1 boot hardcodes
-  // `applyPersona('priya')`) and also under "_current" for forward compat.
-  // window.__BENCH_PERSONA__ is a forward-looking hook -- unused by v1.0.0.
+  // v1's script.js declares `const PERSONAS = {...}` at top-level — that's
+  // script-scoped, NOT window.PERSONAS, so we cannot override the data from
+  // outside the script. BUT v1's render functions (renderHero, renderAtelier,
+  // renderChapters, renderMustHaves) are top-level `function` declarations,
+  // which DO become window properties in a classic script. We exploit that:
+  // after window 'load' (which fires AFTER all defer scripts have run their
+  // DOMContentLoaded handlers, including v1's `applyPersona('priya')`), we
+  // re-invoke the render functions with our injected persona, overwriting
+  // every text node v1 just painted with its hardcoded fallback.
   const shimScript =
     `window.__BENCH_PERSONA__ = ${personaJson};` +
-    `window.PERSONAS = { priya: ${personaJson}, _current: ${personaJson} };` +
-    `window.__BENCH_KEY__ = "_current";`;
+    `window.addEventListener('load', function() {` +
+    `  var p = window.__BENCH_PERSONA__;` +
+    `  if (typeof window.renderHero === 'function') window.renderHero(p);` +
+    `  if (typeof window.renderAtelier === 'function') window.renderAtelier(p);` +
+    `  if (typeof window.renderChapters === 'function') window.renderChapters(p);` +
+    `  if (typeof window.renderMustHaves === 'function') window.renderMustHaves(p);` +
+    `});`;
 
   return (
     <>

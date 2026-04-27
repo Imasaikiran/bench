@@ -36,11 +36,17 @@ const persona: PersonaShape = {
 describe("V1Page", () => {
   it("renders shim with persona JSON before script.js", () => {
     const html = renderToString(<V1Page persona={persona} />);
-    expect(html).toContain(`window.PERSONAS = { priya:`);
+    // Shim sets window.__BENCH_PERSONA__ and registers a window.load handler
+    // that re-runs v1's render functions with our data (overrides the
+    // hardcoded const PERSONAS that v1 script.js paints with on boot).
+    expect(html).toContain(`window.__BENCH_PERSONA__`);
+    expect(html).toContain(`window.addEventListener('load'`);
+    expect(html).toContain(`window.renderAtelier`);
     expect(html).toContain(`"@priya_dev"`);
     expect(html).toContain(`<script src="/v1/script.js"`);
-    // Shim must precede the deferred v1 script in document order.
-    const shimIdx = html.indexOf("window.PERSONAS");
+    // Shim must precede the deferred v1 script in document order so the
+    // 'load' listener is registered before script.js's DOMContentLoaded.
+    const shimIdx = html.indexOf("window.__BENCH_PERSONA__");
     const scriptIdx = html.indexOf("/v1/script.js");
     expect(shimIdx).toBeGreaterThan(-1);
     expect(scriptIdx).toBeGreaterThan(shimIdx);
