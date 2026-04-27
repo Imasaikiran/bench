@@ -1,6 +1,22 @@
 // matches persona.ts HOURS_FLOOR — kept local per plan §1992 so copy.ts stays self-contained.
 const HOURS_FLOOR = 5;
 
+/**
+ * Convert a verb to its gerund (verb-ing) form, handling common English rules:
+ *   - "update" → "updating"  (silent-e drop)
+ *   - "die"    → "dying"     (ie → ying)
+ *   - "run"    → "running"   (CVC consonant double, intentionally NOT handled
+ *                              — too many exceptions; ship the simple cases)
+ *   - "build"  → "building"  (default: just append "ing")
+ *
+ * Exported for unit-testing; not part of the public CopyContext API.
+ */
+export function gerundize(verb: string): string {
+  if (/ie$/i.test(verb)) return verb.slice(0, -2) + "ying";
+  if (/[^aeiou]e$/i.test(verb)) return verb.slice(0, -1) + "ing";
+  return verb + "ing";
+}
+
 export type CopyContext = {
   signatureVerbs?: readonly string[];
   hours_with_cc?: number | null;
@@ -29,7 +45,7 @@ export function deriveCopy(ctx: CopyContext): DerivedCopy {
   const v0 = verbs[0]!;
   const identity =
     verbs.length === 3
-      ? `You ${v0} to learn. You ${verbs[1]!} to focus. You keep ${verbs[2]!}ing if it fits.`
+      ? `You ${v0} to learn. You ${verbs[1]!} to focus. You keep ${gerundize(verbs[2]!)} if it fits.`
       : `You ${v0}.`;
 
   const hours_meaning =

@@ -1,5 +1,25 @@
 import { describe, it, expect } from "vitest";
-import { deriveCopy } from "../../src/rubric/copy";
+import { deriveCopy, gerundize } from "../../src/rubric/copy";
+
+describe("gerundize", () => {
+  it("drops silent e (update -> updating)", () => {
+    expect(gerundize("update")).toBe("updating");
+    expect(gerundize("merge")).toBe("merging");
+    expect(gerundize("prune")).toBe("pruning");
+  });
+  it("ie -> ying (die -> dying)", () => {
+    expect(gerundize("die")).toBe("dying");
+  });
+  it("preserves consonant + plain ing (build -> building)", () => {
+    expect(gerundize("build")).toBe("building");
+    expect(gerundize("add")).toBe("adding");
+    // CVC consonant-doubling (ship -> shipping) intentionally NOT handled —
+    // gerundize returns "shiping" for those. Acceptable for our copy use case.
+  });
+  it("preserves ee (see -> seeing)", () => {
+    expect(gerundize("see")).toBe("seeing");
+  });
+});
 
 describe("deriveCopy", () => {
   it("picks top 3 verbs from git verbs, falls back to generic", () => {
