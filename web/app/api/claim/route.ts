@@ -100,5 +100,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (req as unknown as { nextUrl?: { origin: string } }).nextUrl?.origin ??
     new URL(req.url).origin;
+  // TODO(post-alpha): fire plausible claim_complete event server-side via
+  // fetch('https://plausible.io/api/event', { method: 'POST', ... })
+
   return NextResponse.redirect(`${origin}/u/${handle}`);
 }

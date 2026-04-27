@@ -27,8 +27,10 @@ const v1HtmlPath = join(here, "..", "public", "v1", "index.html");
 // Read once at module load -- cheap and avoids per-request I/O.
 const V1_HTML = readFileSync(v1HtmlPath, "utf8");
 
-// Read once at module load so every render doesn't re-inspect env.
-const PLAUSIBLE_DOMAIN = process.env["PLAUSIBLE_DOMAIN"] ?? "bench.dev";
+// Server-side origin for og:image and ShareBar prop. Client components cannot
+// read BENCH_PUBLIC_ORIGIN directly (no NEXT_PUBLIC_ prefix); we pass it as a
+// prop from this server component instead.
+const ORIGIN = process.env["BENCH_PUBLIC_ORIGIN"] ?? "https://bench.dev";
 
 function extractBody(html: string): string {
   const m = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
@@ -54,15 +56,20 @@ function htmlScriptEscape(json: string): string {
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
     .replace(/-->/g, "--\\u003e")
-    .replace(/\u2028/g, "\\u2028")
-    .replace(/\u2029/g, "\\u2029");
+    .replace(/\u2028/gu, "\\u2028")
+    .replace(/\u2029/gu, "\\u2029");
 }
 
+/**
+ * V1Page renders the v1 portrait as a React fragment.
+ *
+ * It does NOT emit <html>/<head>/<body> — those are owned by app/layout.tsx.
+ * Per-page og:image and title metadata are set via generateMetadata() exports
+ * on the individual route pages (/scan/[id], /u/[handle]).
+ * The Plausible script is injected once by app/layout.tsx.
+ */
 export function V1Page({ persona }: { persona: PersonaShape }): ReactElement {
   const personaJson = htmlScriptEscape(JSON.stringify(persona));
-  // Strip leading "@" for URL segments (og:image, share URLs).
-  const bareHandle = persona.handle.replace(/^@/, "");
-  const ogImageUrl = `https://bench.dev/api/og/${bareHandle}`;
 
   // Shim injects persona data under "priya" key (v1 boot hardcodes
   // `applyPersona('priya')`) and also under "_current" for forward compat.
@@ -73,32 +80,20 @@ export function V1Page({ persona }: { persona: PersonaShape }): ReactElement {
     `window.__BENCH_KEY__ = "_current";`;
 
   return (
-    <html lang="en">
-      <head>
-        <link rel="stylesheet" href="/v1/styles.css" />
-        <meta property="og:image" content={ogImageUrl} />
-        <meta property="og:title" content={`${persona.handle} on bench`} />
-        <meta name="description" content={`${persona.handle} -- Bench ${persona.score} -- ${persona.tier}`} />
-        <script
-          defer
-          data-domain={PLAUSIBLE_DOMAIN}
-          src="https://plausible.io/js/script.js"
-        />
-      </head>
-      <body>
-        {/* Shim must execute before v1 script.js so PERSONAS is overridden */}
-        <script
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: shimScript }}
-        />
-        <div
-          id="bench-root"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: extractBody(V1_HTML) }}
-        />
-        <ShareBar persona={persona} />
-        <script src="/v1/script.js" defer />
-      </body>
-    </html>
+    <>
+      <link rel="stylesheet" href="/v1/styles.css" />
+      {/* Shim must execute before v1 script.js so PERSONAS is overridden */}
+      <script
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: shimScript }}
+      />
+      <div
+        id="bench-root"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: extractBody(V1_HTML) }}
+      />
+      <ShareBar persona={persona} origin={ORIGIN} />
+      <script src="/v1/script.js" defer />
+    </>
   );
 }

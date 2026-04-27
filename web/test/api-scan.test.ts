@@ -218,7 +218,7 @@ describe("/api/scan", () => {
     expect(r.status).toBe(200);
     const j = await r.json();
     expect(j.id).toMatch(/^[a-zA-Z0-9_-]{10}$/);
-    expect(j.url).toMatch(/^https:\/\/bench\.dev\/scan\//);
+    expect(j.url).toMatch(/\/scan\/[a-zA-Z0-9_-]{10}$/);
     expect(typeof j.score).toBe("number");
     expect(typeof j.is_suspect).toBe("boolean");
   });

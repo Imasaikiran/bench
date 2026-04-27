@@ -101,9 +101,19 @@ export async function POST(req: NextRequest): Promise<Response> {
     );
   }
 
+  // TODO(post-alpha): fire plausible scan_upload event server-side via
+  // fetch('https://plausible.io/api/event', { method: 'POST', ... })
+
+  // Use NextRequest.nextUrl when available (production); fall back to the
+  // standard URL API for test environments that use plain Request.
+  const origin =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (req as unknown as { nextUrl?: { origin: string } }).nextUrl?.origin ??
+    new URL(req.url).origin;
+
   return NextResponse.json({
     id,
-    url: `https://bench.dev/scan/${id}`,
+    url: `${origin}/scan/${id}`,
     is_suspect: isSuspect,
     score: rescored.score,
   });

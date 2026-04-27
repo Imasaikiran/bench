@@ -61,37 +61,29 @@ describe("V1Page", () => {
     expect(html).toContain("\\u003c/script\\u003e");
   });
 
-  it("og:image meta points to /api/og/<handle>", () => {
-    const html = renderToString(<V1Page persona={persona} />);
-    expect(html).toContain('property="og:image"');
-    expect(html).toContain("https://bench.dev/api/og/priya_dev");
-  });
-
-  it("anonymous handle (@anonymous) strips the @ in og url", () => {
-    const html = renderToString(
-      <V1Page persona={{ ...persona, handle: "@anonymous" }} />,
-    );
-    expect(html).toContain("https://bench.dev/api/og/anonymous");
-  });
-
-  it("injects Plausible <script> tag in <head>", () => {
-    const html = renderToString(<V1Page persona={persona} />);
-    expect(html).toContain("plausible.io/js/script.js");
-    expect(html).toContain("data-domain");
-  });
-
   it("strips v1's bootstrap <script src='script.js'> from extracted body", () => {
     const html = renderToString(<V1Page persona={persona} />);
     // The relative "script.js" tag from v1/index.html must be stripped
     // (it would 404 against the route path). Only the injected /v1/script.js
-    // and the Plausible CDN script should remain.
+    // should remain — Plausible is now injected by app/layout.tsx, not V1Page.
     const matches = html.match(/src=["'][^"']*script\.js["']/g) ?? [];
-    // Expect exactly 2 matches: /v1/script.js (deferred boot) +
-    // https://plausible.io/js/script.js (analytics).
-    expect(matches).toHaveLength(2);
+    // Expect exactly 1 match: /v1/script.js (deferred boot).
+    // Plausible CDN script is no longer present in V1Page (layout owns it).
+    expect(matches).toHaveLength(1);
     expect(matches.some((m) => m.includes("/v1/script.js"))).toBe(true);
-    expect(matches.some((m) => m.includes("plausible.io"))).toBe(true);
     // Relative "script.js" (bare, no path prefix) must not appear.
     expect(matches.some((m) => /src=["']script\.js["']/.test(m))).toBe(false);
+    // Plausible must NOT be injected by V1Page — layout owns analytics.
+    expect(html).not.toContain("plausible.io");
+  });
+
+  it("does not emit html/head/body wrappers (fragment only)", () => {
+    const html = renderToString(<V1Page persona={persona} />);
+    // V1Page must not emit structural tags — layout owns those.
+    expect(html).not.toContain("<html");
+    expect(html).not.toContain("<body");
+    // <head> may appear inside v1 body HTML (unlikely but check it's not from us).
+    // We check that og:image meta is NOT present (it's handled by generateMetadata).
+    expect(html).not.toContain('property="og:image"');
   });
 });

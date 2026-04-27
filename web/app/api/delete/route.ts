@@ -84,6 +84,9 @@ export async function POST(req: NextRequest): Promise<Response> {
     console.error("revalidate failed:", err instanceof Error ? err.message : err);
   }
 
+  // TODO(post-alpha): fire plausible delete_complete event server-side via
+  // fetch('https://plausible.io/api/event', { method: 'POST', ... })
+
   const res = NextResponse.json({
     ok: true,
     deleted: { scans: latestScan ? 1 : 0, handle },

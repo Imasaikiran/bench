@@ -67,10 +67,10 @@ const shareBarStyles = `
   }
 `;
 
-export function buildShareUrl(persona: PersonaShape): string {
+export function buildShareUrl(persona: PersonaShape, origin = "https://bench.dev"): string {
   const handle = persona.handle.replace(/^@/, "");
-  if (handle === "anonymous") return "https://bench.dev/"; // demo / unclaimed
-  return `https://bench.dev/u/${handle}`;
+  if (handle === "anonymous") return `${origin}/`; // demo / unclaimed
+  return `${origin}/u/${handle}`;
 }
 
 export function tweetIntent(persona: PersonaShape, url: string): string {
@@ -86,8 +86,8 @@ function fireShareClick(): void {
   plausible("share_click");
 }
 
-export function ShareBar({ persona }: { persona: PersonaShape }) {
-  const url = buildShareUrl(persona);
+export function ShareBar({ persona, origin = "https://bench.dev" }: { persona: PersonaShape; origin?: string }) {
+  const url = buildShareUrl(persona, origin);
   const [disclosed, setDisclosed] = useState(true); // optimistic until effect runs
   const [pending, setPending] = useState<null | "x" | "linkedin">(null);
 

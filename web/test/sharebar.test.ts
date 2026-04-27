@@ -35,14 +35,26 @@ const persona: PersonaShape = {
 
 describe("ShareBar URL builders", () => {
   it("buildShareUrl uses /u/<handle> for claimed handle", () => {
-    expect(buildShareUrl({ ...persona, handle: "@priya_dev" })).toBe(
+    expect(buildShareUrl({ ...persona, handle: "@priya_dev" }, "https://bench.dev")).toBe(
       "https://bench.dev/u/priya_dev",
     );
   });
 
   it("buildShareUrl falls back to / for @anonymous", () => {
-    expect(buildShareUrl({ ...persona, handle: "@anonymous" })).toBe(
+    expect(buildShareUrl({ ...persona, handle: "@anonymous" }, "https://bench.dev")).toBe(
       "https://bench.dev/",
+    );
+  });
+
+  it("buildShareUrl uses provided origin (staging/preview)", () => {
+    expect(buildShareUrl({ ...persona, handle: "@priya_dev" }, "https://preview.bench.dev")).toBe(
+      "https://preview.bench.dev/u/priya_dev",
+    );
+  });
+
+  it("buildShareUrl defaults to bench.dev when no origin provided", () => {
+    expect(buildShareUrl({ ...persona, handle: "@priya_dev" })).toBe(
+      "https://bench.dev/u/priya_dev",
     );
   });
 
