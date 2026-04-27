@@ -7,7 +7,7 @@
   "files": ["dist/", "rubric.yaml", "package.json"],
   "scripts": {
     "copy:rubric": "cp ../rubric/rubric.yaml ./rubric.yaml",
-    "copy:assets": "cp ../web/public/v1/styles.css src/assets/styles.css && cp ../web/public/v1/script.js src/assets/script.js",
+    "copy:assets": "cp ../web/public/v1/styles.css src/assets/styles.css && cp ../web/public/v1/script.js src/assets/script.js && cp ../web/public/v1/index.html src/assets/v1-index.html",
     "pretest": "pnpm copy:rubric",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",

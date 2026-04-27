@@ -19,29 +19,45 @@ function htmlScriptEscape(json: string): string {
 }
 
 /**
- * Substitute all three template tokens in a single regex pass over `tpl`.
+ * Extract the body of v1/index.html and strip its bootstrap <script src="script.js">.
+ * Mirrors web/lib/v1render.tsx so the offline page renders the same constellation
+ * markup that v1's script.js expects to paint into.
+ */
+export function extractV1Body(html: string): string {
+  const m = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (!m || !m[1]) {
+    throw new Error("v1-index.html missing <body> -- frozen markup invariant violated");
+  }
+  return m[1].replace(
+    /<script\b[^>]*\bsrc=["']script\.js["'][^>]*><\/script>\s*/gi,
+    "",
+  );
+}
+
+/**
+ * Substitute all four template tokens in a single regex pass over `tpl`.
  *
  * A single-pass approach prevents chain-replacement bugs where injected asset
  * content (e.g. CSS containing the literal `__PERSONA_JSON__`) would be
  * re-processed by a later replaceAll call.
- *
- * @param tpl         - The HTML template string.
- * @param css         - Content for the `/*__STYLES__*\/` slot.
- * @param js          - Content for the `/*__SCRIPT__*\/` slot.
- * @param personaJson - HTML-script-escaped persona JSON for the `__PERSONA_JSON__` slot.
  */
 export function substituteTemplate(
   tpl: string,
   css: string,
   js: string,
   personaJson: string,
+  body: string,
 ): string {
   const map: Record<string, string> = {
     "/*__STYLES__*/": css,
     "/*__SCRIPT__*/": js,
     "__PERSONA_JSON__": personaJson,
+    "<!--__BODY__-->": body,
   };
-  return tpl.replace(/\/\*__STYLES__\*\/|\/\*__SCRIPT__\*\/|__PERSONA_JSON__/g, (m) => map[m]!);
+  return tpl.replace(
+    /\/\*__STYLES__\*\/|\/\*__SCRIPT__\*\/|__PERSONA_JSON__|<!--__BODY__-->/g,
+    (m) => map[m]!,
+  );
 }
 
 /**
@@ -76,16 +92,18 @@ export async function writeLocalExport(
 
   // Load asset files (lazy — no import-time I/O)
   const assetsDir = join(dirname(fileURLToPath(import.meta.url)), "assets");
-  const [css, js, tpl] = await Promise.all([
+  const [css, js, tpl, v1Index] = await Promise.all([
     fs.readFile(join(assetsDir, "styles.css"), "utf8"),
     fs.readFile(join(assetsDir, "script.js"), "utf8"),
     fs.readFile(join(assetsDir, "offline-template.html"), "utf8"),
+    fs.readFile(join(assetsDir, "v1-index.html"), "utf8"),
   ]);
 
   // HTML-script-context escape the persona JSON (I-1: prevents </script> injection).
   // substituteTemplate performs a single-pass replacement (I-2: no chain substitution).
   const safePersonaJson = htmlScriptEscape(JSON.stringify(persona));
-  const html = substituteTemplate(tpl, css, js, safePersonaJson);
+  const v1Body = extractV1Body(v1Index);
+  const html = substituteTemplate(tpl, css, js, safePersonaJson, v1Body);
 
   await fs.writeFile(join(dir, "bench-scan.html"), html);
 }

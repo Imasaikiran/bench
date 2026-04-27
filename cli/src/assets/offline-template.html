@@ -7,11 +7,9 @@
     <style>/*__STYLES__*/</style>
   </head>
   <body>
-    <main id="bench-root">
-      <h1>bench</h1>
-      <p>Your scan results are embedded in this file. Open in a browser with JavaScript enabled.</p>
-    </main>
     <script>window.__BENCH_PERSONA__ = __PERSONA_JSON__;</script>
+    <script>window.PERSONAS = { priya: window.__BENCH_PERSONA__, _current: window.__BENCH_PERSONA__ }; window.__BENCH_KEY__ = "_current";</script>
+    <div id="bench-root"><!--__BODY__--></div>
     <script>/*__SCRIPT__*/</script>
   </body>
 </html>
