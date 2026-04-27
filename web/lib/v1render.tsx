@@ -101,6 +101,10 @@ export function V1Page({ persona }: { persona: PersonaShape }): ReactElement {
       />
       <div
         id="bench-root"
+        // v1 was authored as a static HTML prototype, not React-validated —
+        // browser-side parsing may auto-correct nested tags slightly, causing
+        // a benign hydration warning that is not a real mismatch. Suppress.
+        suppressHydrationWarning
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: extractBody(V1_HTML) }}
       />
