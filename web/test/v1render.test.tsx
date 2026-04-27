@@ -77,6 +77,31 @@ describe("V1Page", () => {
     expect(html).not.toContain("plausible.io");
   });
 
+  it("renders Recommendations section sourced from rubric.yaml", () => {
+    const html = renderToString(<V1Page persona={persona} />);
+    expect(html).toContain('aria-label="Recommendations"');
+    expect(html).toContain("What to do, in order");
+    // Heading copy must trace to rubric.yaml rationale, not editorial prose.
+    // Foundation #4 ("sub-dir CLAUDE.md") is missing in the fixture, so its
+    // name should appear.
+    expect(html).toContain("sub-dir CLAUDE.md");
+  });
+
+  it("hides Recommendations when score is perfect (all 'have')", () => {
+    const allHave = {
+      ...persona,
+      clusters: {
+        Foundation: ["have", "have", "have", "have", "have"],
+        Automation: ["have", "have", "have", "have", "have"],
+        Delegation: ["have", "have", "have", "have", "have"],
+        Craft: ["have", "have", "have", "have", "have"],
+        Coherence: ["have", "have", "have", "have", "have"],
+      },
+    };
+    const html = renderToString(<V1Page persona={allHave as never} />);
+    expect(html).not.toContain('aria-label="Recommendations"');
+  });
+
   it("does not emit html/head/body wrappers (fragment only)", () => {
     const html = renderToString(<V1Page persona={persona} />);
     // V1Page must not emit structural tags — layout owns those.

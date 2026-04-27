@@ -19,6 +19,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ReactElement } from "react";
+import { Recommendations } from "../app/_components/Recommendations";
 import { ShareBar } from "../app/_components/ShareBar";
 import type { PersonaShape } from "./mapper";
 
@@ -92,6 +93,7 @@ export function V1Page({ persona }: { persona: PersonaShape }): ReactElement {
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: extractBody(V1_HTML) }}
       />
+      <Recommendations persona={persona} />
       <ShareBar persona={persona} origin={ORIGIN} />
       <script src="/v1/script.js" defer />
     </>
