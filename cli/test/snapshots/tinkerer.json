@@ -79,7 +79,7 @@
     "coherence_score": 1,
     "conventional_ratio": 0,
     "commit_burst_correlation": 0,
-    "weeks_on_cc": 6,
+    "weeks_on_cc": 5,
     "active_hours_total": 1.4147222222222222,
     "avg_bytes_per_read": 2879.08
   },

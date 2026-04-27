@@ -16,13 +16,18 @@
  * doesn't cwd into cli/ (matches scanner/index.test.ts convention).
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { scan } from "../src/scanner";
 import { loadRubric } from "../src/rubric/load";
 import { scoreFromCounts } from "../src/rubric/score";
+
+// Pin Date.now() so weeks_on_cc (scanner/sessions.ts:218 — Date.now() vs
+// earliest session) is deterministic. Snapshots were generated against
+// 2026-04-25; without pinning the value drifts +1 week per real-world week.
+const SNAPSHOT_NOW = new Date("2026-04-25T00:00:00.000Z");
 
 // Absolute paths — survive any runner cwd.
 const here = dirname(fileURLToPath(import.meta.url));
@@ -45,6 +50,14 @@ interface SnapshotData {
 
 describe("tier fixture snapshots", () => {
   const rubric = loadRubric(rubricPath);
+
+  beforeAll(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: false });
+    vi.setSystemTime(SNAPSHOT_NOW);
+  });
+  afterAll(() => {
+    vi.useRealTimers();
+  });
 
   for (const name of TIERS) {
     it(`${name} snapshot matches`, async () => {
