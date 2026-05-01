@@ -7,6 +7,7 @@ import { verifyClientHmac } from "../../../lib/hmac";
 import { reScoreFromCounts } from "../../../lib/rubric";
 import { detectAnomalies } from "../../../lib/anomaly";
 import { rateLimitOk, hashIp } from "../../../lib/ratelimit";
+import { captureException } from "../../../lib/sentry-capture";
 
 export const runtime = "nodejs"; // need node:crypto + filesystem (rubric.yaml load)
 
@@ -94,6 +95,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       )
     `;
   } catch (err) {
+    captureException(err, { route: "/api/scan", scan_id: id });
     console.error(`scan insert failed for id=${id}:`, err instanceof Error ? err.message : err);
     return NextResponse.json(
       { error: "storage unavailable" },

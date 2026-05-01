@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { sql } from "../../../lib/db";
 import { verifySession } from "../../../lib/github";
+import { captureException } from "../../../lib/sentry-capture";
 
 export const runtime = "nodejs";
 
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       );
     }
   } catch (err) {
+    captureException(err, { route: "/api/claim", handle });
     console.error(
       "claim insert failed:",
       err instanceof Error ? err.message : err,
