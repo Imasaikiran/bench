@@ -1,0 +1,48 @@
+name: Publish CLI to npm
+
+on:
+  push:
+    tags:
+      - "v2-alpha.*"
+
+# Only one publish job at a time. If two tags land back-to-back the second
+# waits for the first instead of racing against the npm registry.
+concurrency:
+  group: publish-cli
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: publish @imasaikiran/bench (alpha)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        # Version sourced from root package.json `packageManager` field
+        # (pnpm@9.12.0) — keep in sync with ci.yml / e2e.yml.
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck cli
+        run: pnpm -C cli typecheck
+
+      - name: Test cli
+        run: pnpm -C cli test
+
+      - name: Build cli
+        run: pnpm -C cli build
+
+      - name: Publish to npm (alpha tag)
+        run: pnpm publish --tag alpha --access public --no-git-checks
+        working-directory: cli
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
