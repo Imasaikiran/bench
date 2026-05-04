@@ -8,6 +8,7 @@ import {
   getGitHubUser,
 } from "../../../../lib/github";
 import { randomBytes } from "node:crypto";
+import { captureException } from "../../../../lib/sentry-capture";
 
 export const runtime = "nodejs";
 
@@ -80,14 +81,16 @@ export async function GET(req: NextRequest): Promise<Response> {
   let token: string;
   try {
     token = await exchangeCodeForToken(code, redirectUri);
-  } catch {
+  } catch (err) {
+    captureException(err, { route: "/api/auth/github", step: "exchange_code" });
     return NextResponse.json({ error: "oauth exchange failed" }, { status: 400 });
   }
 
   let user: { id: number; login: string };
   try {
     user = await getGitHubUser(token);
-  } catch {
+  } catch (err) {
+    captureException(err, { route: "/api/auth/github", step: "fetch_user" });
     return NextResponse.json(
       { error: "github user fetch failed" },
       { status: 500 },
