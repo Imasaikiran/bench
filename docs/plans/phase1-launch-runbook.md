@@ -37,7 +37,7 @@ Set in Vercel project settings → Environment Variables → Production. None of
 | `PLAUSIBLE_API_KEY` | Plausible | `web/app/internal/metrics/page.tsx` | Stats API token (read-only). |
 | `BENCH_PUBLIC_ORIGIN` | self-set | `web/lib/v1render.tsx`, `/scan/[id]`, `/u/[handle]` | `https://bench.dev`. |
 | `OVER_CAPACITY` | manual | `web/app/api/scan/route.ts` | **Must be unset or `"0"` at launch.** Set to `"1"` only to engage the kill switch (see §5). |
-| `SENTRY_DSN` | Sentry | `web/` runtime | TODO(launch-day): wire Sentry SDK on Day -1 if not yet shipped (referenced in plan but no Task ID confirmed in this runbook's scope). If Sentry is not wired, log this as a known gap in §6.3. |
+| `SENTRY_DSN` | Sentry | `web/` runtime (`sentry.client.config.ts`, `sentry.edge.config.ts`, `sentry.server.config.ts`) | Sentry wired (commit `c94f690`) and gated on this var. Leave unset for preview deploys; set in **Production** scope only. If unset in Production, runtime is silent — that is the deliberate fallback, not a bug. |
 
 - [ ] All variables above are set in Vercel **Production** scope (not Preview).
 - [ ] Re-deploy triggered after env changes (Vercel does not pick up env changes without a redeploy).

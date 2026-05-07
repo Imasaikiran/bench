@@ -2,12 +2,14 @@
 // Typed Plausible event emitter. Safe in SSR — no-ops on server.
 // The Plausible <script> tag is injected by V1Page (lib/v1render.tsx).
 
+// Spec §11.1 event list. Keep in sync with web/app/internal/metrics page goals.
 export type PlausibleEvent =
   | "scan_upload"
   | "claim_complete"
   | "share_click"
   | "delete_complete"
-  | "rescan_detect";
+  | "rescan_detect"
+  | "feedback_submit";
 
 export type PlausibleProps = Record<string, string | number | boolean>;
 

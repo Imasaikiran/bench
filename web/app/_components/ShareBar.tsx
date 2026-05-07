@@ -13,18 +13,28 @@ const shareBarStyles = `
     justify-content: center;
     padding: 1.5rem 1rem;
     font-family: ui-sans-serif, system-ui, sans-serif;
+    flex-wrap: wrap;
   }
+  /* Spec §11 mobile NFR — tap targets ≥ 44px. Padding 0.85rem 1.4rem with
+     0.95rem font-size gives ~46px button height across all viewports.
+     Min-width keeps thumb-reachable on 320px screens without stacking. */
   .bench-share-bar button {
     background: #1a1a1a;
     color: #f7f6f3;
     border: 0;
-    padding: 0.6rem 1.1rem;
-    font-size: 0.9rem;
+    padding: 0.85rem 1.4rem;
+    font-size: 0.95rem;
     letter-spacing: 0.01em;
     cursor: pointer;
     border-radius: 999px;
+    min-height: 44px;
+    min-width: 120px;
   }
   .bench-share-bar button:hover { background: #333; }
+  @media (max-width: 380px) {
+    .bench-share-bar { flex-direction: column; align-items: stretch; padding: 1rem 1rem; }
+    .bench-share-bar button { width: 100%; }
+  }
 
   .bench-disclosure-overlay {
     position: fixed; inset: 0;
@@ -133,13 +143,19 @@ export function ShareBar({ persona, origin = "https://bench.dev" }: { persona: P
       {pending !== null && (
         <div role="dialog" aria-modal="true" data-bench-disclosure-modal className="bench-disclosure-overlay">
           <div className="bench-disclosure-panel">
-            <h2>Heads up — your portrait gets a permanent URL</h2>
+            <h2>One-time heads up before you share</h2>
             <p>
-              Sharing posts a link to <code>{url}</code>. The OG card is
-              server-rendered and cached for 24 hours; the URL itself stays live
-              until you delete your profile from <code>/u/{persona.handle.replace(/^@/, "")}</code>.
+              Sharing posts a link to <code>{url}</code>. Once {pending === "x" ? "X" : "LinkedIn"} fetches
+              the card preview, it may keep a copy of the image on its servers — even if you later delete
+              your bench page. This is how every link preview on the internet works, not a bench-specific quirk.
             </p>
-            <p>This is a one-time notice — we won&apos;t ask again on this device.</p>
+            <p>
+              You can still delete your bench profile and the OG image at the bench origin will stop being
+              served. Cached copies on external platforms are out of our control.
+            </p>
+            <p style={{ color: "#888", fontSize: "0.85rem" }}>
+              We won&apos;t ask again on this device.
+            </p>
             <div className="bench-disclosure-actions">
               <button type="button" onClick={() => setPending(null)} data-bench-disclosure-cancel>
                 Cancel
