@@ -36,11 +36,15 @@ export function openCommand(
  * Opens `url` in the system default browser.
  * The spawned child is detached and unref'd so the bench process can exit
  * independently of the browser.
+ *
+ * `BENCH_NO_OPEN=1` env var: skip spawn entirely. Used by the in-process
+ * smoke test and any CI run where opening a real browser is undesirable.
  */
 export function openUrl(
   url: string,
   opts?: { platform?: NodeJS.Platform; spawn?: SpawnFn },
 ): void {
+  if (process.env["BENCH_NO_OPEN"] === "1") return;
   const platform = opts?.platform ?? process.platform;
   const spawnFn: SpawnFn = opts?.spawn ?? nodeSpawn;
   const [cmd, args] = openCommand(platform, url);
