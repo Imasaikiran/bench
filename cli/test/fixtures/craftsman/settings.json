@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff)",
+      "Bash(pnpm test)",
+      "Bash(pnpm build)",
+      "Read",
+      "Edit",
+      "Glob",
+      "Grep"
+    ]
+  },
+  "mcpServers": {
+    "filesystem": { "command": "mcp-filesystem" }
+  }
+}

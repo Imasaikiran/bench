@@ -1,0 +1,7 @@
+{"type":"start","session_id":"sess_craftsman_05","start":"2026-03-30T09:02:00Z","cwd":"/Users/dev/sample-project"}
+{"type":"user_message","content":"clean up the fixtures dir"}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"using-fixtures"}}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"using-git"}}
+{"type":"tool_use","name":"Glob","input":{"pattern":"test/fixtures/**/*"}}
+{"type":"assistant_message","content":"Removed 4 stale binary fixtures, replaced with text equivalents."}
+{"type":"end","end":"2026-03-30T10:11:08Z"}

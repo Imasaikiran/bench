@@ -1,0 +1,237 @@
+version: "0.1.0"
+
+tiers:
+  - name: Explorer
+    conditions:
+      - "weeks_on_cc < 4 OR sessions_total < 20"
+  - name: Tinkerer
+    conditions:
+      - "weeks_on_cc >= 4"
+      - "sessions_total >= 20"
+      - "skills_total >= 2"
+      - "skills_unused_ratio > 0.1"
+  - name: Craftsman
+    conditions:
+      - "weeks_on_cc >= 12"
+      - "skills_total >= 3"
+      - "skills_unused_ratio <= 0.15"
+      - "plan_mode_ratio >= 0.25"
+      - "coherence_score >= 0.6"
+  - name: Operator
+    conditions:
+      - "weeks_on_cc >= 16"
+      - "agents_configured >= 2"
+      - "hooks_configured >= 3"
+      - "automation_events >= 300"
+      - "coherence_score >= 0.75"
+  - name: Conductor
+    conditions:
+      - "(all Operator conditions)"
+      - "cross_project_consistency_score >= 0.7"
+      - "skills_total >= 5"
+      - "skills_unused_ratio <= 0.1"
+      - "sub_dir_claude_md_count >= 2"
+      - "commit_burst_correlation >= 0.4"
+
+chapters:
+  Foundation:
+    slot_labels: ["CLAUDE.md", "settings", "permissions", "sub-dir md", "docs"]
+    dimensions:
+      - id: 1
+        name: "Root CLAUDE.md"
+        weight: 1.0
+        have_criteria: "exists, 20–300 lines"
+        partial_criteria: "exists but <20 or >300 lines"
+        rationale: "House rules anchor every session; too short means no norms, too long goes unread."
+        sources:
+          - "https://www.anthropic.com/engineering/claude-code-best-practices"
+      - id: 2
+        name: "settings.json"
+        weight: 1.0
+        have_criteria: "valid JSON, non-empty"
+        partial_criteria: "valid JSON but empty object"
+        rationale: "Explicit configuration beats implicit defaults; an empty settings.json is an unconfigured setup."
+        sources:
+          - "https://docs.claude.com/en/docs/claude-code/settings"
+      - id: 3
+        name: "permissions allowlist"
+        weight: 1.0
+        have_criteria: "permissions.allow has >= 3 entries"
+        partial_criteria: "permissions.allow has 1–2 entries"
+        rationale: "Allowlists cut prompt fatigue — three or more entries is the signal of deliberate tuning."
+        sources:
+          - "https://docs.claude.com/en/docs/claude-code/settings#permissions"
+      - id: 4
+        name: "sub-dir CLAUDE.md"
+        weight: 0.8
+        have_criteria: ">= 1 project has .claude/CLAUDE.md"
+        partial_criteria: null
+        rationale: "Project-scoped house rules outperform one mega-file that tries to describe every repo."
+        sources: []
+      - id: 5
+        name: "Docs in .claude"
+        weight: 0.4
+        have_criteria: "~/.claude/docs/ exists with content"
+        partial_criteria: null
+        rationale: "A local reference surface the assistant can grep beats inventing answers on the fly."
+        sources: []
+
+  Automation:
+    slot_labels: ["PostToolUse", "PreToolUse", "SessionStart", "slash cmds", "scripts"]
+    dimensions:
+      - id: 6
+        name: "PostToolUse hook"
+        weight: 1.0
+        have_criteria: "referenced in settings AND file exists"
+        partial_criteria: "referenced but file missing"
+        rationale: "Formatters and linters running post-tool are the highest-leverage automation surface."
+        sources:
+          - "https://docs.claude.com/en/docs/claude-code/hooks"
+      - id: 7
+        name: "PreToolUse hook"
+        weight: 1.0
+        have_criteria: "referenced in settings AND file exists"
+        partial_criteria: "referenced but file missing"
+        rationale: "Pre-tool guardrails catch the prompts that would burn time or money before the tool fires."
+        sources:
+          - "https://docs.claude.com/en/docs/claude-code/hooks"
+      - id: 8
+        name: "SessionStart or SessionEnd hook"
+        weight: 0.8
+        have_criteria: "referenced in settings AND file exists"
+        partial_criteria: "referenced but file missing"
+        rationale: "Boot-time context injection removes the ritual of re-explaining the repo every session."
+        sources:
+          - "https://docs.claude.com/en/docs/claude-code/hooks"
+      - id: 9
+        name: "Custom slash commands (>=3)"
+        weight: 0.8
+        have_criteria: "3 or more in ~/.claude/commands/"
+        partial_criteria: "1–2 commands in ~/.claude/commands/"
+        rationale: "Three or more custom slash commands signals a developer who has encoded their own rituals."
+        sources: []
+      - id: 10
+        name: "Automation events fired"
+        weight: 0.6
+        have_criteria: "automation_events > 100 in last 30 days"
+        partial_criteria: "10 <= automation_events <= 100"
+        rationale: "A hook configured but rarely fired is cosmetic — real automation leaves a heartbeat in the logs."
+        sources: []
+
+  Delegation:
+    slot_labels: ["skills", "pruned skills", "github MCP", "review agent", "test agent"]
+    dimensions:
+      - id: 11
+        name: "Skills (>=3)"
+        weight: 1.0
+        have_criteria: "3 or more SKILL.md files"
+        partial_criteria: "1–2 SKILL.md files"
+        rationale: "A three-plus skills roster means the assistant has a purposeful vocabulary to reach for."
+        sources: []
+      - id: 12
+        name: "Pruned skills"
+        weight: 1.0
+        have_criteria: "skills_unused_ratio <= 0.15"
+        partial_criteria: "skills_unused_ratio <= 0.3"
+        rationale: "Unused skills dilute discovery; pruning them is the craft that separates a collection from a toolkit."
+        sources: []
+      - id: 13
+        name: "GitHub MCP"
+        weight: 0.8
+        have_criteria: "github or mcp-github server in MCP config"
+        partial_criteria: "any MCP server configured"
+        rationale: "GitHub MCP is the highest-ROI MCP for most developer workflows — issues, PRs, code review, all in-session."
+        sources: []
+      - id: 14
+        name: "Code-review subagent"
+        weight: 0.8
+        have_criteria: "agent with 'review' in name or description"
+        partial_criteria: "any subagent configured"
+        rationale: "A dedicated reviewer agent catches what the main session rushes past when momentum is high."
+        sources: []
+      - id: 15
+        name: "Test-runner subagent"
+        weight: 0.6
+        have_criteria: "agent with 'test' in name or description"
+        partial_criteria: "any subagent configured"
+        rationale: "Delegating test runs to a focused agent keeps the main session's context from filling with output."
+        sources: []
+
+  Craft:
+    slot_labels: ["plan mode", "reads craft", "worktrees", "commits", "verify"]
+    dimensions:
+      - id: 16
+        name: "Plan mode used"
+        weight: 1.0
+        have_criteria: "plan_mode_ratio >= 0.25"
+        partial_criteria: "plan_mode_ratio >= 0.05"
+        rationale: "Plan-mode before non-trivial work is the single highest-correlation habit of setups that ship cleanly."
+        sources: []
+      - id: 17
+        name: "Reads craft"
+        weight: 0.6
+        have_criteria: "average bytes per Read-tool call <= 20KB"
+        partial_criteria: "average bytes per Read-tool call <= 60KB"
+        rationale: "Surgical reads beat slurping whole files and burning context budget on code the task does not need."
+        sources: []
+      - id: 18
+        name: "Worktrees"
+        weight: 0.6
+        have_criteria: "any path under .trees/ OR `git worktree list` non-empty"
+        partial_criteria: null
+        rationale: "Parallel worktrees unlock concurrent branches without resetting state — the closest thing to a second brain."
+        sources: []
+      - id: 19
+        name: "Commit discipline"
+        weight: 0.8
+        have_criteria: ">= 80% of commits on CC-active repos have conventional prefix"
+        partial_criteria: ">= 50% conventional commits"
+        rationale: "Conventional-prefix commits are a legible trace of intent — both the next human and the next agent benefit."
+        sources:
+          - "https://www.conventionalcommits.org/"
+      - id: 20
+        name: "Verification before commit"
+        weight: 1.0
+        have_criteria: "hook exists that runs tests or typecheck pre-commit"
+        partial_criteria: "hook exists but different type"
+        rationale: "A pre-commit verification hook is the smallest reliable defense against regressions landing on main."
+        sources: []
+
+  Coherence:
+    slot_labels: ["focus", "clean dir", "no-bloat", "names", "single-topic"]
+    dimensions:
+      - id: 21
+        name: "Focus"
+        weight: 0.6
+        have_criteria: "sessions grouped into <= 5 project roots"
+        partial_criteria: "sessions grouped into <= 10 project roots"
+        rationale: "Fewer project roots means deeper practiced context and less thrash per session."
+        sources: []
+      - id: 22
+        name: "Clean .claude/"
+        weight: 0.8
+        have_criteria: "no orphaned hooks AND no duplicate skill names"
+        partial_criteria: "< 20% orphans"
+        rationale: "Orphaned hooks and duplicate skill names are the visible smell of drift — easy to fix, easy to ignore."
+        sources: []
+      - id: 23
+        name: "No-bloat"
+        weight: 1.0
+        have_criteria: "skills_unused_ratio <= 0.1"
+        partial_criteria: "skills_unused_ratio <= 0.25"
+        rationale: "Fewer purposeful skills beat many half-used ones — less is more when the index has to stay scannable."
+        sources: []
+      - id: 24
+        name: "Names"
+        weight: 0.6
+        have_criteria: "100% of skills/commands/agents have description in frontmatter"
+        partial_criteria: ">= 80% have description in frontmatter"
+        rationale: "Descriptions in frontmatter are how skills and commands become discoverable — missing them means invisible tools."
+        sources: []
+      - id: 25
+        name: "Single-topic CLAUDE.md"
+        weight: 0.6
+        have_criteria: "root CLAUDE.md has <= 5 distinct headings"
+        partial_criteria: "root CLAUDE.md has <= 10 distinct headings"
+        rationale: "A CLAUDE.md with too many distinct headings is a dumping ground, not house rules."
+        sources: []

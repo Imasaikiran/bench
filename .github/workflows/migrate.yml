@@ -1,0 +1,43 @@
+name: DB migrate (production)
+
+on:
+  # Manual trigger is the supported path. Run this AFTER Vercel reports the
+  # production deploy succeeded — never before, or the new schema can race
+  # the old code. See docs/plans/db-migration-deploy.md for the runbook.
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "MIGRATE" to confirm production migration'
+        required: true
+        default: ''
+
+# Never run two migrations at once. Postgres advisory locks would also work,
+# but a workflow-level guard is the cheapest correct answer.
+concurrency:
+  group: db-migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: github.event.inputs.confirm == 'MIGRATE'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        # pnpm@9.12.0 from root package.json `packageManager`.
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Run migrations
+        run: pnpm -C web migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}

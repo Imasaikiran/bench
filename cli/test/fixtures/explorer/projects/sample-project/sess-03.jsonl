@@ -1,0 +1,4 @@
+{"type":"start","session_id":"sess_explorer_03","start":"2026-04-18T11:30:09Z","cwd":"/Users/dev/hello-world"}
+{"type":"user_message","content":"add a hello function"}
+{"type":"assistant_message","content":"Here's a simple `hello` function added to index.js."}
+{"type":"end","end":"2026-04-18T11:33:47Z"}

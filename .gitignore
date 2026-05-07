@@ -5,3 +5,12 @@ node_modules/
 *.log
 .vscode/
 .idea/
+dist/
+.next/
+.vercel/
+*.tsbuildinfo
+coverage/
+.turbo/
+bench-scan.json
+bench-scan.html
+cli/rubric.yaml

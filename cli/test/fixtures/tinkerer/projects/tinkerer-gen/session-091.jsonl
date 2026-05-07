@@ -1,0 +1,2 @@
+{"role":"user","content":[{"type":"text","text":"Task 091: implement feature 443"}],"timestamp":"2026-04-20T20:06:44.554Z","cwd":"/home/user/work/tinkerer"}
+{"role":"assistant","content":[{"type":"tool_use","id":"tu_091_0_skill","name":"Skill","input":{"skill":"debugging-async"}},{"type":"text","text":"Done with step 1 of session 091."}],"timestamp":"2026-04-20T20:07:09.554Z","cwd":"/home/user/work/tinkerer"}

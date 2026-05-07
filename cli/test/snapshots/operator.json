@@ -1,0 +1,88 @@
+{
+  "chapters": {
+    "Foundation": {
+      "score": 48,
+      "states": [
+        "have",
+        "missing",
+        "have",
+        "missing",
+        "missing"
+      ]
+    },
+    "Automation": {
+      "score": 10,
+      "states": [
+        "missing",
+        "missing",
+        "missing",
+        "partial",
+        "missing"
+      ]
+    },
+    "Delegation": {
+      "score": 67,
+      "states": [
+        "have",
+        "missing",
+        "partial",
+        "have",
+        "have"
+      ]
+    },
+    "Craft": {
+      "score": 13,
+      "states": [
+        "missing",
+        "missing",
+        "missing",
+        "missing",
+        "partial"
+      ]
+    },
+    "Coherence": {
+      "score": 39,
+      "states": [
+        "have",
+        "have",
+        "missing",
+        "missing",
+        "missing"
+      ]
+    }
+  },
+  "counts": {
+    "sessions_total": 6,
+    "plan_mode_sessions": 0,
+    "plan_mode_ratio": 0,
+    "skills_total": 10,
+    "skills_active": 0,
+    "skills_unused_ratio": 1,
+    "duplicate_skill_fraction": 0,
+    "hooks_configured": 3,
+    "orphaned_hooks_fraction": 0,
+    "any_hook_present": true,
+    "agents_configured": 3,
+    "review_agent": true,
+    "test_agent": true,
+    "commands_total": 1,
+    "mcp_servers": 2,
+    "mcp_has_github": false,
+    "automation_events": 3,
+    "worktrees_detected": 0,
+    "claude_md_lines": 163,
+    "distinct_heading_count": 26,
+    "sub_dir_claude_md_count": 0,
+    "permissions_allow_count": 12,
+    "settings_nonempty": true,
+    "project_root_count": 1,
+    "coherence_score": 1,
+    "conventional_ratio": 0,
+    "commit_burst_correlation": 0,
+    "weeks_on_cc": 19,
+    "active_hours_total": 0,
+    "avg_bytes_per_read": 0
+  },
+  "rubric_version": "0.1.0",
+  "score": 35
+}

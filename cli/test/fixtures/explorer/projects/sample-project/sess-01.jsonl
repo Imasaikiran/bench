@@ -1,0 +1,4 @@
+{"type":"start","session_id":"sess_explorer_01","start":"2026-04-12T09:14:00Z","cwd":"/Users/dev/hello-world"}
+{"type":"user_message","content":"how do I run this Node script?"}
+{"type":"assistant_message","content":"You can run it with `node index.js` from the project root."}
+{"type":"end","end":"2026-04-12T09:16:42Z"}

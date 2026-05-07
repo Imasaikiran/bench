@@ -1,0 +1,4 @@
+{"type":"start","session_id":"sess_explorer_02","start":"2026-04-15T18:02:11Z","cwd":"/Users/dev/hello-world"}
+{"type":"user_message","content":"what does package.json do?"}
+{"type":"assistant_message","content":"It declares your project metadata and dependencies."}
+{"type":"end","end":"2026-04-15T18:04:55Z"}

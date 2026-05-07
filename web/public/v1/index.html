@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>bench — a portrait of your Claude Code practice</title>
+<meta name="description" content="Post your Bench." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- persona switcher (prototype only) -->
+<aside class="persona-switcher" aria-label="Persona preview">
+  <div class="ps-label">Preview</div>
+  <div class="ps-buttons" role="tablist">
+    <button data-persona="sam"   class="ps-btn" role="tab">Sam</button>
+    <button data-persona="priya" class="ps-btn is-active" role="tab">Priya</button>
+    <button data-persona="maya"  class="ps-btn" role="tab">Maya</button>
+    <button data-persona="alex"  class="ps-btn" role="tab">Alex</button>
+  </div>
+</aside>
+
+<header class="topbar">
+  <a class="wordmark" href="#">bench<span>.</span></a>
+  <div class="handle">
+    <div class="avatar" aria-hidden="true" id="avatar">P</div>
+    <span id="handle-text">@priya_dev</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <p class="eyebrow" id="eyebrow">scanned just now · 14 weeks on claude code</p>
+
+    <h1 class="hero-title" id="hero-title">You've been building.</h1>
+
+    <div class="hero-stats" id="hero-stats"></div>
+
+    <p class="identity" id="identity"></p>
+  </section>
+
+  <!-- ============ THE ATELIER — the flex / artifact ============ -->
+  <section class="atelier">
+    <div class="atelier-frame">
+      <div class="atelier-corner tl"></div>
+      <div class="atelier-corner tr"></div>
+      <div class="atelier-corner bl"></div>
+      <div class="atelier-corner br"></div>
+
+      <div class="atelier-head">
+        <div class="atelier-kicker">your bench</div>
+        <div class="atelier-handle" id="atelier-handle">@priya_dev</div>
+      </div>
+
+      <div class="bench-stage">
+        <svg id="constellation" viewBox="0 0 900 540" role="img" aria-label="Your setup, as a constellation">
+          <g id="links"></g>
+          <g id="stars"></g>
+          <g id="cluster-labels"></g>
+        </svg>
+
+        <div class="bench-hero">
+          <div class="bench-hours" id="bench-hours">187h</div>
+          <div class="bench-label">hours Claude gave back</div>
+          <div class="bench-meaning" id="bench-meaning">a full sprint back — 23 workdays, or a side-project shipped</div>
+          <div class="bench-signature" id="bench-signature">you install · you prune · you question</div>
+        </div>
+      </div>
+
+      <div class="bench-fineprint" id="atelier-seal">
+        <span id="seal-tier">Tinkerer</span>
+        <span class="bf-sep">·</span>
+        <span>Bench <b id="bench-score">62</b></span>
+        <span class="bf-sep">·</span>
+        <span id="seal-meta">Wk 14</span>
+      </div>
+
+      <div class="atelier-foot" id="atelier-foot"></div>
+    </div>
+
+    <div class="atelier-actions">
+      <button class="btn btn-primary" id="download-art">Download bench</button>
+      <button class="btn" id="share-x">Share on X</button>
+      <button class="btn" id="share-li">LinkedIn</button>
+    </div>
+  </section>
+
+  <!-- ============ CHAPTERS (compact strip) ============ -->
+  <section class="chapters-section">
+    <div class="section-label">five chapters</div>
+    <div class="chapters-strip" id="chapters-strip"></div>
+    <p class="chapter-note" id="chapter-note"></p>
+  </section>
+
+  <!-- ============ WHAT TO ADD ============ -->
+  <section class="add">
+    <div class="section-label">what to add</div>
+    <h2 class="section-title" id="add-title">The fastest four moves.</h2>
+    <p class="section-sub">Community-sourced from Boris's setup, awesome-claude-code, and alexop.dev. Click a missing one — it opens a snippet you can paste.</p>
+
+    <ul class="mh-list" id="mh-list"></ul>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="cta">
+    <div class="cta-inner">
+      <h2 class="cta-title">Changed something?</h2>
+      <div class="cmd" id="cmd">
+        <span class="prompt">$</span>
+        <code>npx bench</code>
+        <button class="copy" id="copy-cmd" aria-label="Copy command">Copy</button>
+      </div>
+      <p class="rubric-line">
+        25 dimensions. Open rubric. Community-editable. <a href="#" class="link">See it →</a>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <span>local scan · open rubric · nothing leaves your machine</span>
+  <span>v0.3 · synthetic preview</span>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

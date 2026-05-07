@@ -1,0 +1,5 @@
+{"role":"user","content":[{"type":"text","text":"hi"}],"timestamp":"2026-04-20T10:00:00.000Z"}
+{not valid json
+
+{"role":"assistant","content":[{"type":"text","text":"ok"}],"timestamp":"2026-04-20T10:00:30.000Z"}
+notavalidobject

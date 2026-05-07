@@ -1,0 +1,8 @@
+{"type":"start","session_id":"sess_craftsman_01","start":"2026-01-04T09:30:00Z","cwd":"/Users/dev/sample-project"}
+{"type":"user_message","content":"refactor the parser to support unicode"}
+{"type":"plan_mode_enter","timestamp":"2026-01-04T09:31:08Z"}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"plan-first"}}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"refactor-safely"}}
+{"type":"tool_use","name":"Read","input":{"file_path":"src/parser.ts"}}
+{"type":"assistant_message","content":"Plan: widen the codepoint range, add tests, refactor in 3 small commits."}
+{"type":"end","end":"2026-01-04T11:14:33Z"}

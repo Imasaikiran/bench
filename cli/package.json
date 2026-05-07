@@ -1,0 +1,29 @@
+{
+  "name": "@imasaikiran/bench",
+  "version": "0.0.1-alpha.0",
+  "type": "module",
+  "engines": { "node": ">=20.10" },
+  "bin": { "bench": "./dist/index.js" },
+  "files": ["dist/", "rubric.yaml", "package.json"],
+  "scripts": {
+    "copy:rubric": "cp ../rubric/rubric.yaml ./rubric.yaml",
+    "copy:assets": "cp ../web/public/v1/styles.css src/assets/styles.css && cp ../web/public/v1/script.js src/assets/script.js && cp ../web/public/v1/index.html src/assets/v1-index.html",
+    "pretest": "pnpm copy:rubric",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prebuild": "pnpm copy:rubric && pnpm copy:assets",
+    "build": "tsc -p . && cp -R src/assets dist/assets && chmod +x dist/index.js",
+    "prepack": "pnpm build"
+  },
+  "dependencies": {
+    "js-yaml": "4.1.0",
+    "nanoid": "5.0.7",
+    "picocolors": "1.1.1"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "4.0.9",
+    "@types/node": "20.14.10",
+    "typescript": "5.5.4",
+    "vitest": "2.0.5"
+  }
+}

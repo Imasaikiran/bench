@@ -1,0 +1,7 @@
+{"type":"start","session_id":"sess_craftsman_03","start":"2026-02-15T10:11:00Z","cwd":"/Users/dev/sample-project"}
+{"type":"user_message","content":"build is failing on CI but passes locally"}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"running-builds"}}
+{"type":"tool_use","name":"Skill","input":{"skill_name":"debugging-async"}}
+{"type":"tool_use","name":"Bash","input":{"command":"pnpm build"}}
+{"type":"assistant_message","content":"Race condition in the postbuild step — guarded with a lock."}
+{"type":"end","end":"2026-02-15T11:38:40Z"}
