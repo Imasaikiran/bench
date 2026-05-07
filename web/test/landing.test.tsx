@@ -1,14 +1,21 @@
 // web/test/landing.test.tsx
 // Locks key landing-page invariants — copy regression catcher.
-// Strategy: render the server component to a string and assert substrings.
-// We don't use jsdom (vitest env is "node"), but server components return
-// React elements which renderToStaticMarkup can serialise.
-import { describe, it, expect } from "vitest";
+// Strategy: invoke the async server component, then renderToStaticMarkup the
+// returned tree. Async server components are functions that return a Promise
+// of a React element, so we await it before passing to the renderer.
+import { describe, it, expect, beforeAll, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import Landing from "../app/page";
 
 describe("landing page copy invariants", () => {
-  const html = renderToStaticMarkup(<Landing />);
+  let html = "";
+  beforeAll(async () => {
+    // Default-mode render: no searchParams, NODE_ENV from vitest (test).
+    // This means the local-preview link will render (NODE_ENV !== "production")
+    // and the phase-0 banner will render (BENCH_LAUNCH_PHASE unset).
+    const tree = await Landing({});
+    html = renderToStaticMarkup(tree);
+  });
 
   it("contains the npx install command exactly", () => {
     // CopyInstall is a client component; SSR renders the literal text.
@@ -52,5 +59,54 @@ describe("landing page copy invariants", () => {
   it("references both phase 0 signal audit and design spec", () => {
     expect(html).toMatch(/phase0-signal/);
     expect(html).toMatch(/2026-04-25-bench-v2-design/);
+  });
+
+  it("renders the Phase-0 banner when BENCH_LAUNCH_PHASE is unset (default)", () => {
+    expect(html).toContain("data-phase-banner");
+    expect(html).toContain("the rubric is open");
+  });
+
+  it("renders the local-preview link in non-production NODE_ENV (default test env)", () => {
+    expect(html).toContain("data-local-preview");
+    expect(html).toMatch(/href="\/scan\/local"/);
+  });
+});
+
+describe("landing — Phase-1 launched (BENCH_LAUNCH_PHASE=1)", () => {
+  it("hides the Phase-0 banner once the env var flips", async () => {
+    const original = process.env["BENCH_LAUNCH_PHASE"];
+    process.env["BENCH_LAUNCH_PHASE"] = "1";
+    try {
+      const tree = await Landing({});
+      const html = renderToStaticMarkup(tree);
+      expect(html).not.toContain("data-phase-banner");
+    } finally {
+      if (original === undefined) delete process.env["BENCH_LAUNCH_PHASE"];
+      else process.env["BENCH_LAUNCH_PHASE"] = original;
+    }
+  });
+});
+
+describe("landing — production NODE_ENV without ?preview=1", () => {
+  it("hides the local-preview link in production unless ?preview=1", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    try {
+      const tree = await Landing({});
+      const html = renderToStaticMarkup(tree);
+      expect(html).not.toContain("data-local-preview");
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("shows the local-preview link in production WHEN ?preview=1 is set", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    try {
+      const tree = await Landing({ searchParams: Promise.resolve({ preview: "1" }) });
+      const html = renderToStaticMarkup(tree);
+      expect(html).toContain("data-local-preview");
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });

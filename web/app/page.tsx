@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { CopyInstall } from "./_components/CopyInstall";
 
-export const dynamic = "force-static";
+// Force-dynamic so we can read NODE_ENV + searchParams at request time.
+// Phase-0 banner state is env-driven; build-time prerender would freeze it.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "bench — score your Claude Code setup",
@@ -266,19 +268,77 @@ const styles = `
   footer a { color: var(--muted); border-bottom: 0; }
   footer a:hover { color: var(--accent); }
 
+  /* Phase-0 banner — shown until BENCH_LAUNCH_PHASE=1. Spec §13 Phase 0 gate. */
+  .phase-banner {
+    background: #0E0E12;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 32px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--fg-2);
+    letter-spacing: 0.04em;
+  }
+  .phase-banner b { color: var(--accent); font-weight: 500; }
+  .phase-banner a { color: var(--fg); border-bottom-color: var(--muted); }
+  .phase-banner a:hover { border-bottom-color: var(--accent); }
+
+  /* Local-preview link — debug only, only renders when NODE_ENV !== production
+     OR ?preview=1 is in the URL. Spec §5.7 --offline output → /scan/local. */
+  .local-preview {
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .local-preview a { color: var(--fg-2); border-bottom-color: var(--muted-2); }
+  .local-preview code {
+    background: #0E0E12; padding: 1px 5px; border-radius: 3px;
+    color: var(--fg-2);
+  }
+
   @media (max-width: 720px) {
     .land { padding: 0 20px; }
     .what-grid { grid-template-columns: 1fr; gap: 36px; }
     .trust-grid { grid-template-columns: 1fr; gap: 22px; }
     .install { font-size: 14px; padding: 14px 16px; gap: 10px; }
     .hero { padding: 56px 0 36px; }
+    .phase-banner { padding: 10px 20px; font-size: 11px; }
   }
 `;
 
-export default function Landing() {
+// Phase-0 banner gate: env-driven, default = show (until BENCH_LAUNCH_PHASE=1).
+function showPhaseZeroBanner(): boolean {
+  return process.env["BENCH_LAUNCH_PHASE"] !== "1";
+}
+
+// Local-preview link gate: dev mode OR explicit ?preview=1 query param.
+function showLocalPreview(searchParams: { [k: string]: string | string[] | undefined }): boolean {
+  if (process.env["NODE_ENV"] !== "production") return true;
+  return searchParams["preview"] === "1";
+}
+
+export default async function Landing({
+  searchParams,
+}: {
+  searchParams?: Promise<{ [k: string]: string | string[] | undefined }>;
+}) {
+  const params = (await searchParams) ?? {};
+  const showBanner = showPhaseZeroBanner();
+  const showPreview = showLocalPreview(params);
+
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: styles }} />
+      {showBanner && (
+        <div className="phase-banner" data-phase-banner>
+          <b>Phase 0</b> · the rubric is open · the CLI ships May 22, 2026 if it earns it.{" "}
+          <a href="https://github.com/Imasaikiran/bench/blob/main/docs/plans/phase0-signal.md">
+            Read the bet →
+          </a>
+        </div>
+      )}
       <div className="land">
         <header className="land-top">
           <div className="land-wordmark">
@@ -286,6 +346,7 @@ export default function Landing() {
           </div>
           <nav className="land-nav" aria-label="primary">
             <a href="/demo">Demo</a>
+            <a href="/about">About</a>
             <a href="/rubric">Rubric</a>
             <a href="/how-we-scored">How we scored</a>
             <a href="https://github.com/Imasaikiran/bench">GitHub</a>
@@ -306,6 +367,13 @@ export default function Landing() {
           <p className="install-note">
             5 minutes · zero accounts · zero installs · macOS · Linux · Windows
           </p>
+          {showPreview && (
+            <p className="local-preview" data-local-preview>
+              Already have a <code>bench-scan.json</code> from{" "}
+              <code>npx bench --offline</code>? Render it locally →{" "}
+              <a href="/scan/local">/scan/local</a>
+            </p>
+          )}
         </section>
 
         <section className="what" aria-label="what bench shows you">
