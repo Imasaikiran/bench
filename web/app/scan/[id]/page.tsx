@@ -54,5 +54,5 @@ export default async function ScanPage({
   if (rows.length === 0) notFound();
   const payload = rows[0]?.payload;
   if (!payload) notFound();
-  return <V1Page persona={toPersonaShape(payload)} />;
+  return <V1Page persona={toPersonaShape(payload)} scanId={id} />;
 }

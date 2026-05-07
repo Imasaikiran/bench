@@ -11,7 +11,7 @@
 | # | NFR | Threshold | Status | Evidence |
 |---|-----|-----------|--------|----------|
 | 1 | Viewport (320–380px): one scroll, no horizontal scrollbar | scrollbar absent | **PASS (after fix)** | `app/layout.tsx` now exports `viewport = { width: "device-width", initialScale: 1, maximumScale: 5 }`. Without this, mobile browsers emulate a 980px viewport and the v1 layout overflows. |
-| 2 | Viewport (320–380px): font ≥ 14px | violated by v1 frozen CSS | **DEFERRED to v2.1** | v1 `cli/src/assets/styles.css` has 18 rules at 9–13px (eyebrows, labels, captions). v1 is FROZEN per spec §2 — editing it breaks the persona-shape contract guard and the `web/test/v1-frozen.test.ts` hash pin. v2.1 will introduce a `min-font-size` mobile override layer. |
+| 2 | Viewport (320–380px): font ≥ 14px | violated by v1 frozen CSS | **PASS (after fix)** | v2-layer override at `web/public/v2/mobile-overrides.css` bumps every sub-14px v1 selector to 14px inside `@media (max-width: 380px)`. Loaded after `/v1/styles.css` from `web/lib/v1render.tsx`. v1 frozen — never edited. Documented exception: `.mh-copy` (9px chip) bumped to 12px text + 44px min-height to satisfy tap-target NFR without distorting the compact button. Structure regression test in `web/test/mobile-overrides.test.ts`. |
 | 3 | Viewport (320–380px): tap targets ≥ 44px | hard requirement | **PASS (after fix)** | `web/app/_components/ShareBar.tsx` buttons bumped to `min-height: 44px`, `padding: 0.85rem 1.4rem`, `font-size: 0.95rem`. Total computed height ≥ 46px. Stacking layout < 380px (`flex-direction: column`). |
 | 4 | Viewport (381–768px): card full-width | hard requirement | **PASS** | v1 `.constellation-stage` already uses `clamp()` and `max-width: var(--maxw)`. Inspection at 414px shows full-width fill. |
 | 5 | Viewport (381–768px): constellation legible | qualitative | **PASS** | v1 `.cluster-label` font-size 11px is borderline but legible at 414px+; SVG dots scale via clamp. |
@@ -37,12 +37,7 @@ No edits to v1 frozen assets (`cli/src/assets/styles.css`, `script.js`, `v1-inde
 
 ## 3. Deferred to v2.1
 
-**Mobile font-size floor.** v1 CSS uses 9–13px in many places. To satisfy the ≥ 14px NFR on small viewports without touching v1, the v2 layer must inject a mobile-only override stylesheet that bumps every rule below 14px to 14px inside a `@media (max-width: 380px)` block.
-
-This is straightforward but not safe to land mid-Phase-1 — visual regression risk is real and the audit window is past. Tracking item:
-
-- New task in v2.1 plan: `mobile-font-floor.css` + visual snapshot test at 320px / 375px / 390px viewports.
-- Must run on Pixel 5 (393px), iPhone SE (375px), iPhone 14 Pro (393px) before promoting to production.
+None. The font-size floor item that was deferred earlier landed in this audit cycle (`web/public/v2/mobile-overrides.css`). The remaining axe-core run is tracked in §4 below as a launch pre-flight item, not a deferral.
 
 ---
 

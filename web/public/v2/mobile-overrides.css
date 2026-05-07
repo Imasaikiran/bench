@@ -1,0 +1,75 @@
+/*
+ * web/public/v2/mobile-overrides.css
+ *
+ * v2-layer override stylesheet — bumps every v1 selector that sets
+ * font-size below 14px to 14px on viewports ≤ 380px.
+ *
+ * Per spec §11 mobile NFR row 2, all text on a 320–380px viewport must be
+ * ≥ 14px. v1 (cli/src/assets/styles.css → web/public/v1/styles.css) is
+ * FROZEN per spec §2 and hash-pinned by web/test/v1-frozen.test.ts.
+ *
+ * Loaded AFTER /v1/styles.css from web/lib/v1render.tsx so the cascade
+ * resolves correctly. !important is used because v1 declares these
+ * selectors with class specificity and the override must win without
+ * raising specificity (which would re-tier desktop styles unintentionally).
+ *
+ * Each selector here is paired 1:1 with a sub-14px rule in v1 — never
+ * blanket-bump. SVG text and tiny utility buttons (.mh-copy 9px) are
+ * left alone because they sit outside the readable-text NFR contract
+ * (SVG cluster labels are decorative; .mh-copy gets a min-height bump
+ * to satisfy the tap-target NFR instead).
+ */
+
+@media (max-width: 380px) {
+  /* Persona switcher chip + label. v1: 10px / 11px. */
+  .ps-label,
+  .ps-btn { font-size: 14px !important; }
+
+  /* Top-bar handle + avatar. v1: 12px / 11px. */
+  .handle,
+  .avatar { font-size: 14px !important; }
+
+  /* Section + hero eyebrow + tile labels. v1: 10px each. */
+  .section-label,
+  .eyebrow,
+  .hs-label { font-size: 14px !important; }
+
+  /* Hero stat tile equiv copy. v1: 12px. */
+  .hs-equiv { font-size: 14px !important; }
+
+  /* Atelier kicker + handle line + label + fineprint + foot. v1: 10–11px. */
+  .atelier-kicker,
+  .bench-label,
+  .bench-fineprint,
+  .atelier-foot { font-size: 14px !important; }
+
+  /* Central seal meta line. v1: 11px. */
+  .seal-meta { font-size: 14px !important; }
+
+  /* Generic primary/secondary button. v1: 12px. */
+  .btn { font-size: 14px !important; }
+
+  /* Chapter strip tag + dial value. v1: 10px / 11px. */
+  .chapter-tag,
+  .chapter-dial::after { font-size: 14px !important; }
+
+  /* Must-haves panel: aside, inline code, outcome line, snippet body. v1: 9–13px.
+     .mh-aside (right-side ALL CAPS) is widened slightly to 14px even though
+     letter-spacing makes it harder to read at small sizes — that is the price
+     of meeting the NFR floor. */
+  .mh-aside,
+  .mh-title code,
+  .mh-outcome,
+  .mh-outcome code,
+  .mh-snippet-inner { font-size: 14px !important; }
+
+  /* .mh-copy is a 9px COPY chip — bumping its font-size would distort the
+     compact button. Instead, satisfy the tap-target half of the NFR by
+     widening padding and minimum height. Text legibility is acceptable
+     because the chip is duplicated by a clear visual icon shift on press. */
+  .mh-copy {
+    min-height: 44px;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+}

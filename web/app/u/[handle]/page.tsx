@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 const ORIGIN = process.env["BENCH_PUBLIC_ORIGIN"] ?? "https://bench.dev";
 
 type ScanRow = { payload: unknown };
+type ScanWithIdRow = { id: string; payload: unknown };
 
 // TODO(perf): generateMetadata and the page component both run the same SELECT.
 // Next.js deduplicates fetch() calls but not raw SQL. For phase 1 a duplicate
@@ -47,14 +48,14 @@ export default async function HandlePage({
 }) {
   const { handle } = await params;
   const rows = (await sql`
-    SELECT s.payload
+    SELECT s.id, s.payload
     FROM profiles p
     JOIN scans s ON s.id = p.latest_scan
     WHERE p.handle = ${handle.toLowerCase()}
       AND (s.expires_at IS NULL OR s.expires_at > NOW())
-  `) as ScanRow[];
+  `) as ScanWithIdRow[];
   if (rows.length === 0) notFound();
-  const payload = rows[0]?.payload;
-  if (!payload) notFound();
-  return <V1Page persona={toPersonaShape(payload)} />;
+  const row = rows[0];
+  if (!row?.payload) notFound();
+  return <V1Page persona={toPersonaShape(row.payload)} scanId={row.id} />;
 }

@@ -19,6 +19,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ReactElement } from "react";
+import { FeedbackForm } from "../app/_components/FeedbackForm";
 import { Recommendations } from "../app/_components/Recommendations";
 import { ShareBar } from "../app/_components/ShareBar";
 import type { PersonaShape } from "./mapper";
@@ -68,8 +69,19 @@ function htmlScriptEscape(json: string): string {
  * Per-page og:image and title metadata are set via generateMetadata() exports
  * on the individual route pages (/scan/[id], /u/[handle]).
  * The Plausible script is injected once by app/layout.tsx.
+ *
+ * `scanId` (optional) flows down to <FeedbackForm>. Anonymous renders without
+ * a scanId — e.g. /demo (synthetic Priya) — get no feedback affordance,
+ * which is intentional per spec §5.8 (synthetic data should not pollute
+ * the feedback signal).
  */
-export function V1Page({ persona }: { persona: PersonaShape }): ReactElement {
+export function V1Page({
+  persona,
+  scanId,
+}: {
+  persona: PersonaShape;
+  scanId?: string;
+}): ReactElement {
   const personaJson = htmlScriptEscape(JSON.stringify(persona));
 
   // v1's script.js declares `const PERSONAS = {...}` at top-level — that's
@@ -94,6 +106,9 @@ export function V1Page({ persona }: { persona: PersonaShape }): ReactElement {
   return (
     <>
       <link rel="stylesheet" href="/v1/styles.css" />
+      {/* v2-layer mobile overrides — must load AFTER v1 so the cascade
+          resolves the !important rules correctly. Spec §11 NFR. */}
+      <link rel="stylesheet" href="/v2/mobile-overrides.css" />
       {/* Shim must execute before v1 script.js so PERSONAS is overridden */}
       <script
         // eslint-disable-next-line react/no-danger
@@ -109,6 +124,7 @@ export function V1Page({ persona }: { persona: PersonaShape }): ReactElement {
         dangerouslySetInnerHTML={{ __html: extractBody(V1_HTML) }}
       />
       <Recommendations persona={persona} />
+      <FeedbackForm scanId={scanId} />
       <ShareBar persona={persona} origin={ORIGIN} />
       <script src="/v1/script.js" defer />
     </>
