@@ -20,6 +20,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ReactElement } from "react";
 import { FeedbackForm } from "../app/_components/FeedbackForm";
+import { HeroReveal } from "../app/_components/HeroReveal";
 import { Recommendations } from "../app/_components/Recommendations";
 import { ShareBar } from "../app/_components/ShareBar";
 import type { PersonaShape } from "./mapper";
@@ -109,6 +110,10 @@ export function V1Page({
       {/* v2-layer mobile overrides — must load AFTER v1 so the cascade
           resolves the !important rules correctly. Spec §11 NFR. */}
       <link rel="stylesheet" href="/v2/mobile-overrides.css" />
+      {/* v2-layer atelier visual upgrades — constellation glow, link draw-in,
+          star pulse. v1 frontend stays frozen.
+          Spec: docs/plans/v2-design-audit.md §4.1. */}
+      <link rel="stylesheet" href="/v2/atelier-overrides.css" />
       {/* Shim must execute before v1 script.js so PERSONAS is overridden */}
       <script
         // eslint-disable-next-line react/no-danger
@@ -127,6 +132,7 @@ export function V1Page({
       <FeedbackForm scanId={scanId} />
       <ShareBar persona={persona} origin={ORIGIN} />
       <script src="/v1/script.js" defer />
+      <HeroReveal />
     </>
   );
 }

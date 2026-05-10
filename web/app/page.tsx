@@ -72,7 +72,68 @@ const styles = `
   .land-nav a { color: var(--fg-2); border-bottom: 0; }
   .land-nav a:hover { color: var(--accent); }
 
-  .hero { padding: 88px 0 56px; }
+  .hero { padding: 88px 0 56px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 64px; align-items: center; }
+  .hero-text { display: flex; flex-direction: column; }
+  .hero-teaser { display: flex; justify-content: flex-end; }
+
+  /* Mini-portrait teaser — uses the OG-card visual language so the landing
+     literally previews what the user will get. Audit §4.5. */
+  .teaser-card {
+    width: 100%;
+    max-width: 360px;
+    background: linear-gradient(180deg, #0c0c10 0%, #06060A 100%);
+    border: 1px solid var(--border-2);
+    border-radius: 12px;
+    padding: 28px 32px 32px;
+    box-shadow:
+      0 12px 30px rgba(0,0,0,0.30),
+      inset 0 1px 0 rgba(255,255,255,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+  .teaser-card::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 0%, rgba(201,169,110,0.08), transparent 50%);
+    pointer-events: none;
+  }
+  .teaser-wm {
+    font-family: var(--serif); font-size: 18px; letter-spacing: -0.02em;
+    color: var(--fg); position: relative; z-index: 1;
+  }
+  .teaser-wm span { color: var(--accent); font-style: italic; }
+  .teaser-hero {
+    font-family: var(--serif); font-size: 88px; font-weight: 400;
+    letter-spacing: -0.04em; line-height: 1; color: var(--fg);
+    text-shadow: 0 0 30px rgba(201,169,110,0.18);
+    margin: 26px 0 4px; position: relative; z-index: 1;
+  }
+  .teaser-cap {
+    font-family: var(--mono); font-size: 9px;
+    letter-spacing: 0.32em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 18px;
+    position: relative; z-index: 1;
+  }
+  .teaser-seal {
+    display: inline-block;
+    font-family: var(--serif); font-style: italic; font-size: 14px;
+    color: var(--accent); letter-spacing: -0.005em;
+    padding: 5px 14px;
+    border: 1px solid rgba(201,169,110,0.35);
+    border-radius: 999px;
+    background: rgba(201,169,110,0.08);
+    margin-bottom: 10px;
+    position: relative; z-index: 1;
+  }
+  .teaser-sig {
+    font-family: var(--serif); font-style: italic; font-size: 13px;
+    color: var(--fg-2); position: relative; z-index: 1;
+  }
+  .teaser-foot {
+    margin-top: 18px;
+    font-family: var(--mono); font-size: 10px;
+    color: var(--muted); letter-spacing: 0.06em;
+    position: relative; z-index: 1;
+  }
   .hero-eyebrow {
     font-family: var(--mono);
     font-size: 11px;
@@ -298,6 +359,12 @@ const styles = `
     color: var(--fg-2);
   }
 
+  @media (max-width: 900px) {
+    /* Stack the hero teaser below the text on tablet/mobile. */
+    .hero { grid-template-columns: 1fr; gap: 36px; }
+    .hero-teaser { justify-content: flex-start; }
+    .teaser-card { max-width: 420px; }
+  }
   @media (max-width: 720px) {
     .land { padding: 0 20px; }
     .what-grid { grid-template-columns: 1fr; gap: 36px; }
@@ -305,6 +372,7 @@ const styles = `
     .install { font-size: 14px; padding: 14px 16px; gap: 10px; }
     .hero { padding: 56px 0 36px; }
     .phase-banner { padding: 10px 20px; font-size: 11px; }
+    .teaser-hero { font-size: 64px; }
   }
 `;
 
@@ -354,26 +422,38 @@ export default async function Landing({
         </header>
 
         <section className="hero" aria-labelledby="hero-title">
-          <p className="hero-eyebrow">25 dimensions · 5 chapters · open rubric</p>
-          <h1 id="hero-title" className="hero-title">
-            A portrait of <em>how you work</em> with Claude Code.
-          </h1>
-          <p className="hero-sub">
-            One terminal command reads your <code>~/.claude/</code> directory, scores it
-            against a published rubric, and renders a one-page card you can share.
-            Nothing leaves your machine until you type <code>y</code>.
-          </p>
-          <CopyInstall />
-          <p className="install-note">
-            5 minutes · zero accounts · zero installs · macOS · Linux · Windows
-          </p>
-          {showPreview && (
-            <p className="local-preview" data-local-preview>
-              Already have a <code>bench-scan.json</code> from{" "}
-              <code>npx bench --offline</code>? Render it locally →{" "}
-              <a href="/scan/local">/scan/local</a>
+          <div className="hero-text">
+            <p className="hero-eyebrow">25 dimensions · 5 chapters · open rubric</p>
+            <h1 id="hero-title" className="hero-title">
+              A portrait of <em>how you work</em> with Claude Code.
+            </h1>
+            <p className="hero-sub">
+              One terminal command reads your <code>~/.claude/</code> directory, scores it
+              against a published rubric, and renders a one-page card you can share.
+              Nothing leaves your machine until you type <code>y</code>.
             </p>
-          )}
+            <CopyInstall />
+            <p className="install-note">
+              5 minutes · zero accounts · zero installs · macOS · Linux · Windows
+            </p>
+            {showPreview && (
+              <p className="local-preview" data-local-preview>
+                Already have a <code>bench-scan.json</code> from{" "}
+                <code>npx bench --offline</code>? Render it locally →{" "}
+                <a href="/scan/local">/scan/local</a>
+              </p>
+            )}
+          </div>
+          <aside className="hero-teaser" aria-label="sample portrait card">
+            <div className="teaser-card" data-bench-teaser>
+              <div className="teaser-wm">bench<span>.</span></div>
+              <div className="teaser-hero">187h</div>
+              <div className="teaser-cap">hours with Claude Code</div>
+              <div className="teaser-seal">Bench 62 · Tinkerer</div>
+              <div className="teaser-sig">you install · you prune · you question</div>
+              <div className="teaser-foot">bench.dev/u/priya_dev</div>
+            </div>
+          </aside>
         </section>
 
         <section className="what" aria-label="what bench shows you">
