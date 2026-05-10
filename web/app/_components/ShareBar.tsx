@@ -15,9 +15,9 @@ const shareBarStyles = `
     font-family: ui-sans-serif, system-ui, sans-serif;
     flex-wrap: wrap;
   }
-  /* Spec §11 mobile NFR — tap targets ≥ 44px. Padding 0.85rem 1.4rem with
-     0.95rem font-size gives ~46px button height across all viewports.
-     Min-width keeps thumb-reachable on 320px screens without stacking. */
+  /* Spec §11 mobile NFR — tap targets ≥ 44px.
+     Audit §4.4 — buttons get depth (inset top-light + drop-shadow) and a
+     translateY hover→press response so they feel like physical objects. */
   .bench-share-bar button {
     background: #1a1a1a;
     color: #f7f6f3;
@@ -28,9 +28,37 @@ const shareBarStyles = `
     cursor: pointer;
     border-radius: 999px;
     min-height: 44px;
-    min-width: 120px;
+    min-width: 140px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.08),
+      0 4px 14px rgba(0,0,0,0.30);
+    transition:
+      background 180ms cubic-bezier(0.22,0.61,0.36,1),
+      transform 120ms cubic-bezier(0.22,0.61,0.36,1),
+      box-shadow 180ms cubic-bezier(0.22,0.61,0.36,1);
   }
-  .bench-share-bar button:hover { background: #333; }
+  .bench-share-bar button:hover {
+    background: #2a2a2a;
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.10),
+      0 6px 20px rgba(0,0,0,0.40);
+  }
+  .bench-share-bar button:active {
+    transform: translateY(0);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.06),
+      0 2px 8px rgba(0,0,0,0.30);
+  }
+  .bench-share-bar button svg { flex: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .bench-share-bar button { transition: none !important; }
+    .bench-share-bar button:hover { transform: none !important; }
+  }
   @media (max-width: 380px) {
     .bench-share-bar { flex-direction: column; align-items: stretch; padding: 1rem 1rem; }
     .bench-share-bar button { width: 100%; }
@@ -133,11 +161,25 @@ export function ShareBar({ persona, origin = "https://bench.dev" }: { persona: P
     <>
       <style>{shareBarStyles}</style>
       <div className="bench-share-bar" data-bench-share-bar>
-        <button type="button" onClick={() => handleClick("x")} data-bench-share="x">
-          Share on X
+        <button type="button" onClick={() => handleClick("x")} data-bench-share="x" aria-label="Share on X">
+          {/* X (Twitter) glyph — currentColor, monochrome */}
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.16 17.52h1.833L7.084 4.126H5.117z"
+              fill="currentColor"
+            />
+          </svg>
+          <span>Share on X</span>
         </button>
-        <button type="button" onClick={() => handleClick("linkedin")} data-bench-share="linkedin">
-          Share on LinkedIn
+        <button type="button" onClick={() => handleClick("linkedin")} data-bench-share="linkedin" aria-label="Share on LinkedIn">
+          {/* LinkedIn glyph — currentColor, monochrome */}
+          <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+              fill="currentColor"
+            />
+          </svg>
+          <span>Share on LinkedIn</span>
         </button>
       </div>
       {pending !== null && (

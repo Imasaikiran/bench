@@ -33,6 +33,7 @@ function pickPayload(input: unknown): OgPayload {
     signature_verbs: Array.isArray(o["signature_verbs"])
       ? (o["signature_verbs"] as unknown[]).filter((v): v is string => typeof v === "string")
       : [],
+    handle: typeof o["handle"] === "string" ? (o["handle"] as string) : null,
   };
 }
 

@@ -1,0 +1,92 @@
+/*
+ * web/public/v2/atelier-overrides.css
+ *
+ * v2-layer override on the v1 atelier hero. v1 styles.css is FROZEN
+ * (hash-pinned by web/test/v1-frozen.test.ts). All atelier visual
+ * upgrades live here.
+ *
+ * Loaded after /v1/styles.css from web/lib/v1render.tsx so cascade resolves.
+ *
+ * Spec: docs/plans/v2-design-audit.md §4.1.
+ */
+
+/* ─────────────── 1. Constellation moves from "dust" to "earned background" ─────────────── */
+
+#constellation {
+  /* v1: opacity 0.22, filter saturate(0.6).
+     v2: 0.55 + saturate(0.85) + a faint gold drop-shadow so it actually
+         registers on a #08080A background. */
+  opacity: 0.55 !important;
+  filter: saturate(0.85) drop-shadow(0 0 20px rgba(201, 169, 110, 0.15)) !important;
+}
+
+/* Bright stars (chapter "have" dots) get a soft pulse so the constellation
+   feels alive without being noisy. 4s loop = roughly the cadence of slow
+   breathing — present but not anxious. */
+@keyframes bench-star-pulse {
+  0%   { filter: drop-shadow(0 0 10px rgba(201, 169, 110, 0.65)); }
+  50%  { filter: drop-shadow(0 0 18px rgba(201, 169, 110, 0.85)); }
+  100% { filter: drop-shadow(0 0 10px rgba(201, 169, 110, 0.65)); }
+}
+
+#stars circle.bright {
+  animation: bench-star-pulse 4s ease-in-out infinite;
+}
+
+/* Partial stars get a half-amplitude version. Pure decoration — half-state
+   should feel half-asleep, not the same as a full have. */
+@keyframes bench-star-pulse-half {
+  0%   { opacity: 0.45; }
+  50%  { opacity: 0.62; }
+  100% { opacity: 0.45; }
+}
+
+#stars circle.partial {
+  animation: bench-star-pulse-half 5s ease-in-out infinite;
+}
+
+/* Connect-lines draw in on first paint via stroke-dashoffset trick.
+   Each line gets `stroke-dasharray: 200; stroke-dashoffset: 200;` (set in
+   the JS side, see lib/v1render.tsx) and we animate dashoffset to 0 here.
+   Stagger handled by inline animation-delay on each line in the SVG. */
+#links line {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: bench-link-draw 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes bench-link-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ─────────────── 2. Atelier corner brackets earn their existence ─────────────── */
+
+.atelier-corner {
+  /* v1: opacity 0.45. Bump to 0.7 so the gold registers + give them
+     a faint glow so they read as "frame," not "decoration." */
+  opacity: 0.7 !important;
+  box-shadow: 0 0 8px rgba(201, 169, 110, 0.15);
+}
+
+/* ─────────────── 3. Central seal sits ON the constellation, not next to it ─────────────── */
+
+.atelier-seal {
+  /* v1: backdrop-filter blur(10px). Add a subtle gold inner glow so the
+     score+tier reads as the focal point, not just a chip floating in space. */
+  box-shadow:
+    inset 0 0 24px rgba(201, 169, 110, 0.05),
+    0 0 32px rgba(8, 8, 10, 0.6) !important;
+}
+
+/* ─────────────── 4. Reduced-motion respect ─────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  #stars circle.bright,
+  #stars circle.partial {
+    animation: none !important;
+  }
+  #links line {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}

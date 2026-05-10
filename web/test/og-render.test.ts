@@ -70,4 +70,67 @@ describe("og-render shared component", () => {
     const buf = Buffer.from(await res.arrayBuffer());
     expect(buf.length).toBeGreaterThan(1000);
   }, 15_000);
+
+  // Visual regression catcher — locks key signal lines from the design audit
+  // §4.2 (constellation glyph, gold seal, signature row, handle footer).
+  // We don't byte-diff the PNG (rendering is non-deterministic across font
+  // versions); we assert the JSX structure produces the right text content
+  // by walking the React element tree.
+  it("includes the wordmark, hero, hours caption, tier seal, signature, and handle footer", () => {
+    const tree = ogCard({
+      hours_with_cc: 187,
+      score: 62,
+      tier: "Tinkerer",
+      signature_verbs: ["install", "prune", "question"],
+      handle: "priya_dev",
+    });
+    const seen = collectText(tree);
+    expect(seen).toContain("bench");
+    expect(seen).toContain("187h");
+    expect(seen).toContain("hours with Claude Code");
+    expect(seen).toContain("Bench 62 · Tinkerer");
+    expect(seen).toMatch(/you install/);
+    expect(seen).toMatch(/you prune/);
+    expect(seen).toMatch(/you question/);
+    expect(seen).toContain("bench.dev/u/priya_dev");
+  });
+
+  it("falls back to bench.dev (no /u/ path) when handle is missing", () => {
+    const tree = ogCard({
+      hours_with_cc: 12,
+      score: 24,
+      tier: "Explorer",
+      signature_verbs: ["build"],
+    });
+    const seen = collectText(tree);
+    expect(seen).toContain("bench.dev");
+    expect(seen).not.toMatch(/bench\.dev\/u\//);
+  });
+
+  it("uses '—h' + 'scanning still in progress' caption when hours hidden", () => {
+    const tree = ogCard({
+      hours_with_cc: null,
+      score: 18,
+      tier: "Explorer",
+      signature_verbs: [],
+    });
+    const seen = collectText(tree);
+    expect(seen).toContain("—h");
+    expect(seen).toContain("scanning still in progress");
+    expect(seen).toContain("scanned just now");
+  });
 });
+
+// ────────────────────── helpers ──────────────────────
+
+/** Walks a React element tree and returns the joined text content. */
+function collectText(node: unknown): string {
+  if (node == null || typeof node === "boolean") return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(collectText).join(" ");
+  if (typeof node === "object" && node !== null && "props" in node) {
+    const props = (node as { props: { children?: unknown } }).props;
+    return collectText(props.children);
+  }
+  return "";
+}

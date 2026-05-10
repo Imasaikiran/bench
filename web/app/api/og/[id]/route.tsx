@@ -12,24 +12,30 @@ const DEMO_PAYLOAD: OgPayload = {
   score: 62,
   tier: "Tinkerer",
   signature_verbs: ["install", "prune", "question"],
+  handle: "priya_dev",
 };
 
 async function lookupPayload(
   id: string,
-): Promise<ScanRow["payload"] | null> {
+): Promise<OgPayload | null> {
   if (id === "demo") return DEMO_PAYLOAD;
 
-  // Try scan id first.
+  // Try scan id first. Anonymous scans have no handle — leave undefined so
+  // the footer falls back to "bench.dev".
   const byScan = (await sql`
     SELECT payload FROM scans
     WHERE id = ${id}
       AND (expires_at IS NULL OR expires_at > NOW())
     LIMIT 1
   `) as ScanRow[];
-  if (byScan.length > 0 && byScan[0]?.payload) return byScan[0].payload;
+  if (byScan.length > 0 && byScan[0]?.payload) {
+    return { ...byScan[0].payload, handle: byScan[0].payload.handle ?? null };
+  }
 
-  // Fall back to handle. Apply the same expiry guard as the scan-id branch
-  // so an expired latest_scan doesn't render an OG card while /scan/<id> 404s.
+  // Fall back to handle lookup. We KNOW the handle here because the route
+  // param matched a profile. Apply the same expiry guard as the scan-id
+  // branch so an expired latest_scan doesn't render an OG card while
+  // /scan/<id> 404s.
   const byHandle = (await sql`
     SELECT s.payload FROM profiles p
     JOIN scans s ON s.id = p.latest_scan
@@ -37,7 +43,9 @@ async function lookupPayload(
       AND (s.expires_at IS NULL OR s.expires_at > NOW())
     LIMIT 1
   `) as ScanRow[];
-  if (byHandle.length > 0 && byHandle[0]?.payload) return byHandle[0].payload;
+  if (byHandle.length > 0 && byHandle[0]?.payload) {
+    return { ...byHandle[0].payload, handle: id.toLowerCase() };
+  }
 
   return null;
 }
