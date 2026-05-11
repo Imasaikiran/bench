@@ -9,7 +9,7 @@
 
 ## 1. Why post weekly
 
-Per spec §0.5.4, the bet is testable in public — share rate ≥ 15% W1, rescan rate ≥ 20% W4. The weekly post is the founder's **own** trust contract: if those numbers slip, the post says so before the founder is asked.
+Per spec §0.5.4, the bet is testable in public: share rate ≥ 15% W1, rescan rate ≥ 20% W4. The weekly post is the founder's **own** trust contract. If those numbers slip, the post says so before the founder is asked.
 
 The post is not marketing. It is a public log entry. Tone: terse, opinionated, anti-marketing. Read `docs/launch/phase0-outreach-copy.md` for voice.
 
@@ -21,31 +21,31 @@ If anything in this template starts to feel like growth-marketing copy, delete i
 
 Replace `{N}`, `{week}`, `{*_delta}`, `{cohort_size}` placeholders before posting.
 
-### Tweet 1 — hook + raw scan count
+### Tweet 1: hook + raw scan count
 
 > bench week {week} ({date}). {N} scans landed since launch. {cohort_size}% of installs converted to scans. {N_unique_handles} claimed a profile.
 >
 > bench.dev/stats
 
-### Tweet 2 — the chapter that moved most this week
+### Tweet 2: the chapter that moved most this week
 
 > the chapter that shifted most was **{chapter_name}** — median score went {direction} {chapter_delta} points week-over-week.
 >
 > the most-flagged dimension inside it: {dim_name}. {one-line interpretation: e.g. "people are finally writing PreToolUse hooks they actually use, not just configuring them"}.
 
-### Tweet 3 — feedback theme of the week
+### Tweet 3: feedback theme of the week
 
 > {N_feedback} "this number is wrong" submissions came in. dominant theme: {theme}.
 >
 > {one-line: how the founder is responding — e.g. "the hours formula gets a §5.3 footnote in v1.1, not a value change. honesty before flattery."}
 
-### Tweet 4 — rubric PR queue + decision
+### Tweet 4: rubric PR queue + decision
 
 > rubric PRs in flight: {N_open}. merged this week: {N_merged}. version is at {rubric_version}.
 >
 > next merge target: {summary of top-priority PR or "none — queue is thin, would love sharper critique."}
 
-### Tweet 5 — what would shift the score next week
+### Tweet 5: what would shift the score next week
 
 > if you ran <code>npx bench</code> last weekend and want next week's score to move:
 >
@@ -84,7 +84,7 @@ If nothing moved more than ±2 points week-over-week in any chapter, AND fewer t
 >
 > {if applicable: founder's own re-scan delta, posted plainly}.
 
-Do NOT manufacture excitement on a quiet week. Quiet weeks are honest data — they're a signal the rubric is converging or the audience is thinning, both important.
+Do NOT manufacture excitement on a quiet week. Quiet weeks are honest data. They signal the rubric is converging, or the audience is thinning. Both important.
 
 ---
 
@@ -105,7 +105,7 @@ Once moved to monthly, the same template applies, with `{week}` → `{month}` an
 
 ## 6. Where the numbers come from
 
-Read-only data sources for `{*}` placeholders. Do NOT add tracking pixels, do NOT scrape X — Plausible + the existing `/internal/metrics` route + direct DB queries are the entire instrumentation.
+Read-only data sources for `{*}` placeholders. Do NOT add tracking pixels. Do NOT scrape X. Plausible + the existing `/internal/metrics` route + direct DB queries are the entire instrumentation.
 
 | Placeholder | Source |
 |-------------|--------|
@@ -129,4 +129,4 @@ If any of these sources is unavailable on post day (Plausible out, DB migration 
 4. **T-0.** Post the thread on X. Cross-post the first tweet to LinkedIn and the Anthropic Discord `#claude-code` channel. r/ClaudeAI gets a top-level summary post linking to the thread.
 5. **T+24h.** Read replies. Note any new feedback theme; that becomes input to the next week's tweet 3.
 
-Do NOT respond to every reply. Do NOT engage trolls. The post is a log, not a conversation. Engage substantive critique only — same bar as `/api/feedback` evaluations.
+Do NOT respond to every reply. Do NOT engage trolls. The post is a log, not a conversation. Engage substantive critique only; same bar as `/api/feedback` evaluations.

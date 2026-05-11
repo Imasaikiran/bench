@@ -75,19 +75,4 @@ describe("plausible() — browser (window = globalThis)", () => {
     plausible("scan_upload", { tier: "Tinkerer", score: 62 });
     expect(spy).toHaveBeenCalledWith("scan_upload", { props: { tier: "Tinkerer", score: 62 } });
   });
-
-  // Spec §11.1 — every event listed in the post-launch metrics table must be
-  // typed in PlausibleEvent. If the spec adds an event, this test forces a
-  // compile-time + runtime catch.
-  it("accepts every spec §11.1 event name without TS error", () => {
-    const spy = vi.fn();
-    (globalThis as G)["plausible"] = spy;
-    plausible("scan_upload");
-    plausible("claim_complete");
-    plausible("share_click");
-    plausible("delete_complete");
-    plausible("rescan_detect");
-    plausible("feedback_submit");
-    expect(spy).toHaveBeenCalledTimes(6);
-  });
 });

@@ -39,7 +39,7 @@ These are drafts. Founder MUST personalise — no copy-paste blasting. If a name
 >
 > it's an open-rubric score, not a vibes score. running `npx @imasaikiran/bench@alpha` reads `~/.claude/`, prints what it'll upload, asks for `y`. nothing else.
 >
-> would love to know what number it gives you, and which dimension it gets wrong. ~5 min. https://github.com/Imasaikiran/bench
+> tell me what number it gives you, and which dimension is wrong. ~5 min. https://github.com/Imasaikiran/bench
 
 ---
 
@@ -152,7 +152,7 @@ After Phase 0 audit lands GREEN/YELLOW per `phase0-signal.md`, the founder picks
 
 DM template (one-size-fits):
 
-> Hey @<handle> — your [PR #X / comment on issue #Y / your reframe of dimension Z] in the bench Phase 0 thread was load-bearing in shaping rubric v0.2. I want you to be one of the 10 beta devs who scan a setup before public launch May 22.
+> Hey @<handle> — your [PR #X / comment on issue #Y / your reframe of dimension Z] in the bench Phase 0 thread shaped rubric v0.2 more than any other input. I want you to be one of the 10 beta devs who scan a setup before public launch May 22.
 >
 > `npx @imasaikiran/bench@alpha`. ~5 min. Local until you `y`. Reply with the score + the dimension you'd PR next, no formal writeup needed.
 
