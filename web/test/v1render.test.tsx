@@ -1,37 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { renderToString } from "react-dom/server";
 import { V1Page } from "../lib/v1render";
-import type { PersonaShape } from "../lib/mapper";
+import { PRIYA_PERSONA } from "./__fixtures__/priya";
 
-const persona: PersonaShape = {
-  handle: "@priya_dev",
-  initial: "P",
-  weeks: 14,
-  eyebrow: "scanned just now · 14 weeks on claude code",
-  title: "You've been building.",
-  tiles: [
-    { label: "weeks", value: "14", equiv: "" },
-    { label: "skills", value: "6", equiv: "" },
-    { label: "prompts", value: "~420", equiv: "" },
-    { label: "plan mode", value: "41", equiv: "" },
-  ],
-  identity: "x",
-  hours: 187,
-  hoursMeaning: "187h back — 23 workdays",
-  signature: "you install · you prune · you question",
-  score: 62,
-  tier: "Tinkerer",
-  chapterNote: "z",
-  chapterTags: ["partial", "weak", "partial", "strong", "strong"],
-  clusters: {
-    Foundation: ["have", "have", "partial", "missing", "missing"],
-    Automation: ["missing", "missing", "missing", "missing", "missing"],
-    Delegation: ["have", "partial", "have", "missing", "missing"],
-    Craft: ["have", "have", "partial", "have", "missing"],
-    Coherence: ["have", "have", "partial", "have", "partial"],
-  },
-  musthaves: Array(15).fill("missing") as never,
-};
+const persona = PRIYA_PERSONA;
 
 describe("V1Page", () => {
   it("renders shim with persona JSON before script.js", () => {

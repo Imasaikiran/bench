@@ -6,32 +6,9 @@
 // The modal flow is covered by the exported function contracts below.
 import { describe, it, expect } from "vitest";
 import { buildShareUrl, tweetIntent, linkedInIntent } from "../app/_components/ShareBar";
-import type { PersonaShape } from "../lib/mapper";
+import { PRIYA_PERSONA } from "./__fixtures__/priya";
 
-const persona: PersonaShape = {
-  handle: "@priya_dev",
-  initial: "P",
-  weeks: 14,
-  eyebrow: "scanned just now",
-  title: "You've been building.",
-  tiles: [],
-  identity: "x",
-  hours: 187,
-  hoursMeaning: "187h back",
-  signature: "you install · you prune",
-  score: 62,
-  tier: "Tinkerer",
-  chapterNote: "z",
-  chapterTags: ["partial", "weak", "partial", "strong", "strong"],
-  clusters: {
-    Foundation: [],
-    Automation: [],
-    Delegation: [],
-    Craft: [],
-    Coherence: [],
-  } as never,
-  musthaves: [] as never,
-};
+const persona = PRIYA_PERSONA;
 
 describe("ShareBar URL builders", () => {
   it("buildShareUrl uses /u/<handle> for claimed handle", () => {

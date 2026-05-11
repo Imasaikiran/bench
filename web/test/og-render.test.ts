@@ -12,17 +12,18 @@
 import { describe, it, expect } from "vitest";
 import { ImageResponse } from "@vercel/og";
 import { ogCard, OG_WIDTH, OG_HEIGHT } from "../lib/og-render";
+import { PRIYA_OG } from "./__fixtures__/priya";
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
+// PRIYA_OG without handle — pre-claim anonymous render path. Keeps the
+// renderToBuffer() byte-shape test scoped to the minimal payload contract
+// (no handle dependence in the PNG signature).
+const PRIYA_OG_ANON = { ...PRIYA_OG, handle: null };
+
 async function renderToBuffer(): Promise<Buffer> {
   const res = new ImageResponse(
-    ogCard({
-      hours_with_cc: 187,
-      score: 62,
-      tier: "Tinkerer",
-      signature_verbs: ["install", "prune", "question"],
-    }),
+    ogCard(PRIYA_OG_ANON),
     { width: OG_WIDTH, height: OG_HEIGHT },
   );
   const ab = await res.arrayBuffer();
@@ -77,13 +78,7 @@ describe("og-render shared component", () => {
   // versions); we assert the JSX structure produces the right text content
   // by walking the React element tree.
   it("includes the wordmark, hero, hours caption, tier seal, signature, and handle footer", () => {
-    const tree = ogCard({
-      hours_with_cc: 187,
-      score: 62,
-      tier: "Tinkerer",
-      signature_verbs: ["install", "prune", "question"],
-      handle: "priya_dev",
-    });
+    const tree = ogCard(PRIYA_OG);
     const seen = collectText(tree);
     expect(seen).toContain("bench");
     expect(seen).toContain("187h");
