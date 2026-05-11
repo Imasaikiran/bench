@@ -76,7 +76,7 @@ Implementation lives in a future `web/lib/stats-aggregate.ts` module. This doc f
 
 Top-of-page banner (above the histograms):
 
-> *"We have **{N}** scans on bench so far. These numbers move every time someone runs `npx bench`. Come back at 500 — until then, treat what you see here as a snapshot, not a population."*
+> *"**{N}** scans so far. Numbers move every time someone runs `npx bench`. Come back at 500. Until then, this is a snapshot, not a population."*
 
 Bottom-of-page note:
 
@@ -86,7 +86,7 @@ Bottom-of-page note:
 
 Top-of-page banner:
 
-> *"**{N}** scans so far. Distributions are real but thin — wait for 500 before treating any tier median as load-bearing."*
+> *"**{N}** scans so far. Distributions are real but thin. Wait for 500 before treating any tier median as the truth."*
 
 For any tier with < 5 scans, the per-tier card replaces its median with:
 

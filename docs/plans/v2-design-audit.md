@@ -1,21 +1,18 @@
-# v2 design audit — brutal pass
+# v2 design audit
 
 > **Date:** 2026-05-07.
-> **Trigger:** founder review *"Go back to V2 itself. This is absolutely pathetic. Audit v2 with impeccable skill and design motion principle skills."*
-> **Scope:** the v2 visual product as it sits on `main` HEAD `89ab4a9`. v1 frontend is FROZEN per spec §2 — audit findings about v1 markup go into a v2-layer override list, not into v1 edits.
-> **Honesty rule:** the audit names what's bad before it names what to do.
+> **Trigger:** founder review on the v2 visual product.
+> **Scope:** v2 visuals on `main` HEAD `89ab4a9`. v1 frontend is FROZEN per spec §2; findings about v1 markup go into a v2-layer override list, not into v1 edits.
 
 ---
 
-## 1. The pathetic verdict (named, not softened)
-
-The v2 visual product clears the spec but does not earn the share. Three hard failures:
+## 1. Three hard failures
 
 ### 1.1 The constellation is invisible
 
-The atelier hero is the signature visual. v1 `styles.css` line 340 sets `#constellation { opacity: 0.22; }`. At 22% opacity on a `#08080A` background, the stars register as dust, not as a constellation. The hero `187h` sits on what looks like an empty black frame. The whole atelier-frame's gold corner brackets do not earn their existence — they outline an absence.
+v1 `styles.css` line 340: `#constellation { opacity: 0.22; }`. On `#08080A` background that's dust. The hero `187h` sits on an empty frame; the gold corner brackets outline an absence.
 
-**Why this matters for the bet (§0.5.4):** the OG card pulls from the same visual language. If the constellation is not visually present in the hero, the share unit is just "a number on black." That converts at landing-page rates, not at portrait rates.
+The OG card pulls from the same visual language. Without a visible constellation in the hero, the share unit is "a number on black."
 
 ### 1.2 The OG card is a debug screen
 
@@ -28,17 +25,13 @@ Bench 30 · Explorer
 · build
 ```
 
-No constellation, no signature mark, no color accent, no rhythm. This is the asset that goes to X, LinkedIn, Slack unfurls. It is the literal share unit. Every visit-through that sees this card decides whether to install based on it. Right now it loses to a bare blockquote tweet.
-
-This is the highest-leverage fix in the entire product. The §11.2 napkin math depends on impressions × CTR; the OG card determines CTR.
+No constellation, no signature mark, no color accent. This asset goes to X, LinkedIn, Slack unfurls. Every visit-through that sees this card decides whether to install based on it. The OG card determines CTR; §11.2 napkin math depends on it.
 
 ### 1.3 Zero motion
 
-Nothing fades in, nothing counts up, nothing scales beyond CSS color transition on hover. The score is presented at first paint as a number that has always been there. There is no reveal.
+Nothing fades in, nothing counts up, nothing scales beyond CSS color transition on hover. The score is presented at first paint as a number that has always been there.
 
-**Compare:** Wakatime's setup wizard shows minute counts ticking up on first load. github-readme-stats fades each card. CodersRank scrolls a histogram on first scroll. The bench card paints, sits there, ends.
-
-The product has no animated signature. A reader sees the card, reads the number, leaves. Nothing about the experience says "this number was earned by something."
+Wakatime's setup wizard ticks minute counts. github-readme-stats fades each card. CodersRank scrolls a histogram. The bench card paints, sits, ends. Nothing about it says "this number was earned."
 
 ---
 
@@ -71,11 +64,11 @@ Six motion-design principles drawn from Disney's 12 → web-product distillation
 
 ---
 
-## 4. Prescription — what gets fixed in this audit
+## 4. Prescription: what gets fixed in this audit
 
-Listed from highest to lowest leverage. Highest two ship in this PR; the rest queue as numbered tasks.
+Ordered by impact on share-rate. Top two ship in this PR; the rest queue as numbered tasks.
 
-### 4.1 [LANDS NOW] Constellation visibility — bump opacity, add glow, animate connect
+### 4.1 [LANDS NOW] Constellation visibility: bump opacity, glow, animate links
 
 v1 `styles.css` is frozen. We add a v2-layer override at `web/public/v2/atelier-overrides.css`:
 
@@ -113,9 +106,9 @@ This is the audit's biggest behavior change. v1 styles + script are untouched; e
 
 X and LinkedIn icons inline (small SVG glyphs, monochrome currentColor). Buttons get `box-shadow: 0 1px 0 rgba(0,0,0,0.4) inset, 0 4px 14px rgba(0,0,0,0.25)`. Hover: `transform: translateY(-1px)` plus shadow boost. Click: `translateY(0)` (depress). Tap targets stay ≥44px (already correct).
 
-### 4.5 [LANDS NOW] Landing hero — small portrait teaser above the fold
+### 4.5 [LANDS NOW] Landing hero: small portrait teaser above the fold
 
-A miniature mock-card to the right of the hero text on desktop (>900px viewport), or below the install line on mobile. Renders a stylized hour number ("187h"), tier seal, signature row — uses the same OG-card visual language so the landing is a literal preview of what the user will get. Static SVG, no JS.
+A miniature mock-card to the right of the hero text on desktop (>900px viewport), or below the install line on mobile. Renders a stylized hour number ("187h"), tier seal, signature row. Uses the same OG-card visual language so the landing is a literal preview of what the user will get. Static SVG, no JS.
 
 ### 4.6 [QUEUED, NOT THIS PR] Recommendations panel rhythm
 
@@ -132,8 +125,8 @@ Each section gets a tiny mono eyebrow ("01 — what it is", "02 — why this exi
 1. **v1 frontend stays frozen.** Every visual fix is a v2-layer override or a v2 component. The v1-frozen test (`web/test/v1-frozen.test.ts`) hash pin must still pass.
 2. **No new dependencies.** Motion ships in CSS keyframes + small `useEffect` count-up. No GSAP, no framer-motion, no react-spring.
 3. **Mobile NFR §11 stays intact.** All animation respects `prefers-reduced-motion`. Tap targets stay ≥44px after every change.
-4. **Performance budget — Lighthouse mobile must stay ≥90.** Animation runs on GPU-accelerated properties only (`opacity`, `transform`, `filter`); no layout-thrashing animations.
-5. **Accessibility — `prefers-reduced-motion: reduce`** disables count-up, dial-fill animation, and constellation pulse. Static fallback shows the final state.
+4. **Performance budget: Lighthouse mobile must stay ≥90.** Animation runs on GPU-accelerated properties only (`opacity`, `transform`, `filter`); no layout-thrashing animations.
+5. **Accessibility: `prefers-reduced-motion: reduce`** disables count-up, dial-fill animation, and constellation pulse. Static fallback shows the final state.
 
 ---
 

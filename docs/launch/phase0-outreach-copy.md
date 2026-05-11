@@ -1,4 +1,4 @@
-# Phase 0 outreach copy — drafts
+# Phase 0 outreach copy: drafts
 
 > **Owner:** founder (`@imasaikiran`).
 > **Use date:** 2026-04-25 (Phase 0 Day 1, per spec §13).
@@ -78,7 +78,7 @@ These are drafts. Founder must read aloud and tune to own voice before posting. 
 
 ---
 
-## 3. Anthropic Discord — `#claude-code` channel
+## 3. Anthropic Discord: `#claude-code` channel
 
 **Message 1:**
 > hey folks — published a draft rubric for scoring a Claude Code setup: https://bench.dev/how-we-scored
@@ -88,7 +88,7 @@ These are drafts. Founder must read aloud and tune to own voice before posting. 
 > repo with governance + spec: https://github.com/Imasaikiran/bench
 
 **Follow-up if no engagement after 24h, in same thread:**
-> if anyone wants to argue with the Coherence chapter (chapter 5 — duplicate skills, orphaned hooks, single-topic CLAUDE.md) I'd love to hear what's missing. that one's the chapter I'm least confident about.
+> if anyone wants to argue with chapter 5 (Coherence: duplicate skills, orphaned hooks, single-topic CLAUDE.md), tell me what's missing. that one's the chapter I'm least confident about.
 
 ---
 
@@ -101,7 +101,7 @@ These are drafts. Founder must read aloud and tune to own voice before posting. 
 >
 > I've published an open rubric for scoring a Claude Code setup: https://bench.dev/how-we-scored. The CLI that uses it (`npx bench`) lands May 22 — but only if the rubric earns external engagement first.
 >
-> If this is in scope for awesome-claude-code, I'd appreciate either inclusion as a "tools (rubric / measurement)" entry or — more useful — pointed critique on what 25 dimensions miss.
+> If this is in scope for awesome-claude-code, either add a "tools / measurement" row, or — more useful — point out which of the 25 dimensions are wrong.
 >
 > Spec: https://github.com/Imasaikiran/bench/blob/v2-dev/docs/specs/2026-04-25-bench-v2-design.md
 > Rubric YAML: https://github.com/Imasaikiran/bench/blob/v2-dev/rubric/rubric.yaml
@@ -141,10 +141,10 @@ These are drafts. Founder must read aloud and tune to own voice before posting. 
 
 - [ ] X thread queued (5 tweets, scheduled to drop within 30 min of `bench.dev/how-we-scored` going live).
 - [ ] r/ClaudeAI post drafted in markdown editor (not Reddit's broken inline one).
-- [ ] Discord message paste-ready in clipboard manager — paste + immediately edit if anything reads off.
+- [ ] Discord message paste-ready in clipboard manager. Paste, then immediately edit if anything reads off.
 - [ ] awesome-claude-code issue title + body lined up.
 - [ ] LinkedIn post drafted; will post Day 2 if X traction is healthy.
-- [ ] Personal blog post (founder's own surface) — optional Day 3 cross-post.
+- [ ] Personal blog post (founder's own surface). Optional Day 3 cross-post.
 - [ ] Set a calendar reminder for May 2 09:00 PT to run the Phase 0 audit.
 - [ ] Pre-write the kill-decision tweet so it isn't written under emotion: *"bench Phase 0 wrapped. Tripwires didn't clear. CLI parked. Repo stays public; rubric stays at v0.1. Try again next quarter, framed differently."*
 
@@ -153,7 +153,7 @@ These are drafts. Founder must read aloud and tune to own voice before posting. 
 ## 8. Anti-patterns to avoid (founder reminder)
 
 - Do not pre-announce the CLI as "coming soon." The CLI shipping is gated, not promised.
-- Do not respond to every reply within the first 24h — let critique accumulate organically.
+- Do not respond to every reply within the first 24h. Let critique accumulate.
 - Do not edit the rubric mid-Phase-0 in response to the loudest critic. Phase 0 collects signal; Phase 0.5 (post-audit) merges the strongest PRs.
-- Do not chase engagement metrics on aggregator surfaces (HN). HN is not on the Phase 0 surface list — it's a Phase 1 launch surface.
+- Do not chase engagement metrics on aggregator surfaces (HN). HN is not on the Phase 0 surface list; it's a Phase 1 launch surface.
 - Do not let the kill-decision rationale drift to "the launch surfaces were wrong." The launch surfaces ARE part of the bet.

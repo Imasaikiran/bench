@@ -196,7 +196,7 @@ When triggered:
 1. Set `OVER_CAPACITY=1` in Vercel Production env. Redeploy. `/api/scan` now returns 503 + redirect hint to `/over-capacity`. Existing card URLs (`/scan/<id>`, `/u/<handle>`) keep working.
 2. Post the "we hit a snag" template (§7.2) on X, Reddit, HN. Pause further surface posts.
 3. Triage (§6).
-4. Once root cause is fixed and verified in a Vercel preview, unset `OVER_CAPACITY` (or set to `"0"`), redeploy, smoke-test §2.3 step 5 again, and post the "we're back" follow-up.
+4. Once root cause is fixed and verified in a Vercel preview, unset `OVER_CAPACITY` (or set to `"0"`), redeploy, smoke-test §2.3 step 5 again, and post the "bench is back" follow-up.
 
 Founder authority: only the founder flips `OVER_CAPACITY`. No automated flipper in Phase 1.
 
@@ -235,7 +235,7 @@ Founder authority: only the founder flips `OVER_CAPACITY`. No automated flipper 
 
 Founder voice. Edit lightly. Do not auto-post.
 
-### 7.1 "We're live"
+### 7.1 "bench is live"
 
 ```
 bench is live.
@@ -255,13 +255,13 @@ bench is paused for a bit — a fix is incoming. Existing card URLs still work.
 
 If you scanned in the last hour and your card is up: that's real, it's saved. If your scan didn't go through: try again in a couple of hours.
 
-Will post here when we're back.
+Posting here when bench is back.
 ```
 
-### 7.3 "We're back"
+### 7.3 "bench is back"
 
 ```
-bench is back. Thanks for the patience — root cause was [one-sentence honest description]. New scans are flowing again.
+bench is back. Thanks for the patience. Root cause was [one-sentence honest description]. New scans are flowing again.
 ```
 
 ---
