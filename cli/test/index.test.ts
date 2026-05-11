@@ -336,6 +336,48 @@ describe("main upload failure", () => {
   });
 });
 
+describe("main tile derivation", () => {
+  it("derives 4 tiles from scan counts and passes them to assemblePayload", async () => {
+    const scanResult = {
+      ...SCAN_RESULT,
+      counts: {
+        ...SCAN_RESULT.counts,
+        sessions_total: 10,
+        weeks_on_cc: 6,
+        skills_total: 3,
+        plan_mode_sessions: 2,
+      },
+    };
+    const deps = makeDeps({ scan: vi.fn().mockResolvedValue(scanResult) });
+    const { io } = makeIO();
+    await main([], io, deps);
+    const call = (deps.assemblePayload as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(call["tiles"]).toEqual([
+      { label: "weeks",     value: "6",   equiv: "" },
+      { label: "skills",    value: "3",   equiv: "" },
+      { label: "prompts",   value: "~70", equiv: "" },
+      { label: "plan mode", value: "2",   equiv: "" },
+    ]);
+  });
+
+  it("tiles default to 0 values when counts are absent", async () => {
+    const scanResult = {
+      ...SCAN_RESULT,
+      counts: {},
+    };
+    const deps = makeDeps({ scan: vi.fn().mockResolvedValue(scanResult) });
+    const { io } = makeIO();
+    await main([], io, deps);
+    const call = (deps.assemblePayload as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(call["tiles"]).toEqual([
+      { label: "weeks",     value: "0",  equiv: "" },
+      { label: "skills",    value: "0",  equiv: "" },
+      { label: "prompts",   value: "~0", equiv: "" },
+      { label: "plan mode", value: "0",  equiv: "" },
+    ]);
+  });
+});
+
 describe("main refuseIfUnsafe throws", () => {
   it("propagates the error (does not return 0)", async () => {
     const deps = makeDeps({

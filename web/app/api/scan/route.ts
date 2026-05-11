@@ -8,6 +8,7 @@ import { reScoreFromCounts } from "../../../lib/rubric";
 import { detectAnomalies } from "../../../lib/anomaly";
 import { rateLimitOk, hashIp } from "../../../lib/ratelimit";
 import { captureException } from "../../../lib/sentry-capture";
+import { trackServerSide } from "../../../lib/plausible";
 
 export const runtime = "nodejs"; // need node:crypto + filesystem (rubric.yaml load)
 
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     return NextResponse.json({ error: "integrity mismatch" }, { status: 400 });
   }
 
-  const ip = (req as unknown as { ip?: string }).ip ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const ipHash = hashIp(ip);
   const rl = await rateLimitOk(ipHash);
   if (!rl.ok) {
@@ -103,8 +104,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     );
   }
 
-  // TODO(post-alpha): fire plausible scan_upload event server-side via
-  // fetch('https://plausible.io/api/event', { method: 'POST', ... })
+  void trackServerSide("scan_upload");
 
   // Use NextRequest.nextUrl when available (production); fall back to the
   // standard URL API for test environments that use plain Request.

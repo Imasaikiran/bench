@@ -6,7 +6,7 @@ import { load } from "js-yaml";
 
 import { parseArgs } from "./args.js";
 import { formatWhy } from "./why.js";
-import { mapperToPersona } from "./persona-stub.js";
+import { mapperToPersona } from "./persona.js";
 import { ttyPrompt } from "./prompt.js";
 
 import { detectEnvironment, refuseIfUnsafe } from "./env.js";
@@ -253,6 +253,26 @@ export async function main(
       ? (scanResult.counts["weeks_on_cc"] as number)
       : 0;
 
+  const sessionsTotal =
+    typeof scanResult.counts["sessions_total"] === "number"
+      ? (scanResult.counts["sessions_total"] as number)
+      : 0;
+  const skillsTotal =
+    typeof scanResult.counts["skills_total"] === "number"
+      ? (scanResult.counts["skills_total"] as number)
+      : 0;
+  const planModeSessions =
+    typeof scanResult.counts["plan_mode_sessions"] === "number"
+      ? (scanResult.counts["plan_mode_sessions"] as number)
+      : 0;
+
+  const tiles = [
+    { label: "weeks",     value: String(weeksOnCc),                     equiv: "" },
+    { label: "skills",    value: String(skillsTotal),                    equiv: "" },
+    { label: "prompts",   value: `~${Math.round(sessionsTotal * 7)}`,    equiv: "" },
+    { label: "plan mode", value: String(planModeSessions),               equiv: "" },
+  ];
+
   const payload: Payload = _assemblePayload({
     counts: scanResult.counts,
     chapters: scored.chapters,
@@ -269,6 +289,7 @@ export async function main(
     previous_scan_id: null,
     scanner_version: VERSION,
     rubric_version: rubric.version,
+    tiles,
     diagnostics: {
       // TODO(1.20): wire redaction_hits once snapshot tests pin the contract
       redaction_hits: 0,

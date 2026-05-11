@@ -24,30 +24,30 @@ const PREDICATES: Record<number, (c: Counts) => State> = {
   },
   4: (c) => (num(c.sub_dir_claude_md_count) >= 1 ? "have" : "missing"),
   5: (c) => (bool(c.docs_dir_nonempty) ? "have" : "missing"),
-  // TODO(post-alpha): predicates 6-8 only fire when settings.json wires the
-  // hooks. Users with hook scripts on disk but no settings.json wiring score
-  // 0/100 on Automation, same as users with no hooks at all — this loses the
-  // signal "you have the pieces but not the integration." Consider adding a
-  // partial-credit branch keyed off any_hook_present when the named hook
-  // isn't "referenced". Surfaced by founder's own scan (commit 475f6f2).
   6: (c) =>
     c.post_tool_use_hook === "present"
       ? "have"
       : c.post_tool_use_hook === "referenced"
         ? "partial"
-        : "missing",
+        : bool(c.any_hook_present)
+          ? "partial"
+          : "missing",
   7: (c) =>
     c.pre_tool_use_hook === "present"
       ? "have"
       : c.pre_tool_use_hook === "referenced"
         ? "partial"
-        : "missing",
+        : bool(c.any_hook_present)
+          ? "partial"
+          : "missing",
   8: (c) =>
     c.session_hook === "present"
       ? "have"
       : c.session_hook === "referenced"
         ? "partial"
-        : "missing",
+        : bool(c.any_hook_present)
+          ? "partial"
+          : "missing",
   9: (c) => {
     const n = num(c.commands_total);
     return n >= 3 ? "have" : n >= 1 ? "partial" : "missing";

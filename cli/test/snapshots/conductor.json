@@ -11,11 +11,11 @@
       ]
     },
     "Automation": {
-      "score": 10,
+      "score": 43,
       "states": [
-        "missing",
-        "missing",
-        "missing",
+        "partial",
+        "partial",
+        "partial",
         "partial",
         "missing"
       ]
@@ -84,5 +84,5 @@
     "avg_bytes_per_read": 0
   },
   "rubric_version": "0.1.0",
-  "score": 34
+  "score": 41
 }

@@ -89,19 +89,25 @@ const PREDICATES: Record<number, (c: Counts) => State> = {
       ? "have"
       : c["post_tool_use_hook"] === "referenced"
         ? "partial"
-        : "missing",
+        : bool(c["any_hook_present"])
+          ? "partial"
+          : "missing",
   7: (c) =>
     c["pre_tool_use_hook"] === "present"
       ? "have"
       : c["pre_tool_use_hook"] === "referenced"
         ? "partial"
-        : "missing",
+        : bool(c["any_hook_present"])
+          ? "partial"
+          : "missing",
   8: (c) =>
     c["session_hook"] === "present"
       ? "have"
       : c["session_hook"] === "referenced"
         ? "partial"
-        : "missing",
+        : bool(c["any_hook_present"])
+          ? "partial"
+          : "missing",
   9: (c) => {
     const n = num(c["commands_total"]);
     return n >= 3 ? "have" : n >= 1 ? "partial" : "missing";
