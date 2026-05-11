@@ -3,6 +3,7 @@ import { z } from "zod";
 import { sql } from "../../../lib/db";
 import { verifySession } from "../../../lib/github";
 import { captureException } from "../../../lib/sentry-capture";
+import { trackServerSide } from "../../../lib/plausible";
 
 export const runtime = "nodejs";
 
@@ -96,14 +97,14 @@ export async function POST(req: NextRequest): Promise<Response> {
     return NextResponse.json({ error: "storage unavailable" }, { status: 503 });
   }
 
+  void trackServerSide("claim_complete");
+
   // Use NextRequest.nextUrl when available (production); fall back to the
   // standard URL API for the test environment (plain Request).
   const origin =
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (req as unknown as { nextUrl?: { origin: string } }).nextUrl?.origin ??
     new URL(req.url).origin;
-  // TODO(post-alpha): fire plausible claim_complete event server-side via
-  // fetch('https://plausible.io/api/event', { method: 'POST', ... })
 
   return NextResponse.redirect(`${origin}/u/${handle}`);
 }

@@ -158,6 +158,30 @@ describe("scoreFromCounts — per-chapter exact scoring", () => {
     expect(r.chapters.Automation!.score).toBe(52);
   });
 
+  it("Automation: hook scripts on disk but settings empty → partial credit via any_hook_present", () => {
+    // Scenario: ~/.claude/hooks/post-tool.sh exists (any_hook_present=true) but
+    // settings.json doesn't reference any hooks (post_tool_use_hook etc. unset).
+    // Without partial-credit, these would all score "missing". With it, they score
+    // "partial" because the user has the pieces but hasn't wired them.
+    // dim6 partial(1.0*0.5)=0.5, dim7 partial(1.0*0.5)=0.5, dim8 partial(0.8*0.5)=0.4,
+    // dim9 missing(0.8*0)=0, dim10 missing(0.6*0)=0 → 1.4/4.2 = 33.33 → 33.
+    const counts = {
+      any_hook_present: true,
+      // post_tool_use_hook / pre_tool_use_hook / session_hook not set → fallback branch
+      commands_total: 0,
+      automation_events: 0,
+    };
+    const r = scoreFromCounts(counts, rubric);
+    expect(r.chapters.Automation!.states).toEqual([
+      "partial",
+      "partial",
+      "partial",
+      "missing",
+      "missing",
+    ]);
+    expect(r.chapters.Automation!.score).toBe(33);
+  });
+
   it("Coherence: all-have fixture lands chapter score 100", () => {
     // Coherence weights: 0.6 + 0.8 + 1.0 + 0.6 + 0.6 = 3.6
     const counts = {
