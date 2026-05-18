@@ -19,6 +19,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ReactElement } from "react";
+import { CopyPatch } from "../app/_components/CopyPatch";
 import { FeedbackForm } from "../app/_components/FeedbackForm";
 import { HeroReveal } from "../app/_components/HeroReveal";
 import { Recommendations } from "../app/_components/Recommendations";
@@ -133,6 +134,7 @@ export function V1Page({
       <ShareBar persona={persona} origin={ORIGIN} />
       <script src="/v1/script.js" defer />
       <HeroReveal />
+      <CopyPatch tier={persona.tier} />
     </>
   );
 }

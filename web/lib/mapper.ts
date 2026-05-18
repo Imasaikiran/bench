@@ -38,15 +38,22 @@ export type PersonaShape = {
  *
  * Singular/plural grammar handled (1 hour vs 2 hours, 1 workday vs 2 workdays).
  */
+// UX audit §3.1 + spec §5.3: the hours number is time SPENT with Claude Code,
+// not time "saved" or "given back". No overclaim about what the user would
+// have done with the time. Just an honest workday equivalent.
 export function deriveHoursMeaning(hours: number): string {
-  if (!Number.isFinite(hours) || hours <= 0) return "no time back yet";
-  const hLabel = hours === 1 ? "1 hour" : `${hours} hours`;
-  if (hours < 8) return `${hLabel} back — almost a workday`;
-  const workdays = Math.round(hours / 8);
-  const wdLabel = workdays === 1 ? "1 workday" : `${workdays} workdays`;
-  if (hours < 40) return `${hours}h back — about ${wdLabel}`;
-  if (hours < 80) return `${hours}h back — a sprint of workdays (${workdays})`;
-  return `${hours}h back — ${wdLabel}, or a side-project shipped`;
+  if (!Number.isFinite(hours) || hours <= 0) return "not enough history yet";
+  const workdays = Math.max(1, Math.round(hours / 8));
+  const wdLabel = workdays === 1 ? "1 working day" : `${workdays} working days`;
+  return `≈ ${wdLabel}, side by side with Claude Code`;
+}
+
+// v1 script.js renders three chapter labels: strong→"Strong", weak→"Needs
+// work", partial→"building". "building" vs "needs work" is ambiguous (UX
+// audit §3.3). Collapse partial→weak so only two states ever render.
+function collapseChapterTags(tags: unknown): Array<"strong" | "weak"> {
+  if (!Array.isArray(tags)) return [];
+  return tags.map((t) => (t === "strong" ? "strong" : "weak"));
 }
 
 export function titleForTier(t: string): string {
@@ -85,7 +92,7 @@ export function toPersonaShape(payload: any): PersonaShape {
     score: payload.score,
     tier: payload.tier,
     chapterNote: payload.chapter_note,
-    chapterTags: payload.chapter_tags,
+    chapterTags: collapseChapterTags(payload.chapter_tags),
     clusters: {
       Foundation: payload.chapters.Foundation.states,
       Automation: payload.chapters.Automation.states,

@@ -78,7 +78,36 @@
     0 0 32px rgba(8, 8, 10, 0.6) !important;
 }
 
-/* ─────────────── 4. Reduced-motion respect ─────────────── */
+/* ─────────────── 4. Hide the v1 persona switcher ─────────────── */
+
+/* Sam / Priya / Maya / Alex / Preview is a v1 prototype artifact. On a real
+   scan the v2 shim overrides every persona key, so all four buttons show the
+   same data — pure confusion, zero function. UX audit §3.2. */
+.persona-switcher {
+  display: none !important;
+}
+
+/* ─────────────── 5. Button hierarchy ─────────────── */
+
+/* v1 makes "Download bench" the gold primary and Share secondary. Backwards:
+   sharing is the entire growth loop (spec §11.2). Swap the visual weight.
+   UX audit §3.2. */
+#share-x {
+  background: var(--accent) !important;
+  color: #08080A !important;
+  border-color: var(--accent) !important;
+}
+#share-x:hover {
+  background: var(--accent-2) !important;
+  border-color: var(--accent-2) !important;
+}
+#download-art {
+  background: transparent !important;
+  color: var(--fg) !important;
+  border: 1px solid var(--border-2) !important;
+}
+
+/* ─────────────── 6. Reduced-motion respect ─────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   #stars circle.bright,
