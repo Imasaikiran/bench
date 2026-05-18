@@ -11,4 +11,8 @@ jobs:
         with: { node-version: 20, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
+      # consent-roundtrip.test.ts drives the built CLI binary — it needs
+      # cli/dist/index.js to exist. On a clean CI checkout there is no dist,
+      # so build the CLI before the test suite runs.
+      - run: pnpm -C cli build
       - run: pnpm test
