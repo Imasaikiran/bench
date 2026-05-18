@@ -423,14 +423,14 @@ export default async function Landing({
 
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-text">
-            <p className="hero-eyebrow">25 dimensions · 5 chapters · open rubric</p>
+            <p className="hero-eyebrow">one command · open rubric · nothing leaves your machine</p>
             <h1 id="hero-title" className="hero-title">
-              A portrait of <em>how you work</em> with Claude Code.
+              Is your Claude Code setup <em>any good?</em>
             </h1>
             <p className="hero-sub">
-              One terminal command reads your <code>~/.claude/</code> directory, scores it
-              against a published rubric, and renders a one-page card you can share.
-              Nothing leaves your machine until you type <code>y</code>.
+              Run one command. Get a score out of 100, see what's working, and
+              get a ranked list of what to fix next. Nothing uploads until you
+              type <code>y</code>.
             </p>
             <CopyInstall />
             <p className="install-note">
@@ -449,7 +449,7 @@ export default async function Landing({
               <div className="teaser-wm">bench<span>.</span></div>
               <div className="teaser-hero">187h</div>
               <div className="teaser-cap">hours with Claude Code</div>
-              <div className="teaser-seal">Bench 62 · Tinkerer</div>
+              <div className="teaser-seal">Score 62 / 100 · Tinkerer</div>
               <div className="teaser-sig">you install · you prune · you question</div>
               <div className="teaser-foot">bench.dev/u/priya_dev</div>
             </div>
@@ -524,31 +524,12 @@ export default async function Landing({
             <div className="trust-row">
               <span className="dot" />
               <div>
-                <strong>Single egress, redacted payload.</strong>
+                <strong>Only numbers leave, only to bench.dev.</strong>
                 <span>
-                  Only <code>bench.dev</code>. Only structured numbers and tier labels.
-                  Secrets matched by an open <a href="https://github.com/Imasaikiran/bench/blob/main/cli/src/redactor.ts">pattern list</a>{" "}
-                  are stripped before the payload is built.
-                </span>
-              </div>
-            </div>
-            <div className="trust-row">
-              <span className="dot" />
-              <div>
-                <strong>30-day TTL on anonymous scans.</strong>
-                <span>
-                  Auto-deleted unless you claim a handle. Claimed profiles have a
-                  one-click delete.
-                </span>
-              </div>
-            </div>
-            <div className="trust-row">
-              <span className="dot" />
-              <div>
-                <strong>Zero revenue, on purpose.</strong>
-                <span>
-                  No paid tier. No leaderboard. No coach. The product wins by being
-                  beloved, not by retaining you.
+                  No file contents. Secrets are stripped by an open{" "}
+                  <a href="https://github.com/Imasaikiran/bench/blob/main/cli/src/redactor.ts">pattern list</a>{" "}
+                  first. Anonymous scans auto-delete in 30 days; claimed ones
+                  delete in one click.
                 </span>
               </div>
             </div>
@@ -558,29 +539,23 @@ export default async function Landing({
         <section className="preview" aria-label="see a sample">
           <h2>See what one looks like.</h2>
           <p>
-            <a href="/demo">Priya</a> is a synthetic Tinkerer at week 14. The card you
-            get from <code>npx</code> looks like this — your numbers, your verbs.
+            This is a sample card for a made-up developer. Yours uses your
+            real setup — your number, your score, your gaps.
           </p>
-          <a href="/demo" className="btn">Open the demo →</a>
+          <a href="/demo" className="btn">Open the sample →</a>
         </section>
 
         <section className="bet" aria-labelledby="bet-h">
-          <h2 id="bet-h">The bet behind this.</h2>
+          <h2 id="bet-h">Why this exists.</h2>
           <p>
-            Adoption of Claude Code outran shared practice. Everyone has a{" "}
-            <code>CLAUDE.md</code>, a few skills, some hooks — and no honest read on
-            whether any of it actually makes them better. <em>bench is the mirror</em>.
-          </p>
-          <p>
-            The rubric is open. Roast it. PR it. The CLI ships if the rubric earns it.
-            See the <a href="https://github.com/Imasaikiran/bench/blob/main/docs/specs/2026-04-25-bench-v2-design.md">design spec</a>{" "}
-            and <a href="https://github.com/Imasaikiran/bench/blob/main/docs/plans/phase0-signal.md">Phase 0 signal audit</a>{" "}
-            for how this gets killed if the bet is wrong.
+            Everyone has a <code>CLAUDE.md</code>, a few skills, some hooks, and
+            no honest read on whether any of it is making them better. bench is
+            the mirror. <a href="/about">More on the bet and how it gets killed →</a>
           </p>
         </section>
 
         <footer>
-          <span>v0.1 alpha · scored with rubric v0.1.0</span>
+          <span>alpha · scored with rubric v0.1.0</span>
           <span>
             <a href="/rubric">Rubric</a> · <a href="/how-we-scored">How we scored</a> ·{" "}
             <a href="https://github.com/Imasaikiran/bench">github</a>

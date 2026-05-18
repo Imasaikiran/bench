@@ -40,14 +40,15 @@ describe("landing page copy invariants", () => {
     expect(html.toLowerCase()).not.toContain("the cli is live");
   });
 
-  it("trust posture covers the 6 spec §10.2 items", () => {
+  // UX audit §3 — trust grid compressed 6 rows → 4. TTL folded into the
+  // egress row; zero-revenue moved to /about (spec §14 non-goals).
+  it("trust posture covers the 4 core spec §10.2 items", () => {
     const lower = html.toLowerCase();
     expect(lower).toContain("open-source scanner");
     expect(lower).toContain("no llm in the scoring path");
     expect(lower).toContain("consent gate");
-    expect(lower).toContain("single egress");
-    expect(lower).toContain("30-day ttl");
-    expect(lower).toContain("zero revenue");
+    expect(lower).toContain("only numbers leave");
+    expect(lower).toContain("auto-delete"); // TTL folded into the egress row
   });
 
   it("hero h1 exists and is non-empty", () => {
@@ -56,9 +57,13 @@ describe("landing page copy invariants", () => {
     expect((m?.[1] ?? "").replace(/<[^>]+>/g, "").trim().length).toBeGreaterThan(10);
   });
 
-  it("references both phase 0 signal audit and design spec", () => {
-    expect(html).toMatch(/phase0-signal/);
-    expect(html).toMatch(/2026-04-25-bench-v2-design/);
+  // UX audit §3.5 — the bet detail moved to /about. The landing body keeps a
+  // one-line "Why this exists" with a pointer to /about, not the full essay.
+  // (The Phase-0 launch banner still links phase0-signal intentionally; that
+  // is the banner, not the bet section, so we don't assert its absence.)
+  it("points to /about for the bet", () => {
+    expect(html).toMatch(/href="\/about"/);
+    expect(html.toLowerCase()).toContain("why this exists");
   });
 
   it("renders the Phase-0 banner when BENCH_LAUNCH_PHASE is unset (default)", () => {

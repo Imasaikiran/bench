@@ -28,10 +28,12 @@ describe("toPersonaShape", () => {
     expect(p.initial).toBe("P");
     expect(p.weeks).toBe(14);
     expect(p.hours).toBe(187);
-    expect(p.hoursMeaning).toContain("workdays");
+    expect(p.hoursMeaning).toContain("working days");
     expect(p.signature).toContain("install");
     expect(p.tiles).toHaveLength(4);
     expect(p.chapterTags).toHaveLength(5);
+    // UX audit §3.3 — only two chapter states ever render now.
+    expect(p.chapterTags.every((t) => t === "strong" || t === "weak")).toBe(true);
     expect(p.clusters.Foundation).toHaveLength(5);
     expect(p.musthaves).toHaveLength(15);
   });
@@ -42,37 +44,27 @@ describe("toPersonaShape", () => {
   });
 });
 
+// UX audit §3.1 — honest workday-equivalent, no "saved"/"gave back" overclaim,
+// no "side-project shipped" speculation.
 describe("deriveHoursMeaning", () => {
-  it("zero or negative → 'no time back yet'", () => {
-    expect(deriveHoursMeaning(0)).toBe("no time back yet");
-    expect(deriveHoursMeaning(-5)).toBe("no time back yet");
-    expect(deriveHoursMeaning(NaN)).toBe("no time back yet");
+  it("zero or negative → no-history copy", () => {
+    expect(deriveHoursMeaning(0)).toBe("not enough history yet");
+    expect(deriveHoursMeaning(-5)).toBe("not enough history yet");
+    expect(deriveHoursMeaning(NaN)).toBe("not enough history yet");
   });
-  it("singular hour at h=1", () => {
-    expect(deriveHoursMeaning(1)).toBe("1 hour back — almost a workday");
+  it("rounds up to at least one working day", () => {
+    expect(deriveHoursMeaning(1)).toBe("≈ 1 working day, side by side with Claude Code");
+    expect(deriveHoursMeaning(7)).toBe("≈ 1 working day, side by side with Claude Code");
   });
-  it("sub-workday under 8h", () => {
-    expect(deriveHoursMeaning(7)).toBe("7 hours back — almost a workday");
+  it("singular working day at h=8", () => {
+    expect(deriveHoursMeaning(8)).toBe("≈ 1 working day, side by side with Claude Code");
   });
-  it("singular workday at h=8", () => {
-    expect(deriveHoursMeaning(8)).toBe("8h back — about 1 workday");
+  it("plural working days", () => {
+    expect(deriveHoursMeaning(24)).toBe("≈ 3 working days, side by side with Claude Code");
   });
-  it("plural workdays in <5wd band", () => {
-    expect(deriveHoursMeaning(24)).toBe("24h back — about 3 workdays");
-  });
-  it("upper edge of <5wd band (h=39)", () => {
-    expect(deriveHoursMeaning(39)).toMatch(/about 5 workdays/);
-  });
-  it("sprint band at h=40", () => {
-    expect(deriveHoursMeaning(40)).toBe("40h back — a sprint of workdays (5)");
-  });
-  it("upper edge of sprint band (h=79)", () => {
-    expect(deriveHoursMeaning(79)).toBe("79h back — a sprint of workdays (10)");
-  });
-  it("side-project band at h=80", () => {
-    expect(deriveHoursMeaning(80)).toBe("80h back — 10 workdays, or a side-project shipped");
-  });
-  it("spec fixture h=187", () => {
-    expect(deriveHoursMeaning(187)).toBe("187h back — 23 workdays, or a side-project shipped");
+  it("no overclaim language at any magnitude", () => {
+    const big = deriveHoursMeaning(187);
+    expect(big).toBe("≈ 23 working days, side by side with Claude Code");
+    expect(big).not.toMatch(/back|saved|gave|side-project/);
   });
 });
