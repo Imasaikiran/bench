@@ -85,19 +85,44 @@ function runCli(env: NodeJS.ProcessEnv, opts: RunOpts = {}): Promise<RunResult> 
 
   const stdoutChunks: Buffer[] = [];
   const stderrChunks: Buffer[] = [];
-  child.stdout.on("data", (c: Buffer) => stdoutChunks.push(c));
+
+  // Deterministic stdin: wait until the consent prompt actually appears on
+  // stdout, THEN write the reply exactly once. A blind setTimeout raced on
+  // slower CI runners — the reply landed before/after the prompt window and
+  // the CLI re-read stdin, double-firing the upload. Watch for the prompt
+  // marker instead. The prompt ends with "[y/N]" (see cli/src/consent.ts).
+  let replied = false;
+  const PROMPT_RE = /\[y\/N\]/i;
+
+  function maybeReply(acc: string): void {
+    if (replied || opts.stdinReply === undefined) return;
+    if (PROMPT_RE.test(acc)) {
+      replied = true;
+      child.stdin.write(opts.stdinReply);
+      child.stdin.end();
+    }
+  }
+
+  child.stdout.on("data", (c: Buffer) => {
+    stdoutChunks.push(c);
+    maybeReply(Buffer.concat(stdoutChunks).toString("utf8"));
+  });
   child.stderr.on("data", (c: Buffer) => stderrChunks.push(c));
 
-  if (opts.stdinReply !== undefined) {
-    // Wait for the consent prompt to print before sending the reply.
-    // The CLI prints "Upload …? [y/N]" after the preview; sending stdin
-    // immediately can race, but small delay is enough for tinkerer fixture.
-    setTimeout(() => {
-      child.stdin.write(opts.stdinReply!);
-      child.stdin.end();
-    }, 600);
-  } else {
+  if (opts.stdinReply === undefined) {
     child.stdin.end();
+  } else {
+    // Safety net: if the prompt never prints (scan error path), close stdin
+    // after the process is clearly done waiting so the child can exit.
+    child.on("exit", () => {
+      if (!replied) {
+        try {
+          child.stdin.end();
+        } catch {
+          /* already closed */
+        }
+      }
+    });
   }
 
   return new Promise<RunResult>((res) => {
