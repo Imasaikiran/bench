@@ -9,6 +9,7 @@ import { readMcp } from "./mcp.js";
 import { readSessions } from "./sessions.js";
 import type { SessionsReport } from "./sessions.js";
 import { readGitSignals } from "./git.js";
+import { sessionConfidence } from "./confidence.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -205,6 +206,12 @@ export async function scan(
       ],
       skipped_files: 0, // TODO(1.10+): track files skipped during scan
       elapsed_ms: 0, // TODO(1.15): wall-clock measurement around scan()
+    },
+    confidence: {
+      tool_derived: sessionConfidence({
+        sessionsTotal: sessions.sessionsTotal,
+        toolUseCount: sessions.toolUseCount,
+      }),
     },
     raw: { cfg, skills, hooks, cmds, agents, mcp, sessions, git },
   };
