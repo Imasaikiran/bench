@@ -45,6 +45,16 @@ describe("renderMustHaves", () => {
   it("shows the community list unpersonalized when confidence is low", () => {
     const lines = renderMustHaves([FOCUS], { confidence: "low" });
     expect(lines.join(" ")).toMatch(/community|couldn.t verify/i);
+    expect(lines[0]).toMatch(/couldn.t verify/i);
+    expect(lines).toHaveLength(2);
+  });
+
+  it("renders the low-confidence banner exactly once, not per item", () => {
+    const lines = renderMustHaves([FOCUS, POST_TOOL_USE], { confidence: "low" });
+    expect(lines.filter((l) => /couldn.t verify/i.test(l))).toHaveLength(1);
+    expect(lines).toHaveLength(3);
+    expect(lines[1]).toMatch(/^Focus: /);
+    expect(lines[2]).toMatch(/^PostToolUse hook: /);
   });
 
   it("low-confidence output still names the dimension, just not as a personal accusation", () => {
