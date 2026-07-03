@@ -70,4 +70,28 @@ describe("deriveCopy identity", () => {
       skillsTotal: 5, projectRoots: 2, sessionsTotal: 40, weeksOnCc: 4, planModeRatio: 0 });
     expect(c.identity).not.toMatch(/weekly|wip/);
   });
+
+  it("combines the sessions clause with the verb clause", () => {
+    // Covers the verb-clause branch (planModeRatio below threshold, verbs present)
+    // stacked on the sessions clause (skills/roots too low for the skills clause).
+    const c = deriveCopy({ signatureVerbs: ["ship"], hours_with_cc: 20,
+      skillsTotal: 0, projectRoots: 0, sessionsTotal: 25, weeksOnCc: 3, planModeRatio: 0 });
+    expect(c.identity).toContain("25 sessions in 3 weeks");
+    // Second clause is sentence-capitalized by the join step, hence /i.
+    expect(c.identity).toMatch(/you ship more than anything else/i);
+  });
+
+  it("pins the full two-clause identity string (grammar invariant)", () => {
+    // Guards the capitalize-and-join contract: each clause starts lowercase with
+    // no trailing period; the join step sentence-capitalizes and adds periods.
+    const c = deriveCopy({
+      signatureVerbs: ["add", "merge"],
+      hours_with_cc: 161,
+      skillsTotal: 445, projectRoots: 73, sessionsTotal: 250, weeksOnCc: 9,
+      planModeRatio: 0.4,
+    });
+    expect(c.identity).toBe(
+      "445 skills installed across 73 projects: you collect capability faster than you spend it. You plan before you build.",
+    );
+  });
 });

@@ -46,6 +46,8 @@ export function deriveCopy(ctx: CopyContext): DerivedCopy {
 
   // Build up to two evidence clauses, strongest first. Each is a true, checkable
   // statement. If none qualify, fall back to a verb line (whitelisted) or a stub.
+  // Invariant: clauses must start lowercase and carry no trailing period; the
+  // join step below capitalizes each and adds the periods.
   const clauses: string[] = [];
   if (skills >= 20 && roots >= 5) {
     clauses.push(`${skills} skills installed across ${roots} projects: you collect capability faster than you spend it`);
