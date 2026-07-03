@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { readHooks } from "../../src/scanner/hooks";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 describe("readHooks", () => {
   it("explorer: no hooks dir → all zeros, empty events", async () => {
@@ -29,5 +32,17 @@ describe("readHooks", () => {
   it("happy path: parseWarnings is empty array", async () => {
     const r = await readHooks("test/fixtures/operator");
     expect(r.parseWarnings).toEqual([]);
+  });
+
+  it("counts inline settings-defined hooks even with no hook files on disk", async () => {
+    const home = await mkdtemp(join(tmpdir(), "bench-test-"));
+    await writeFile(
+      join(home, "settings.json"),
+      JSON.stringify({
+        hooks: { SessionStart: [{ hooks: [{ command: "echo hi" }] }] },
+      })
+    );
+    const r = await readHooks(home);
+    expect(r.configured).toBeGreaterThanOrEqual(1);
   });
 });

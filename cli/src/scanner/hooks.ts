@@ -73,26 +73,25 @@ export async function readHooks(claudeHome: string): Promise<HooksReport> {
     }
   }
 
-  // Match by basename only — settings commands like `~/.claude/hooks/x.sh` and a disk file
+  // Configured = every hook command declared in settings (inline or file-backed).
+  // Orphaned = disk hook files that no settings command references.
+  // Basename-only matching: settings commands like `~/.claude/hooks/x.sh` and a disk file
   // `x.sh` should both count even when paths differ. Trade-off: distinct hook files sharing a
   // basename across dirs would alias.
   const referencedBasenames = new Set<string>();
+  let settingsHookCommands = 0;
   for (const cmds of Object.values(events)) {
     for (const cmd of cmds) {
       referencedBasenames.add(basename(cmd));
+      settingsHookCommands++;
     }
   }
 
-  // Cross-ref disk files against referenced basenames
-  let configured = 0;
   let orphaned = 0;
   for (const file of diskFiles) {
-    if (referencedBasenames.has(file)) {
-      configured++;
-    } else {
-      orphaned++;
-    }
+    if (!referencedBasenames.has(file)) orphaned++;
   }
 
+  const configured = settingsHookCommands;
   return { configured, orphaned, events, parseWarnings: warnings };
 }
