@@ -241,6 +241,26 @@ export async function main(
   const copy = _deriveCopy({
     signatureVerbs: scanResult.raw.git.signatureVerbs,
     hours_with_cc: hours,
+    skillsTotal:
+      typeof scanResult.counts["skills_total"] === "number"
+        ? (scanResult.counts["skills_total"] as number)
+        : 0,
+    projectRoots:
+      typeof scanResult.counts["project_root_count"] === "number"
+        ? (scanResult.counts["project_root_count"] as number)
+        : 0,
+    sessionsTotal:
+      typeof scanResult.counts["sessions_total"] === "number"
+        ? (scanResult.counts["sessions_total"] as number)
+        : 0,
+    weeksOnCc:
+      typeof scanResult.counts["weeks_on_cc"] === "number"
+        ? (scanResult.counts["weeks_on_cc"] as number)
+        : 0,
+    planModeRatio:
+      typeof scanResult.counts["plan_mode_ratio"] === "number"
+        ? (scanResult.counts["plan_mode_ratio"] as number)
+        : 0,
   });
 
   // 11. Helpers

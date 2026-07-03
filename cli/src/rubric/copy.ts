@@ -1,3 +1,5 @@
+import { pickVerbs } from "./verbs.js";
+
 // matches persona.ts HOURS_FLOOR — kept local per plan §1992 so copy.ts stays self-contained.
 const HOURS_FLOOR = 5;
 
@@ -9,7 +11,7 @@ const HOURS_FLOOR = 5;
  *                              — too many exceptions; ship the simple cases)
  *   - "build"  → "building"  (default: just append "ing")
  *
- * Exported for unit-testing; not part of the public CopyContext API.
+ * Exported for compatibility; no longer used internally by deriveCopy (see B2).
  */
 export function gerundize(verb: string): string {
   if (/ie$/i.test(verb)) return verb.slice(0, -2) + "ying";
@@ -20,6 +22,11 @@ export function gerundize(verb: string): string {
 export type CopyContext = {
   signatureVerbs?: readonly string[];
   hours_with_cc?: number | null;
+  skillsTotal?: number;
+  projectRoots?: number;
+  sessionsTotal?: number;
+  weeksOnCc?: number;
+  planModeRatio?: number;
 };
 
 export type DerivedCopy = {
@@ -30,33 +37,42 @@ export type DerivedCopy = {
 };
 
 export function deriveCopy(ctx: CopyContext): DerivedCopy {
-  const verbs = (ctx.signatureVerbs && ctx.signatureVerbs.length > 0
-    ? [...ctx.signatureVerbs]
-    : ["build"]  // Explorer-tier default verb when no git history available
-  ).slice(0, 3);
+  const verbs = pickVerbs(ctx.signatureVerbs ?? []).slice(0, 3);
+  const skills = ctx.skillsTotal ?? 0;
+  const roots = ctx.projectRoots ?? 0;
+  const sessions = ctx.sessionsTotal ?? 0;
+  const weeks = ctx.weeksOnCc ?? 0;
+  const planRatio = ctx.planModeRatio ?? 0;
 
-  const h =
-    typeof ctx.hours_with_cc === "number" && Number.isFinite(ctx.hours_with_cc)
-      ? ctx.hours_with_cc
-      : 0;
+  // Build up to two evidence clauses, strongest first. Each is a true, checkable
+  // statement. If none qualify, fall back to a verb line (whitelisted) or a stub.
+  const clauses: string[] = [];
+  if (skills >= 20 && roots >= 5) {
+    clauses.push(`${skills} skills installed across ${roots} projects: you collect capability faster than you spend it`);
+  } else if (sessions >= 20 && weeks >= 2) {
+    clauses.push(`${sessions} sessions in ${weeks} weeks: this is a daily tool for you, not an experiment`);
+  }
+  if (planRatio >= 0.25) {
+    clauses.push(`you plan before you build`);
+  } else if (verbs.length >= 1) {
+    clauses.push(`you ${verbs[0]!} more than anything else`);
+  }
+
+  let identity: string;
+  if (clauses.length > 0) {
+    identity = clauses.map((c) => c[0]!.toUpperCase() + c.slice(1)).join(". ") + ".";
+  } else if (verbs.length >= 1) {
+    identity = `You ${verbs[0]!}.`;
+  } else {
+    identity = "Early days. Come back after a few more sessions.";
+  }
+
+  const h = typeof ctx.hours_with_cc === "number" && Number.isFinite(ctx.hours_with_cc) ? ctx.hours_with_cc : 0;
   const workdays = Math.round(h / 8);
-
-  // safe: fallback ["build"] above ensures verbs.length >= 1
-  const v0 = verbs[0]!;
-  const identity =
-    verbs.length === 3
-      ? `You ${v0} to learn. You ${verbs[1]!} to focus. You keep ${gerundize(verbs[2]!)} if it fits.`
-      : `You ${v0}.`;
-
   const hours_meaning =
     h >= HOURS_FLOOR
       ? `~${workdays} workdays of pair-programming — whatever you made, you made it together`
       : "";
 
-  return {
-    signature_verbs: verbs,
-    identity,
-    hours_meaning,
-    hours_label: "hours with Claude Code",
-  };
+  return { signature_verbs: verbs, identity, hours_meaning, hours_label: "hours with Claude Code" };
 }
