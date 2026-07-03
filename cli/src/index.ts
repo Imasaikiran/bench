@@ -14,6 +14,8 @@ import { loadRubric } from "./rubric/load.js";
 import { scoreFromCounts } from "./rubric/score.js";
 import { inferTier, computeHoursWithCc } from "./rubric/persona.js";
 import { deriveCopy } from "./rubric/copy.js";
+import { renderMustHaves } from "./rubric/musthave-copy.js";
+import type { MustHaveItem } from "./rubric/musthave-copy.js";
 import { assemblePayload } from "./payload.js";
 import { renderPreview } from "./preview.js";
 import { askConsent } from "./consent.js";
@@ -135,23 +137,26 @@ function buildChapterNote(scored: ScoreResult): string {
 }
 
 /**
- * Return up to 3 predicate ids whose state is "missing" in the lowest-scoring
- * chapter. Format: "#${id} ${dim.name}".
+ * Collect up to 3 dimensions whose state is "missing" in the lowest-scoring
+ * chapter, as {id, name, rationale} for renderMustHaves to turn into
+ * human-readable copy. Rationale comes from rubric.yaml; dimensions without
+ * one are skipped (shouldn't happen given current rubric.yaml, but keeps
+ * this from ever emitting a reason-less line).
  */
-function deriveMusthaves(scored: ScoreResult, rubric: Rubric): string[] {
+function deriveMusthaves(scored: ScoreResult, rubric: Rubric): MustHaveItem[] {
   const { name: lowestName } = lowestChapter(scored);
 
   const chapter = scored.chapters[lowestName];
   if (!chapter) return [];
 
   const dims = rubric.chapters[lowestName]?.dimensions ?? [];
-  const results: string[] = [];
+  const results: MustHaveItem[] = [];
 
   for (let i = 0; i < chapter.states.length && results.length < 3; i++) {
     if (chapter.states[i] === "missing") {
       const dim = dims[i];
-      if (dim) {
-        results.push(`#${dim.id} ${dim.name}`);
+      if (dim && dim.rationale) {
+        results.push({ id: dim.id, name: dim.name, rationale: dim.rationale });
       }
     }
   }
@@ -265,7 +270,10 @@ export async function main(
 
   // 11. Helpers
   const chapter_note = buildChapterNote(scored);
-  const musthaves = deriveMusthaves(scored, rubric);
+  const musthaveItems = deriveMusthaves(scored, rubric);
+  const musthaves = renderMustHaves(musthaveItems, {
+    confidence: scanResult.confidence.tool_derived,
+  });
 
   // 12. Assemble payload
   const weeksOnCc =

@@ -26,7 +26,10 @@ const payloadFixture: Payload = {
     Coherence: { score: 85, states: ["have", "have", "have", "partial", "missing"] },
   },
   chapter_tags: ["strong", "partial", "partial", "strong", "strong"],
-  musthaves: ["#7 PreToolUse hook", "#8 SessionStart hook"],
+  musthaves: [
+    "PreToolUse hook: Pre-tool guardrails catch the prompts that would burn time or money before the tool fires.",
+    "SessionStart or SessionEnd hook: Boot-time context injection removes the ritual of re-explaining the repo every session.",
+  ],
   signature_verbs: ["build", "refactor", "test"],
   tiles: [],
   identity: "You build to learn. You refactor to focus. You keep testing if it fits.",

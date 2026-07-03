@@ -89,7 +89,7 @@ const PAYLOAD: Payload = {
   counts: { sessions_total: 40, weeks_on_cc: 6, active_hours_total: 80 },
   chapters: SCORED.chapters,
   chapter_tags: ["strong", "partial", "partial", "partial", "partial"],
-  musthaves: ["#7 PreToolUse hook"],
+  musthaves: ["PreToolUse hook: Pre-tool guardrails catch the prompts that would burn time or money before the tool fires."],
   signature_verbs: ["build"],
   tiles: [],
   identity: "You build.",
@@ -103,6 +103,7 @@ const PAYLOAD: Payload = {
 const SCAN_RESULT = {
   counts: { sessions_total: 40, weeks_on_cc: 6, active_hours_total: 80 },
   diagnostics: { redaction_hits: 0, parse_warnings: [], skipped_files: 0, elapsed_ms: 0 },
+  confidence: { tool_derived: "high" as const },
   raw: {
     cfg: { claudeMd: null, settings: {}, settingsLocal: {}, parseWarnings: [] },
     skills: { total: 0, items: [], parseWarnings: [] },
