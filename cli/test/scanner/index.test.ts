@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { scan } from "../../src/scanner";
+import { normalizeSkillName, computeActiveSkills } from "../../src/scanner/index";
 
 const fixturesDir = join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures");
 const fixRoot = join(fixturesDir, "tinkerer");
@@ -64,5 +65,67 @@ describe("scanner.scan", () => {
     expect(c.mcp_has_github).toBe(false);
     expect(c.review_agent).toBe(false);
     expect(c.test_agent).toBe(false);
+  });
+});
+
+describe("normalizeSkillName", () => {
+  it("strips plugin namespace prefix", () => {
+    expect(normalizeSkillName("superpowers:brainstorming")).toBe("brainstorming");
+  });
+  it("lowercases and trims", () => {
+    expect(normalizeSkillName("  Using-Superpowers ")).toBe("using-superpowers");
+  });
+  it("is idempotent on plain names", () => {
+    expect(normalizeSkillName("cto-engineering-os")).toBe("cto-engineering-os");
+  });
+});
+
+describe("computeActiveSkills", () => {
+  it("counts a skill as active when session used its namespaced slug", () => {
+    const skills = {
+      total: 1,
+      items: [{ dir: "/home/user/.claude/skills/brainstorming", name: "brainstorming", description: null }],
+      parseWarnings: [],
+    };
+    const sessions = {
+      sessionsTotal: 1,
+      planModeSessions: 0,
+      toolUseCount: 0,
+      messageCount: 0,
+      activeSecondsTotal: 0,
+      weeksOnCc: 0,
+      earliestStart: null,
+      skippedLines: 0,
+      readBytesSum: 0,
+      readBytesCount: 0,
+      projectRoots: [],
+      usedSkills: ["superpowers:brainstorming"],
+      parseWarnings: [],
+    };
+    expect(computeActiveSkills(skills, sessions)).toBe(1);
+  });
+
+  it("falls back to the directory slug when frontmatter name is null", () => {
+    const skills = {
+      total: 1,
+      items: [{ dir: "/home/user/.claude/skills/foo-bar", name: null, description: null }],
+      parseWarnings: [],
+    };
+    const sessions = {
+      sessionsTotal: 1,
+      planModeSessions: 0,
+      toolUseCount: 0,
+      messageCount: 0,
+      activeSecondsTotal: 0,
+      weeksOnCc: 0,
+      earliestStart: null,
+      skippedLines: 0,
+      readBytesSum: 0,
+      readBytesCount: 0,
+      projectRoots: [],
+      usedSkills: ["foo-bar"],
+      parseWarnings: [],
+    };
+    expect(computeActiveSkills(skills, sessions)).toBe(1);
   });
 });

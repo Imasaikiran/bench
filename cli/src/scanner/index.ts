@@ -24,16 +24,28 @@ function clamp(min: number, max: number, value: number): number {
 }
 
 /**
- * Count how many skill names from skills.items appear in sessions.usedSkills.
- * Match by exact equality on the frontmatter `name` field.
+ * Normalize a skill name/invocation slug for matching: strip any plugin
+ * namespace prefix (`superpowers:brainstorming` -> `brainstorming`), trim,
+ * and lowercase.
  */
-function computeActiveSkills(skills: SkillsReport, sessions: SessionsReport): number {
-  const usedSet = new Set(sessions.usedSkills);
+export function normalizeSkillName(name: string): string {
+  const afterColon = name.includes(":") ? name.slice(name.lastIndexOf(":") + 1) : name;
+  return afterColon.trim().toLowerCase();
+}
+
+/**
+ * Count how many skill names from skills.items appear in sessions.usedSkills.
+ * Match on normalized names (namespace-stripped, trimmed, lowercased), also
+ * falling back to the skill's directory slug when frontmatter `name` is null.
+ */
+export function computeActiveSkills(skills: SkillsReport, sessions: SessionsReport): number {
+  const usedSet = new Set(sessions.usedSkills.map(normalizeSkillName));
   let active = 0;
   for (const skill of skills.items) {
-    if (skill.name !== null && usedSet.has(skill.name)) {
-      active++;
-    }
+    const candidates = [skill.name, skill.dir.split("/").pop() ?? null]
+      .filter((n): n is string => n !== null)
+      .map(normalizeSkillName);
+    if (candidates.some((c) => usedSet.has(c))) active++;
   }
   return active;
 }
