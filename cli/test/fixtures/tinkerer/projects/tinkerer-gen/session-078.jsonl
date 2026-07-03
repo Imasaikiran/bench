@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 078: implement feature 779"}],"timestamp":"2026-04-15T08:58:45.786Z","cwd":"/home/user/work/tinkerer"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_078_0","name":"Bash","input":{"command":"echo session-078"}},{"type":"text","text":"Done with step 1 of session 078."}],"timestamp":"2026-04-15T08:59:12.786Z","cwd":"/home/user/work/tinkerer"}
+{"type":"user","timestamp":"2026-04-15T08:58:45.786Z","cwd":"/home/user/work/tinkerer","message":{"role":"user","content":[{"type":"text","text":"Task 078: implement feature 779"}]}}
+{"type":"assistant","timestamp":"2026-04-15T08:59:12.786Z","cwd":"/home/user/work/tinkerer","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_078_0","name":"Bash","input":{"command":"echo session-078"}},{"type":"text","text":"Done with step 1 of session 078."}]}}

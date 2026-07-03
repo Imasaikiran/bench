@@ -1,3 +1,3 @@
-{"role":"user","content":[{"type":"text","text":"Task 055: implement feature 764"}],"timestamp":"2026-04-05T16:44:40.975Z","cwd":"/Users/dev/projects/tinkerer-core"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_055_0","name":"Bash","input":{"command":"echo session-055"}},{"type":"text","text":"Done with step 1 of session 055."}],"timestamp":"2026-04-05T16:45:18.975Z","cwd":"/Users/dev/projects/tinkerer-core"}
-{"role":"assistant","content":[{"type":"text","text":"Done with step 2 of session 055."}],"timestamp":"2026-04-05T16:45:37.975Z","cwd":"/Users/dev/projects/tinkerer-core"}
+{"type":"user","timestamp":"2026-04-05T16:44:40.975Z","cwd":"/Users/dev/projects/tinkerer-core","message":{"role":"user","content":[{"type":"text","text":"Task 055: implement feature 764"}]}}
+{"type":"assistant","timestamp":"2026-04-05T16:45:18.975Z","cwd":"/Users/dev/projects/tinkerer-core","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_055_0","name":"Bash","input":{"command":"echo session-055"}},{"type":"text","text":"Done with step 1 of session 055."}]}}
+{"type":"assistant","timestamp":"2026-04-05T16:45:37.975Z","cwd":"/Users/dev/projects/tinkerer-core","message":{"role":"assistant","content":[{"type":"text","text":"Done with step 2 of session 055."}]}}

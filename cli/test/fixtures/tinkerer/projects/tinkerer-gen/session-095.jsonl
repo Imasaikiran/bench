@@ -1,3 +1,3 @@
-{"role":"user","content":[{"type":"text","text":"Task 095: implement feature 744"}],"timestamp":"2026-04-22T11:41:58.811Z","cwd":"/home/user/work/tinkerer"}
-{"role":"assistant","content":[{"type":"text","text":"Done with step 1 of session 095."}],"timestamp":"2026-04-22T11:42:18.811Z","cwd":"/home/user/work/tinkerer"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_095_1","name":"Bash","input":{"command":"echo session-095"}},{"type":"text","text":"Done with step 2 of session 095."}],"timestamp":"2026-04-22T11:42:39.811Z","cwd":"/home/user/work/tinkerer"}
+{"type":"user","timestamp":"2026-04-22T11:41:58.811Z","cwd":"/home/user/work/tinkerer","message":{"role":"user","content":[{"type":"text","text":"Task 095: implement feature 744"}]}}
+{"type":"assistant","timestamp":"2026-04-22T11:42:18.811Z","cwd":"/home/user/work/tinkerer","message":{"role":"assistant","content":[{"type":"text","text":"Done with step 1 of session 095."}]}}
+{"type":"assistant","timestamp":"2026-04-22T11:42:39.811Z","cwd":"/home/user/work/tinkerer","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_095_1","name":"Bash","input":{"command":"echo session-095"}},{"type":"text","text":"Done with step 2 of session 095."}]}}

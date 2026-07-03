@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 094: implement feature 709"}],"timestamp":"2026-04-22T01:37:26.788Z","cwd":"/home/user/work/tinkerer"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_094_0","name":"Read","input":{"file_path":"/home/user/work/tinkerer/src/index.ts","bytes_read":5036}},{"type":"text","text":"Done with step 1 of session 094."}],"timestamp":"2026-04-22T01:38:21.788Z","cwd":"/home/user/work/tinkerer"}
+{"type":"user","timestamp":"2026-04-22T01:37:26.788Z","cwd":"/home/user/work/tinkerer","message":{"role":"user","content":[{"type":"text","text":"Task 094: implement feature 709"}]}}
+{"type":"assistant","timestamp":"2026-04-22T01:38:21.788Z","cwd":"/home/user/work/tinkerer","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_094_0","name":"Read","input":{"file_path":"/home/user/work/tinkerer/src/index.ts","bytes_read":5036}},{"type":"text","text":"Done with step 1 of session 094."}]}}

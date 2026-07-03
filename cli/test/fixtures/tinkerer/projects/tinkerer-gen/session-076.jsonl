@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 076: implement feature 129"}],"timestamp":"2026-04-14T12:47:03.768Z","cwd":"/home/user/work/tinkerer"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_076_0_skill","name":"Skill","input":{"skill":"running-builds"}},{"type":"text","text":"Done with step 1 of session 076."}],"timestamp":"2026-04-14T12:47:46.768Z","cwd":"/home/user/work/tinkerer"}
+{"type":"user","timestamp":"2026-04-14T12:47:03.768Z","cwd":"/home/user/work/tinkerer","message":{"role":"user","content":[{"type":"text","text":"Task 076: implement feature 129"}]}}
+{"type":"assistant","timestamp":"2026-04-14T12:47:46.768Z","cwd":"/home/user/work/tinkerer","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_076_0_skill","name":"Skill","input":{"skill":"running-builds"}},{"type":"text","text":"Done with step 1 of session 076."}]}}

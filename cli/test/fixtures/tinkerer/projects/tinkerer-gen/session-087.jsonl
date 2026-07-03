@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 087: implement feature 267"}],"timestamp":"2026-04-19T02:55:42.762Z","cwd":"/Users/dev/projects/tinkerer-core"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_087_0","name":"Bash","input":{"command":"echo session-087"}},{"type":"text","text":"Done with step 1 of session 087."}],"timestamp":"2026-04-19T02:55:54.762Z","cwd":"/Users/dev/projects/tinkerer-core"}
+{"type":"user","timestamp":"2026-04-19T02:55:42.762Z","cwd":"/Users/dev/projects/tinkerer-core","message":{"role":"user","content":[{"type":"text","text":"Task 087: implement feature 267"}]}}
+{"type":"assistant","timestamp":"2026-04-19T02:55:54.762Z","cwd":"/Users/dev/projects/tinkerer-core","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_087_0","name":"Bash","input":{"command":"echo session-087"}},{"type":"text","text":"Done with step 1 of session 087."}]}}

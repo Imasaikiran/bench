@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 098: implement feature 437"}],"timestamp":"2026-04-23T17:55:43.652Z","cwd":"/home/user/work/tinkerer"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_098_0","name":"Write","input":{"command":"echo session-098"}},{"type":"text","text":"Done with step 1 of session 098."}],"timestamp":"2026-04-23T17:56:15.652Z","cwd":"/home/user/work/tinkerer"}
+{"type":"user","timestamp":"2026-04-23T17:55:43.652Z","cwd":"/home/user/work/tinkerer","message":{"role":"user","content":[{"type":"text","text":"Task 098: implement feature 437"}]}}
+{"type":"assistant","timestamp":"2026-04-23T17:56:15.652Z","cwd":"/home/user/work/tinkerer","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_098_0","name":"Write","input":{"command":"echo session-098"}},{"type":"text","text":"Done with step 1 of session 098."}]}}

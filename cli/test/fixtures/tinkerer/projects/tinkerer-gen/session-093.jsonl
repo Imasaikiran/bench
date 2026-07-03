@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 093: implement feature 237"}],"timestamp":"2026-04-21T15:58:31.004Z","cwd":"/Users/dev/projects/tinkerer-core"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_093_0","name":"Glob","input":{"command":"echo session-093"}},{"type":"text","text":"Done with step 1 of session 093."}],"timestamp":"2026-04-21T15:58:52.004Z","cwd":"/Users/dev/projects/tinkerer-core"}
+{"type":"user","timestamp":"2026-04-21T15:58:31.004Z","cwd":"/Users/dev/projects/tinkerer-core","message":{"role":"user","content":[{"type":"text","text":"Task 093: implement feature 237"}]}}
+{"type":"assistant","timestamp":"2026-04-21T15:58:52.004Z","cwd":"/Users/dev/projects/tinkerer-core","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_093_0","name":"Glob","input":{"command":"echo session-093"}},{"type":"text","text":"Done with step 1 of session 093."}]}}
