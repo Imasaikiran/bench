@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "v2-alpha.*"
+      - "v2-beta.*"
+      - "v2-rc.*"
 
 # Only one publish job at a time. If two tags land back-to-back the second
 # waits for the first instead of racing against the npm registry.
