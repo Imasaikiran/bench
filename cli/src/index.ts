@@ -307,12 +307,19 @@ export async function main(
   });
 
   // 14. Print preview
+  const chapterScores = Object.fromEntries(
+    Object.entries(payload.chapters).map(([name, result]) => [name, result.score]),
+  );
   out(
     _renderPreview({
       score: payload.score,
       tier: payload.tier,
       weeks_on_cc: payload.weeks_on_cc,
       hours_with_cc: hours,
+      identity: payload.identity,
+      hours_meaning: payload.hours_meaning,
+      chapters: chapterScores,
+      url: "bench.dev",
     }),
   );
 
