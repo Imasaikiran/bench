@@ -23,6 +23,11 @@ export type PreviewInput = {
    * when the caller has no prevalence line to show (e.g. unpopulated
    * prevalence.json). See cli/src/rubric/prevalence.ts. */
   headline_rarity?: string;
+  /** "+11 since last scan · Tinkerer → Craftsman" (Task D2). Rendered directly
+   * under the tier line, above headline_rarity when both are present. Omitted
+   * entirely when there is no previous scan to diff against. See
+   * cli/src/delta.ts. */
+  delta?: string;
 };
 
 export type PreviewOptions = {
@@ -83,10 +88,17 @@ export function renderPreview(p: PreviewInput, opts?: PreviewOptions): string {
 
   lines.push("");
   lines.push(`  ${p.tier} · Bench ${p.score} · Wk ${p.weeks_on_cc}`);
+  if (p.delta) {
+    lines.push(`  ${dim}${p.delta}${reset}`);
+  }
   if (p.headline_rarity) {
     lines.push(`  ${dim}${p.headline_rarity}${reset}`);
   }
-  lines.push("");
+  // Card must stay <=16 lines: when both the delta and rarity lines are
+  // present, drop this blank separator rather than let the card grow to 17.
+  if (!(p.delta && p.headline_rarity)) {
+    lines.push("");
+  }
 
   const nameWidth = Math.max(...CHAPTER_ORDER.map((n) => n.length));
   for (const name of CHAPTER_ORDER) {

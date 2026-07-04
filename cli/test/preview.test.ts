@@ -226,3 +226,58 @@ describe("renderPreview headline_rarity (Task D1)", () => {
     expect(out).not.toMatch(/\[/);
   });
 });
+
+describe("renderPreview delta (Task D2)", () => {
+  it("is byte-identical whether delta is omitted or explicitly undefined", () => {
+    const withoutKey = renderPreview(BASE, { color: false });
+    const withUndefined = renderPreview({ ...BASE, delta: undefined }, { color: false });
+    expect(withUndefined).toBe(withoutKey);
+  });
+
+  it("renders no delta line when delta is absent", () => {
+    const out = renderPreview(BASE, { color: false });
+    expect(out).not.toMatch(/since last scan/);
+  });
+
+  it("renders the delta line directly under the tier line when present", () => {
+    const out = renderPreview({ ...BASE, delta: "+11 since last scan · Tinkerer → Craftsman" }, { color: false });
+    const lines = out.split("\n");
+    const tierIdx = lines.findIndex((l) => l.includes("Tinkerer · Bench 62 · Wk 14"));
+    expect(tierIdx).toBeGreaterThan(-1);
+    const deltaIdx = lines.findIndex((l) => l.includes("+11 since last scan"));
+    expect(deltaIdx).toBe(tierIdx + 1);
+    expect(lines.length).toBeLessThanOrEqual(16);
+  });
+
+  it("places delta above headline_rarity when both are present, and stays within 16 lines", () => {
+    const out = renderPreview(
+      {
+        ...BASE,
+        delta: "+11 since last scan · Tinkerer → Craftsman",
+        headline_rarity: "Only 8% of 50 public setups benchmarked have a PreToolUse hook. You do.",
+      },
+      { color: false },
+    );
+    const lines = out.split("\n");
+    const tierIdx = lines.findIndex((l) => l.includes("Tinkerer · Bench 62 · Wk 14"));
+    const deltaIdx = lines.findIndex((l) => l.includes("+11 since last scan"));
+    const rarityIdx = lines.findIndex((l) => l.includes("Only 8% of 50 public setups benchmarked"));
+    expect(deltaIdx).toBe(tierIdx + 1);
+    expect(rarityIdx).toBe(deltaIdx + 1);
+    expect(lines.length).toBeLessThanOrEqual(16);
+  });
+
+  it("dim-styles the delta line when color is enabled", () => {
+    const out = renderPreview({ ...BASE, delta: "+4 since last scan" }, { color: true });
+    const lines = out.split("\n");
+    const deltaLine = lines.find((l) => l.includes("+4 since last scan"));
+    expect(deltaLine).toBeDefined();
+    // eslint-disable-next-line no-control-regex
+    expect(deltaLine).toMatch(/\x1b\[2m/);
+  });
+
+  it("renders a negative delta honestly", () => {
+    const out = renderPreview({ ...BASE, delta: "-3 since last scan" }, { color: false });
+    expect(out).toContain("-3 since last scan");
+  });
+});

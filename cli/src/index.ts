@@ -25,6 +25,7 @@ import { upload } from "./uploader.js";
 import { openUrl } from "./browser.js";
 import { writeLocalExport } from "./local-export.js";
 import { scan } from "./scanner/index.js";
+import { loadPreviousScan, diffScans, formatDeltaBanner } from "./delta.js";
 
 import type { ScoreResult } from "./rubric/score.js";
 import type { Rubric } from "./rubric/load.js";
@@ -68,6 +69,7 @@ export type Deps = {
   writeLocalExport?: typeof writeLocalExport;
   mapperToPersona?: typeof mapperToPersona;
   ttyPrompt?: typeof ttyPrompt;
+  loadPreviousScan?: typeof loadPreviousScan;
 };
 
 /**
@@ -237,6 +239,7 @@ export async function main(
   const _writeLocalExport = deps.writeLocalExport ?? writeLocalExport;
   const _mapperToPersona = deps.mapperToPersona ?? mapperToPersona;
   const _ttyPrompt = deps.ttyPrompt ?? ttyPrompt;
+  const _loadPreviousScan = deps.loadPreviousScan ?? loadPreviousScan;
 
   // 1. Parse flags
   const flags = _parseArgs(argv);
@@ -332,6 +335,14 @@ export async function main(
     prevalenceTable,
   );
 
+  // Rescan delta (Task D2): load whatever bench-scan.json already sits in
+  // cwd BEFORE any of this run's writeLocalExport calls overwrite it. A
+  // missing file is the common case (first scan) and yields no banner,
+  // silently. An unparseable file also yields no banner, but pushes a note
+  // into diagnostics.parse_warnings instead of swallowing it entirely.
+  const previousScan = await _loadPreviousScan(process.cwd());
+  const deltaParseWarnings = previousScan.parseWarning ? [previousScan.parseWarning] : [];
+
   // 12. Assemble payload
   const weeksOnCc =
     typeof scanResult.counts["weeks_on_cc"] === "number"
@@ -358,11 +369,17 @@ export async function main(
     diagnostics: {
       // TODO(1.20): wire redaction_hits once snapshot tests pin the contract
       redaction_hits: 0,
-      parse_warnings: scanResult.diagnostics.parse_warnings,
+      parse_warnings: [...scanResult.diagnostics.parse_warnings, ...deltaParseWarnings],
       skipped_files: scanResult.diagnostics.skipped_files,
       elapsed_ms: Date.now() - t0,
     },
   });
+
+  // Diff against the previous scan now that this run's payload exists —
+  // only ever compares scans sharing the current rubric_version (a rubric
+  // retune isn't user progress). Render-only: never added to Payload.
+  const scanDelta = diffScans(previousScan.data, payload);
+  const deltaBanner = scanDelta ? formatDeltaBanner(scanDelta) : null;
 
   // 14. Print preview
   const chapterScores = Object.fromEntries(
@@ -378,6 +395,7 @@ export async function main(
       hours_meaning: payload.hours_meaning,
       chapters: chapterScores,
       url: "bench.dev",
+      ...(deltaBanner !== null ? { delta: deltaBanner } : {}),
       ...(payload.headline_rarity !== null ? { headline_rarity: payload.headline_rarity } : {}),
     }),
   );
