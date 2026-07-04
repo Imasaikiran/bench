@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 // applyPersona, persona-switcher aside, synthetic-preview footer marker)
 // verified byte-intact via local-export tests.
 const PINNED: Record<string, string> = {
-  "index.html": "e0de024fbbf4854890e13fd6e54fefa1866592dd49989e0a5d6ee5ceb937579c",
+  "index.html": "a72f50c8b40bbed3f66678f256a7fdb515a2e4d53446edf031b6b11f5fc0c868",
   "styles.css":  "6f308b13a1bd4f2704e8c211562b53c34069e4c5ba9c35e69c6fa45229342691",
   "script.js":   "ca47ac5341e9b56284b4447be844c0e3b94cd914ab03fc4024a962f87457cd22",
 };

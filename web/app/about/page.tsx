@@ -4,7 +4,7 @@ export const dynamic = "force-static";
 
 export const metadata: Metadata = {
   title: "About bench: why this exists",
-  description: "bench is a side project that scores a Claude Code setup. Open rubric, no AI in scoring, zero revenue. Built for the anxious improver.",
+  description: "bench is a side project that scores a Claude Code setup. Open scorecard, no AI in scoring, zero revenue. Built for the anxious improver.",
 };
 
 const styles = `

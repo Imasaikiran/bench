@@ -29,11 +29,11 @@ describe("/about", () => {
     expect(html).toMatch(/2026-04-25-bench-v2-design/);
   });
 
-  it("sets the metadata description to mention 'open rubric' and 'no AI in scoring'", async () => {
+  it("sets the metadata description to mention 'open scorecard' and 'no AI in scoring'", async () => {
     // Metadata is exported separately. Import the module's metadata directly.
     const mod = await import("../app/about/page");
     const desc = (mod.metadata?.description ?? "") as string;
-    expect(desc.toLowerCase()).toContain("open rubric");
+    expect(desc.toLowerCase()).toContain("open scorecard");
     expect(desc.toLowerCase()).toContain("no ai in scoring");
   });
 });

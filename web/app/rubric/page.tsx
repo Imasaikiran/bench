@@ -160,7 +160,7 @@ export default function RubricPage() {
   return (
     <main style={page}>
       <div style={wrap}>
-        <div style={eyebrow}>open rubric · community-editable</div>
+        <div style={eyebrow}>open scorecard · community-editable</div>
         <h1 style={h1}>Scorecard.</h1>
         <p style={lede}>
           {`${totalDimensions} checks across ${Object.keys(parsed.chapters).length} chapters. Every score on every card derives from this file. No closed weighting. No daily re-scoring theatre.`}

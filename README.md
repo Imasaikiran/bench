@@ -2,7 +2,7 @@
 
 A portrait of your Claude Code practice. Klout for Claude Code: scan your `.claude/` setup, get a one-page shareable card: hours Claude gave back, signature verbs, missing moves.
 
-Zero revenue. Adoption-first. Score-only. Open rubric, community-editable.
+Zero revenue. Adoption-first. Score-only. Open scorecard, community-editable.
 
 ## Try it
 
