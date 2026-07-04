@@ -45,4 +45,80 @@ describe("readHooks", () => {
     const r = await readHooks(home);
     expect(r.configured).toBeGreaterThanOrEqual(1);
   });
+
+  describe("eventStates (Task A5)", () => {
+    it("inline command (no file reference) -> present", async () => {
+      const home = await mkdtemp(join(tmpdir(), "bench-test-"));
+      await writeFile(
+        join(home, "settings.json"),
+        JSON.stringify({
+          hooks: { SessionStart: [{ hooks: [{ command: "echo hi" }] }] },
+        })
+      );
+      const r = await readHooks(home);
+      expect(r.eventStates["SessionStart"]).toBe("present");
+    });
+
+    it("command referencing an existing hook file -> present", async () => {
+      const r = await readHooks("test/fixtures/operator");
+      expect(r.eventStates["PreToolUse"]).toBe("present");
+      expect(r.eventStates["PostToolUse"]).toBe("present");
+      expect(r.eventStates["Stop"]).toBe("present");
+    });
+
+    it("command referencing a missing hook file -> referenced", async () => {
+      const home = await mkdtemp(join(tmpdir(), "bench-test-"));
+      await writeFile(
+        join(home, "settings.json"),
+        JSON.stringify({
+          hooks: {
+            PreToolUse: [
+              { hooks: [{ command: "~/.claude/hooks/does-not-exist.sh" }] },
+            ],
+          },
+        })
+      );
+      const r = await readHooks(home);
+      expect(r.eventStates["PreToolUse"]).toBe("referenced");
+    });
+
+    it("no event configured -> key absent from eventStates", async () => {
+      const r = await readHooks("test/fixtures/explorer");
+      expect(r.eventStates).toEqual({});
+    });
+
+    it("SessionEnd-only (no SessionStart) still yields a present state", async () => {
+      const home = await mkdtemp(join(tmpdir(), "bench-test-"));
+      await writeFile(
+        join(home, "settings.json"),
+        JSON.stringify({
+          hooks: { SessionEnd: [{ hooks: [{ command: "echo bye" }] }] },
+        })
+      );
+      const r = await readHooks(home);
+      expect(r.eventStates["SessionEnd"]).toBe("present");
+      expect(r.eventStates["SessionStart"]).toBeUndefined();
+    });
+
+    it("mixed commands in one event: any present command wins over referenced", async () => {
+      const home = await mkdtemp(join(tmpdir(), "bench-test-"));
+      await writeFile(
+        join(home, "settings.json"),
+        JSON.stringify({
+          hooks: {
+            PostToolUse: [
+              {
+                hooks: [
+                  { command: "~/.claude/hooks/missing.sh" },
+                  { command: "echo ok" },
+                ],
+              },
+            ],
+          },
+        })
+      );
+      const r = await readHooks(home);
+      expect(r.eventStates["PostToolUse"]).toBe("present");
+    });
+  });
 });

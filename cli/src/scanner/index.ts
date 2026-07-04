@@ -102,6 +102,45 @@ function permissionsAllowCount(settings: Record<string, unknown>): number {
   return Array.isArray(allow) ? allow.length : 0;
 }
 
+/**
+ * Best state across a set of event names: "present" > "referenced" > "missing".
+ * Used to collapse SessionStart/SessionEnd into the single `session_hook` field.
+ * Returns the literal string "missing" (rather than undefined) so the field
+ * always serializes — canonicalJson (payload.ts, used for the HMAC signature)
+ * rejects `undefined` values, and score.ts's predicates already treat any
+ * value other than "present"/"referenced" as missing.
+ */
+function bestEventState(
+  eventStates: Record<string, string>,
+  eventNames: string[],
+): string {
+  let best = "missing";
+  for (const name of eventNames) {
+    const state = eventStates[name];
+    if (state === "present") return "present";
+    if (state === "referenced") best = "referenced";
+  }
+  return best;
+}
+
+/**
+ * Dim 20 ("Verification before commit"): rubric.yaml criteria is "hook exists
+ * that runs tests or typecheck pre-commit". Claude Code has no dedicated
+ * pre-commit hook event, so the closest available signal is a PreToolUse (or
+ * PostToolUse) hook command whose text names a verification step — tests,
+ * typecheck, lint, or format — run before/around tool use.
+ */
+const VERIFY_COMMAND_RE = /verify|test|check|lint|typecheck|format/i;
+
+function verifyHookPresent(hooks: HooksReport): boolean {
+  for (const cmds of Object.values(hooks.events)) {
+    for (const cmd of cmds) {
+      if (VERIFY_COMMAND_RE.test(cmd)) return true;
+    }
+  }
+  return false;
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -159,6 +198,10 @@ export async function scan(
     orphaned_hooks_fraction: round(orphanFrac, 3),
     any_hook_present:
       hooks.configured > 0 || Object.keys(hooks.events).length > 0,
+    post_tool_use_hook: hooks.eventStates["PostToolUse"] ?? "missing",
+    pre_tool_use_hook: hooks.eventStates["PreToolUse"] ?? "missing",
+    session_hook: bestEventState(hooks.eventStates, ["SessionStart", "SessionEnd"]),
+    verify_hook_present: verifyHookPresent(hooks),
     agents_configured: agents.total,
     review_agent: agents.reviewAgent,
     test_agent: agents.testAgent,

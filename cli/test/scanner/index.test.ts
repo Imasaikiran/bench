@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { scan } from "../../src/scanner";
 import { normalizeSkillName, computeActiveSkills } from "../../src/scanner/index";
 
@@ -65,6 +67,68 @@ describe("scanner.scan", () => {
     expect(c.mcp_has_github).toBe(false);
     expect(c.review_agent).toBe(false);
     expect(c.test_agent).toBe(false);
+  });
+
+  describe("per-event hook state fields (Task A5)", () => {
+    it("explorer: no hooks at all -> all four fields missing/false", async () => {
+      const r = await scan(join(fixturesDir, "explorer"), { git: false });
+      const c = r.counts;
+      expect(c.post_tool_use_hook).toBe("missing");
+      expect(c.pre_tool_use_hook).toBe("missing");
+      expect(c.session_hook).toBe("missing");
+      expect(c.verify_hook_present).toBe(false);
+    });
+
+    it("operator: PreToolUse/PostToolUse hooks reference existing files -> present; no session hook; no verify command -> false", async () => {
+      const r = await scan(join(fixturesDir, "operator"), { git: false });
+      const c = r.counts;
+      expect(c.post_tool_use_hook).toBe("present");
+      expect(c.pre_tool_use_hook).toBe("present");
+      expect(c.session_hook).toBe("missing");
+      expect(c.verify_hook_present).toBe(false);
+    });
+
+    it("command referencing a missing hook file -> referenced", async () => {
+      const home = await mkdtemp(join(tmpdir(), "bench-test-"));
+      await writeFile(
+        join(home, "settings.json"),
+        JSON.stringify({
+          hooks: {
+            PostToolUse: [
+              { hooks: [{ command: "~/.claude/hooks/missing.sh" }] },
+            ],
+          },
+        }),
+      );
+      const r = await scan(home, { git: false });
+      expect(r.counts.post_tool_use_hook).toBe("referenced");
+    });
+
+    it("SessionEnd-only settings -> session_hook present", async () => {
+      const home = await mkdtemp(join(tmpdir(), "bench-test-"));
+      await writeFile(
+        join(home, "settings.json"),
+        JSON.stringify({
+          hooks: { SessionEnd: [{ hooks: [{ command: "echo bye" }] }] },
+        }),
+      );
+      const r = await scan(home, { git: false });
+      expect(r.counts.session_hook).toBe("present");
+    });
+
+    it("verify_hook_present true when a hook command names a test/typecheck/lint step", async () => {
+      const home = await mkdtemp(join(tmpdir(), "bench-test-"));
+      await writeFile(
+        join(home, "settings.json"),
+        JSON.stringify({
+          hooks: {
+            PreToolUse: [{ hooks: [{ command: "npm run typecheck" }] }],
+          },
+        }),
+      );
+      const r = await scan(home, { git: false });
+      expect(r.counts.verify_hook_present).toBe(true);
+    });
   });
 });
 

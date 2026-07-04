@@ -11,10 +11,10 @@
       ]
     },
     "Automation": {
-      "score": 10,
+      "score": 57,
       "states": [
-        "missing",
-        "missing",
+        "have",
+        "have",
         "missing",
         "partial",
         "missing"
@@ -62,6 +62,10 @@
     "hooks_configured": 3,
     "orphaned_hooks_fraction": 0,
     "any_hook_present": true,
+    "post_tool_use_hook": "present",
+    "pre_tool_use_hook": "present",
+    "session_hook": "missing",
+    "verify_hook_present": false,
     "agents_configured": 4,
     "review_agent": true,
     "test_agent": false,
@@ -84,5 +88,5 @@
     "avg_bytes_per_read": 0
   },
   "rubric_version": "0.1.0",
-  "score": 34
+  "score": 43
 }
