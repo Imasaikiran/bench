@@ -10,7 +10,7 @@ Zero revenue. Adoption-first. Score-only. Open scorecard, community-editable.
 npx @imasaikiran/bench@alpha
 ```
 
-> **TODO:** Task 1.38 (npm publish of `0.0.1-alpha.0`) has not run yet, so the package is not on the registry. Until then, run from a local checkout: `pnpm -C cli build && node cli/dist/index.js`.
+> **TODO:** Task 1.38 (npm publish of `0.0.2-alpha.0`) has not run yet, so the package is not on the registry. Until then, run from a local checkout: `pnpm -C cli build && node cli/dist/index.js`.
 
 The CLI scans `~/.claude/` (or `$CLAUDE_HOME`), shows a terminal preview, asks consent, and either uploads to `https://bench.dev/api/scan` to open a shareable card or writes `bench-scan.json` + `bench-scan.html` locally with `--offline`. Nothing leaves the machine without a y/N prompt.
 
@@ -87,4 +87,4 @@ No LLM is in the scoring path. All scoring is deterministic from the rubric file
 
 - `v2-dev`: active v2 work. All PRs land here or on `v2-dev/<task-slug>` branches merged back.
 - `v1-bench`, tag `v1.0.0`: frozen v1 frontend. Read-only. Never rebase or force-push.
-- `main`: held at the seed commit until v2 is merge-ready.
+- `main`: released/merged state. Carries the merged v2 work; no longer held at the seed commit.

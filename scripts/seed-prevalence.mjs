@@ -26,11 +26,9 @@
 // accumulate any "have" counts from this seed and will stay absent from the
 // output dimensions map (count of 0 -> omitted, per the shape below).
 //
-// Also note: dimension 2 (settings validity) depends on a `settings_valid`
-// count that the scanner never actually emits (cli/src/scanner/config.ts
-// never sets it) — a pre-existing scanner gap, not something this script
-// works around. Dimension 2 will read "missing" for every source until that
-// scanner gap is fixed elsewhere.
+// Also note: dimension 2 (settings validity) reads `settings_valid`, which
+// cli/src/scanner/config.ts now emits (fixed: true when settings.json exists
+// and parses as a JSON object). No workaround needed in this script anymore.
 //
 // Usage:
 //   node scripts/seed-prevalence.mjs            # dry-run: prints table only

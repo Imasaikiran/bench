@@ -1,10 +1,10 @@
 {
   "chapters": {
     "Foundation": {
-      "score": 0,
+      "score": 12,
       "states": [
         "missing",
-        "missing",
+        "partial",
         "missing",
         "missing",
         "missing"
@@ -41,12 +41,12 @@
       ]
     },
     "Hygiene": {
-      "score": 83,
+      "score": 100,
       "states": [
         "have",
         "have",
         "have",
-        "missing",
+        "have",
         "have"
       ]
     }
@@ -79,6 +79,9 @@
     "sub_dir_claude_md_count": 0,
     "permissions_allow_count": 0,
     "settings_nonempty": false,
+    "settings_valid": true,
+    "docs_dir_nonempty": false,
+    "clean_frontmatter_ratio": 1,
     "project_root_count": 1,
     "coherence_score": 1,
     "conventional_ratio": 0,
@@ -88,5 +91,5 @@
     "avg_bytes_per_read": 0
   },
   "rubric_version": "0.2.0",
-  "score": 21
+  "score": 27
 }

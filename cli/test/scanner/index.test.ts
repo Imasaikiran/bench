@@ -69,6 +69,55 @@ describe("scanner.scan", () => {
     expect(c.test_agent).toBe(false);
   });
 
+  describe("settings_valid, docs_dir_nonempty, clean_frontmatter_ratio (dims 2/5/24)", () => {
+    it("explorer: settings.json is valid JSON (empty object) -> settings_valid true", async () => {
+      const r = await scan(join(fixturesDir, "explorer"), { git: false });
+      expect(r.counts.settings_valid).toBe(true);
+      expect(r.counts.settings_nonempty).toBe(false);
+    });
+
+    it("tinkerer: settings.json is valid and non-empty -> settings_valid true", async () => {
+      const r = await scan(join(fixturesDir, "tinkerer"), { git: false });
+      expect(r.counts.settings_valid).toBe(true);
+      expect(r.counts.settings_nonempty).toBe(true);
+    });
+
+    it("broken-json fixture: invalid JSON -> settings_valid false", async () => {
+      const r = await scan(join(fixturesDir, "broken-json"), { git: false });
+      expect(r.counts.settings_valid).toBe(false);
+    });
+
+    it("no docs/ dir -> docs_dir_nonempty false", async () => {
+      const r = await scan(join(fixturesDir, "explorer"), { git: false });
+      expect(r.counts.docs_dir_nonempty).toBe(false);
+    });
+
+    it("with-docs-dir fixture: docs/ exists with content -> docs_dir_nonempty true", async () => {
+      const r = await scan(join(fixturesDir, "with-docs-dir"), { git: false });
+      expect(r.counts.docs_dir_nonempty).toBe(true);
+    });
+
+    it("tinkerer: all 6 skills have descriptions, no commands/agents -> ratio 1", async () => {
+      const r = await scan(join(fixturesDir, "tinkerer"), { git: false });
+      expect(r.counts.clean_frontmatter_ratio).toBe(1);
+    });
+
+    it("bad-frontmatter fixture: 1 skill, no description -> ratio 0", async () => {
+      const r = await scan(join(fixturesDir, "bad-frontmatter"), { git: false });
+      expect(r.counts.clean_frontmatter_ratio).toBe(0);
+    });
+
+    it("no skills/commands/agents at all -> ratio 1 (empty universe is clean)", async () => {
+      const r = await scan(join(fixturesDir, "explorer"), { git: false });
+      expect(r.counts.clean_frontmatter_ratio).toBe(1);
+    });
+
+    it("operator: agents + commands + skills all have descriptions -> ratio 1", async () => {
+      const r = await scan(join(fixturesDir, "operator"), { git: false });
+      expect(r.counts.clean_frontmatter_ratio).toBe(1);
+    });
+  });
+
   describe("per-event hook state fields (Task A5)", () => {
     it("explorer: no hooks at all -> all four fields missing/false", async () => {
       const r = await scan(join(fixturesDir, "explorer"), { git: false });

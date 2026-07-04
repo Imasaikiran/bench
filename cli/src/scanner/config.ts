@@ -13,6 +13,10 @@ export type ConfigSurface = {
   claudeMd: ClaudeMd | null;
   settings: Record<string, unknown>;
   settingsLocal: Record<string, unknown>;
+  /** True when settings.json exists AND parsed as valid JSON (dim 2 building block). */
+  settingsValid: boolean;
+  /** True when ~/.claude/docs/ exists and contains at least one entry (dim 5). */
+  docsDirNonempty: boolean;
   parseWarnings: string[];
 };
 
@@ -55,14 +59,34 @@ async function readText(
 async function readJson(
   path: string,
   warnings: string[]
-): Promise<Record<string, unknown>> {
+): Promise<{ value: Record<string, unknown>; valid: boolean }> {
   const result = await readText(path, warnings);
-  if (result == null) return {};
+  if (result == null) return { value: {}, valid: false };
   try {
-    return JSON.parse(result.text) as Record<string, unknown>;
+    const parsed = JSON.parse(result.text) as unknown;
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      warnings.push(`${path}: not a JSON object — using empty object`);
+      return { value: {}, valid: false };
+    }
+    return { value: parsed as Record<string, unknown>, valid: true };
   } catch {
     warnings.push(`${path}: invalid JSON — using empty object`);
-    return {};
+    return { value: {}, valid: false };
+  }
+}
+
+/**
+ * Dim 5 ("Docs in .claude"): rubric.yaml / design spec §5.5 name this
+ * "~/.claude/docs/ exists with content" — the literal reading is a `docs/`
+ * directory directly under $CLAUDE_HOME (not CLAUDE.md-adjacent per-project
+ * docs). "With content" is read as "contains at least one directory entry."
+ */
+async function docsDirNonempty(claudeHome: string): Promise<boolean> {
+  try {
+    const entries = await fs.readdir(join(claudeHome, "docs"));
+    return entries.length > 0;
+  } catch {
+    return false;
   }
 }
 
@@ -83,10 +107,14 @@ export async function readConfigSurface(claudeHome: string): Promise<ConfigSurfa
       truncated,
     };
   }
+  const settings = await readJson(join(claudeHome, "settings.json"), warnings);
+  const settingsLocal = await readJson(join(claudeHome, "settings.local.json"), warnings);
   return {
     claudeMd,
-    settings: await readJson(join(claudeHome, "settings.json"), warnings),
-    settingsLocal: await readJson(join(claudeHome, "settings.local.json"), warnings),
+    settings: settings.value,
+    settingsLocal: settingsLocal.value,
+    settingsValid: settings.valid,
+    docsDirNonempty: await docsDirNonempty(claudeHome),
     parseWarnings: warnings,
   };
 }

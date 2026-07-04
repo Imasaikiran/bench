@@ -4,7 +4,9 @@ import type { SkillsReport } from "./skills.js";
 import { readHooks } from "./hooks.js";
 import type { HooksReport } from "./hooks.js";
 import { readCommands } from "./commands.js";
+import type { CommandsReport } from "./commands.js";
 import { readAgents } from "./agents.js";
+import type { AgentsReport } from "./agents.js";
 import { readMcp } from "./mcp.js";
 import { readSessions } from "./sessions.js";
 import type { SessionsReport } from "./sessions.js";
@@ -72,6 +74,24 @@ function duplicateSkillFraction(skills: SkillsReport): number {
 function orphanedFraction(hooks: HooksReport): number {
   const denom = Math.max(hooks.configured + hooks.orphaned, 1);
   return hooks.orphaned / denom;
+}
+
+/**
+ * Dim 24 ("Names"): rubric.yaml criteria is "all skills/commands/agents have
+ * `description:` in frontmatter" (have) / ">=80% have it" (partial). Ratio of
+ * files with a non-blank description over total files across the three
+ * surfaces. Empty universe (no skills/commands/agents at all) counts as
+ * fully clean (ratio 1), matching duplicateSkillFraction's 0-total handling.
+ */
+function cleanFrontmatterRatio(
+  skills: SkillsReport,
+  cmds: CommandsReport,
+  agents: AgentsReport,
+): number {
+  const total = skills.total + cmds.total + agents.total;
+  if (total === 0) return 1;
+  const withDescription = skills.withDescription + cmds.withDescription + agents.withDescription;
+  return withDescription / total;
 }
 
 /**
@@ -217,6 +237,9 @@ export async function scan(
     sub_dir_claude_md_count: 0,
     permissions_allow_count: permissionsAllowCount(cfg.settings),
     settings_nonempty: Object.keys(cfg.settings).length > 0,
+    settings_valid: cfg.settingsValid,
+    docs_dir_nonempty: cfg.docsDirNonempty,
+    clean_frontmatter_ratio: round(cleanFrontmatterRatio(skills, cmds, agents), 3),
     project_root_count: sessions.projectRoots.length,
     coherence_score: computeCoherenceScore({
       duplicateSkills: dupFrac,
