@@ -20,7 +20,7 @@ describe("renderPreview terminal card", () => {
     expect(s).toContain("Tinkerer");
     expect(s).toContain("Wk 14");
     expect(s).toContain("445 skills across 73 projects.");
-    expect(s.split("\n").at(-1)).toBe("bench.dev");
+    expect(s.split("\n").at(-1)).toBe("  bench.dev");
   });
 
   it("shows the hero hours and all five chapter names", () => {
@@ -68,7 +68,14 @@ describe("renderPreview terminal card", () => {
     expect(s).toContain("come back in a week");
     const lines = s.split("\n");
     expect(lines.length).toBeLessThanOrEqual(16);
-    expect(lines[lines.length - 1]).toBe("bench.dev");
+    expect(lines[lines.length - 1]).toBe("  bench.dev");
+  });
+
+  it("URL line carries the same 2-space gutter as the rest of the card (both branches)", () => {
+    const withHours = renderPreview(BASE, { color: false });
+    const noHours = renderPreview({ ...BASE, hours_with_cc: null }, { color: false });
+    expect(withHours.split("\n").at(-1)).toBe("  bench.dev");
+    expect(noHours.split("\n").at(-1)).toBe("  bench.dev");
   });
 
   // I-1: bad hours_with_cc values fall back to the no-hours hero
@@ -133,6 +140,35 @@ describe("renderPreview terminal card", () => {
     expect(longIdentity.startsWith(trimmed)).toBe(true);
   });
 
+  it("founder-style two-clause line over budget cuts at its sentence boundary, no ellipsis", () => {
+    // 122 chars total; first sentence is 89 chars, which fits the 100-char budget,
+    // so the cut lands on the ". " boundary and needs no ellipsis.
+    const founder =
+      "445 skills installed across 73 projects: you collect capability faster than you spend it. You add more than anything else.";
+    const out = renderPreview({ ...BASE, identity: founder }, { color: false });
+    const identityLine = out.split("\n").find((l) => l.trim().startsWith("445 skills installed"));
+    expect(identityLine).toBeDefined();
+    expect(identityLine!.trim()).toBe(
+      "445 skills installed across 73 projects: you collect capability faster than you spend it.",
+    );
+  });
+
+  it("over-budget line with no sentence boundary ends with an ellipsis, never mid-word", () => {
+    // 135 chars, no ". " anywhere — word-boundary fallback fires and appends "…".
+    const noBoundary =
+      "you collect capability faster than you spend it and you keep collecting it across every project you have ever touched in this workspace";
+    const out = renderPreview({ ...BASE, identity: noBoundary }, { color: false });
+    const identityLine = out.split("\n").find((l) => l.trim().startsWith("you collect"));
+    expect(identityLine).toBeDefined();
+    const trimmed = identityLine!.trim();
+    expect(trimmed.endsWith("…")).toBe(true);
+    // strip the ellipsis: what remains must be a prefix of the original that
+    // ends exactly at a word boundary (next char in the original is a space)
+    const body = trimmed.slice(0, -1);
+    expect(noBoundary.startsWith(body)).toBe(true);
+    expect(noBoundary[body.length]).toBe(" ");
+  });
+
   it("wires the optional meaning line under the hero when present", () => {
     const out = renderPreview(
       { ...BASE, hours_meaning: "~20 workdays of pair-programming" },
@@ -141,7 +177,7 @@ describe("renderPreview terminal card", () => {
     expect(out).toContain("~20 workdays of pair-programming");
     const lines = out.split("\n");
     expect(lines.length).toBeLessThanOrEqual(16);
-    expect(lines[lines.length - 1]).toBe("bench.dev");
+    expect(lines[lines.length - 1]).toBe("  bench.dev");
   });
 
   // S-2/S-3 predecessor: exact hero byte sequence — now covered structurally

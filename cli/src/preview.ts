@@ -5,8 +5,9 @@ const DIM = "\x1b[2m";
 const RESET = "\x1b[0m";
 const GOLD = "\x1b[38;5;179m";
 
-// Keep the identity line short enough that an 80-col terminal never wraps it.
-const IDENTITY_MAX_WIDTH = 72;
+// Keep the identity line short enough that a standard terminal never wraps it,
+// but wide enough that B2's two-clause identity lines usually fit whole.
+const IDENTITY_MAX_WIDTH = 100;
 
 export type PreviewInput = {
   hours_with_cc: number | null | undefined;
@@ -40,10 +41,11 @@ function truncateIdentity(identity: string, maxWidth: number): string {
   if (lastSentenceEnd > 0) {
     return upToLimit.slice(0, lastSentenceEnd + 1);
   }
-  // No sentence boundary within the limit — fall back to the last word boundary.
+  // No sentence boundary within the limit — fall back to the last word
+  // boundary, with an ellipsis so the cut reads intentional.
   const lastSpace = upToLimit.lastIndexOf(" ");
   if (lastSpace > 0) {
-    return upToLimit.slice(0, lastSpace);
+    return upToLimit.slice(0, lastSpace) + "…";
   }
   return upToLimit;
 }
@@ -86,7 +88,7 @@ export function renderPreview(p: PreviewInput, opts?: PreviewOptions): string {
 
   lines.push("");
   lines.push(`  ${truncateIdentity(p.identity, IDENTITY_MAX_WIDTH)}`);
-  lines.push(p.url);
+  lines.push(`  ${p.url}`);
 
   return lines.join("\n");
 }
