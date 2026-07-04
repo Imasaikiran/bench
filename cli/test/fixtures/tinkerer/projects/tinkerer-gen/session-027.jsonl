@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 027: implement feature 991"}],"timestamp":"2026-03-24T22:12:40.846Z","cwd":"/Users/dev/projects/tinkerer-app"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_027_0","name":"Edit","input":{"command":"echo session-027"}},{"type":"text","text":"Done with step 1 of session 027."}],"timestamp":"2026-03-24T22:13:38.846Z","cwd":"/Users/dev/projects/tinkerer-app"}
+{"type":"user","timestamp":"2026-03-24T22:12:40.846Z","cwd":"/Users/dev/projects/tinkerer-app","message":{"role":"user","content":[{"type":"text","text":"Task 027: implement feature 991"}]}}
+{"type":"assistant","timestamp":"2026-03-24T22:13:38.846Z","cwd":"/Users/dev/projects/tinkerer-app","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_027_0","name":"Edit","input":{"command":"echo session-027"}},{"type":"text","text":"Done with step 1 of session 027."}]}}

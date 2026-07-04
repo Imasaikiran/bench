@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 069: implement feature 491"}],"timestamp":"2026-04-11T14:21:35.778Z","cwd":"/Users/dev/projects/tinkerer-app"}
-{"role":"assistant","content":[{"type":"text","text":"Done with step 1 of session 069."}],"timestamp":"2026-04-11T14:22:02.778Z","cwd":"/Users/dev/projects/tinkerer-app"}
+{"type":"user","timestamp":"2026-04-11T14:21:35.778Z","cwd":"/Users/dev/projects/tinkerer-app","message":{"role":"user","content":[{"type":"text","text":"Task 069: implement feature 491"}]}}
+{"type":"assistant","timestamp":"2026-04-11T14:22:02.778Z","cwd":"/Users/dev/projects/tinkerer-app","message":{"role":"assistant","content":[{"type":"text","text":"Done with step 1 of session 069."}]}}

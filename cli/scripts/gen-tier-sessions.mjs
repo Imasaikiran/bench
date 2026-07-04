@@ -132,10 +132,13 @@ for (let i = 0; i < count; i++) {
     ? "Let's enter plan mode and figure out the architecture first."
     : `Task ${pad}: implement feature ${rng(1000)}`;
   lines.push(JSON.stringify({
-    role: "user",
-    content: [{ type: "text", text: userText }],
+    type: "user",
     timestamp: new Date(tMs).toISOString(),
     cwd,
+    message: {
+      role: "user",
+      content: [{ type: "text", text: userText }],
+    },
   }));
 
   // 1–2 assistant messages
@@ -184,10 +187,13 @@ for (let i = 0; i < count; i++) {
     contentBlocks.push({ type: "text", text: replyText });
 
     lines.push(JSON.stringify({
-      role: "assistant",
-      content: contentBlocks,
+      type: "assistant",
       timestamp: new Date(tMs).toISOString(),
       cwd,
+      message: {
+        role: "assistant",
+        content: contentBlocks,
+      },
     }));
   }
 

@@ -6,7 +6,7 @@ import { load } from "js-yaml";
 
 import { parseArgs } from "./args.js";
 import { formatWhy } from "./why.js";
-import { mapperToPersona } from "./persona-stub.js";
+import { mapperToPersona } from "./persona.js";
 import { ttyPrompt } from "./prompt.js";
 
 import { detectEnvironment, refuseIfUnsafe } from "./env.js";
@@ -14,6 +14,10 @@ import { loadRubric } from "./rubric/load.js";
 import { scoreFromCounts } from "./rubric/score.js";
 import { inferTier, computeHoursWithCc } from "./rubric/persona.js";
 import { deriveCopy } from "./rubric/copy.js";
+import { renderMustHaves } from "./rubric/musthave-copy.js";
+import type { MustHaveItem } from "./rubric/musthave-copy.js";
+import { loadPrevalenceTable, pickHeadlineRarity } from "./rubric/prevalence.js";
+import type { PrevalenceTable } from "./rubric/prevalence.js";
 import { assemblePayload } from "./payload.js";
 import { renderPreview } from "./preview.js";
 import { askConsent } from "./consent.js";
@@ -21,6 +25,7 @@ import { upload } from "./uploader.js";
 import { openUrl } from "./browser.js";
 import { writeLocalExport } from "./local-export.js";
 import { scan } from "./scanner/index.js";
+import { loadPreviousScan, diffScans, formatDeltaBanner } from "./delta.js";
 
 import type { ScoreResult } from "./rubric/score.js";
 import type { Rubric } from "./rubric/load.js";
@@ -49,6 +54,7 @@ export type Deps = {
   detectEnvironment?: typeof detectEnvironment;
   refuseIfUnsafe?: typeof refuseIfUnsafe;
   loadRubric?: typeof loadRubric;
+  loadPrevalenceTable?: typeof loadPrevalenceTable;
   scan?: typeof scan;
   scoreFromCounts?: typeof scoreFromCounts;
   inferTier?: typeof inferTier;
@@ -63,6 +69,7 @@ export type Deps = {
   writeLocalExport?: typeof writeLocalExport;
   mapperToPersona?: typeof mapperToPersona;
   ttyPrompt?: typeof ttyPrompt;
+  loadPreviousScan?: typeof loadPreviousScan;
 };
 
 /**
@@ -91,6 +98,10 @@ export function readRubricVersion(rubricPath: string): string {
 
 export function bundledRubricPath(): string {
   return resolve(here, "..", "rubric.yaml");
+}
+
+export function bundledPrevalencePath(): string {
+  return resolve(here, "..", "prevalence.json");
 }
 
 // ---------------------------------------------------------------------------
@@ -135,28 +146,65 @@ function buildChapterNote(scored: ScoreResult): string {
 }
 
 /**
- * Return up to 3 predicate ids whose state is "missing" in the lowest-scoring
- * chapter. Format: "#${id} ${dim.name}".
+ * Collect up to 3 dimensions whose state is "missing" in the lowest-scoring
+ * chapter, as {id, name, rationale} for renderMustHaves to turn into
+ * human-readable copy. Rationale comes from rubric.yaml; dimensions without
+ * one are skipped (shouldn't happen given current rubric.yaml, but keeps
+ * this from ever emitting a reason-less line).
  */
-function deriveMusthaves(scored: ScoreResult, rubric: Rubric): string[] {
+function deriveMusthaves(scored: ScoreResult, rubric: Rubric): MustHaveItem[] {
   const { name: lowestName } = lowestChapter(scored);
 
   const chapter = scored.chapters[lowestName];
   if (!chapter) return [];
 
   const dims = rubric.chapters[lowestName]?.dimensions ?? [];
-  const results: string[] = [];
+  const results: MustHaveItem[] = [];
 
   for (let i = 0; i < chapter.states.length && results.length < 3; i++) {
     if (chapter.states[i] === "missing") {
       const dim = dims[i];
-      if (dim) {
-        results.push(`#${dim.id} ${dim.name}`);
+      if (dim && dim.rationale) {
+        results.push({ id: dim.id, name: dim.name, rationale: dim.rationale });
       }
     }
   }
 
   return results;
+}
+
+/**
+ * Every dimension id the user "has", across all chapters. Mirrors persona.ts's
+ * MUSTHAVE_SLOTS pattern: `states` is positional per rubric.yaml's dimension
+ * order within a chapter, so zip the two arrays rather than re-parsing
+ * rubric.yaml. Used by pickHeadlineRarity (Task D1) to find the user's
+ * rarest strength.
+ */
+function collectHaveDimensionIds(scored: ScoreResult, rubric: Rubric): number[] {
+  const ids: number[] = [];
+  for (const chapterName of Object.keys(scored.chapters)) {
+    const chapter = scored.chapters[chapterName];
+    const dims = rubric.chapters[chapterName]?.dimensions ?? [];
+    if (!chapter) continue;
+    for (let i = 0; i < chapter.states.length; i++) {
+      if (chapter.states[i] === "have") {
+        const dim = dims[i];
+        if (dim) ids.push(dim.id);
+      }
+    }
+  }
+  return ids;
+}
+
+/** id -> human name, across every chapter's dimensions, for prevalence copy. */
+function buildDimensionNameMap(rubric: Rubric): Map<number, string> {
+  const names = new Map<number, string>();
+  for (const chapter of Object.values(rubric.chapters)) {
+    for (const dim of chapter.dimensions) {
+      names.set(dim.id, dim.name);
+    }
+  }
+  return names;
 }
 
 // ---------------------------------------------------------------------------
@@ -176,6 +224,7 @@ export async function main(
   const _detectEnv = deps.detectEnvironment ?? detectEnvironment;
   const _refuseIfUnsafe = deps.refuseIfUnsafe ?? refuseIfUnsafe;
   const _loadRubric = deps.loadRubric ?? loadRubric;
+  const _loadPrevalenceTable = deps.loadPrevalenceTable ?? loadPrevalenceTable;
   const _scan = deps.scan ?? scan;
   const _scoreFromCounts = deps.scoreFromCounts ?? scoreFromCounts;
   const _inferTier = deps.inferTier ?? inferTier;
@@ -190,6 +239,7 @@ export async function main(
   const _writeLocalExport = deps.writeLocalExport ?? writeLocalExport;
   const _mapperToPersona = deps.mapperToPersona ?? mapperToPersona;
   const _ttyPrompt = deps.ttyPrompt ?? ttyPrompt;
+  const _loadPreviousScan = deps.loadPreviousScan ?? loadPreviousScan;
 
   // 1. Parse flags
   const flags = _parseArgs(argv);
@@ -241,11 +291,57 @@ export async function main(
   const copy = _deriveCopy({
     signatureVerbs: scanResult.raw.git.signatureVerbs,
     hours_with_cc: hours,
+    skillsTotal:
+      typeof scanResult.counts["skills_total"] === "number"
+        ? (scanResult.counts["skills_total"] as number)
+        : 0,
+    projectRoots:
+      typeof scanResult.counts["project_root_count"] === "number"
+        ? (scanResult.counts["project_root_count"] as number)
+        : 0,
+    sessionsTotal:
+      typeof scanResult.counts["sessions_total"] === "number"
+        ? (scanResult.counts["sessions_total"] as number)
+        : 0,
+    weeksOnCc:
+      typeof scanResult.counts["weeks_on_cc"] === "number"
+        ? (scanResult.counts["weeks_on_cc"] as number)
+        : 0,
+    planModeRatio:
+      typeof scanResult.counts["plan_mode_ratio"] === "number"
+        ? (scanResult.counts["plan_mode_ratio"] as number)
+        : 0,
   });
 
   // 11. Helpers
   const chapter_note = buildChapterNote(scored);
-  const musthaves = deriveMusthaves(scored, rubric);
+  const musthaveItems = deriveMusthaves(scored, rubric);
+  const musthaves = renderMustHaves(musthaveItems, {
+    confidence: scanResult.confidence.tool_derived,
+  });
+
+  // Prevalence (Task D1): a missing/unreadable prevalence.json degrades to
+  // an empty table rather than crashing the CLI — pickHeadlineRarity already
+  // returns null for an empty table, same as the honest today's-empty-seed case.
+  let prevalenceTable: PrevalenceTable;
+  try {
+    prevalenceTable = _loadPrevalenceTable(bundledPrevalencePath());
+  } catch {
+    prevalenceTable = { denominator: 0, denominator_label: "public setups benchmarked", dimensions: {} };
+  }
+  const headlineRarity = pickHeadlineRarity(
+    collectHaveDimensionIds(scored, rubric),
+    buildDimensionNameMap(rubric),
+    prevalenceTable,
+  );
+
+  // Rescan delta (Task D2): load whatever bench-scan.json already sits in
+  // cwd BEFORE any of this run's writeLocalExport calls overwrite it. A
+  // missing file is the common case (first scan) and yields no banner,
+  // silently. An unparseable file also yields no banner, but pushes a note
+  // into diagnostics.parse_warnings instead of swallowing it entirely.
+  const previousScan = await _loadPreviousScan(process.cwd());
+  const deltaParseWarnings = previousScan.parseWarning ? [previousScan.parseWarning] : [];
 
   // 12. Assemble payload
   const weeksOnCc =
@@ -265,6 +361,7 @@ export async function main(
     identity: copy.identity,
     hours_meaning: copy.hours_meaning,
     chapter_note,
+    headline_rarity: headlineRarity,
     handle: flags.handle,
     previous_scan_id: null,
     scanner_version: VERSION,
@@ -272,19 +369,34 @@ export async function main(
     diagnostics: {
       // TODO(1.20): wire redaction_hits once snapshot tests pin the contract
       redaction_hits: 0,
-      parse_warnings: scanResult.diagnostics.parse_warnings,
+      parse_warnings: [...scanResult.diagnostics.parse_warnings, ...deltaParseWarnings],
       skipped_files: scanResult.diagnostics.skipped_files,
       elapsed_ms: Date.now() - t0,
     },
   });
 
+  // Diff against the previous scan now that this run's payload exists —
+  // only ever compares scans sharing the current rubric_version (a rubric
+  // retune isn't user progress). Render-only: never added to Payload.
+  const scanDelta = diffScans(previousScan.data, payload);
+  const deltaBanner = scanDelta ? formatDeltaBanner(scanDelta) : null;
+
   // 14. Print preview
+  const chapterScores = Object.fromEntries(
+    Object.entries(payload.chapters).map(([name, result]) => [name, result.score]),
+  );
   out(
     _renderPreview({
       score: payload.score,
       tier: payload.tier,
       weeks_on_cc: payload.weeks_on_cc,
       hours_with_cc: hours,
+      identity: payload.identity,
+      hours_meaning: payload.hours_meaning,
+      chapters: chapterScores,
+      url: "bench.dev",
+      ...(deltaBanner !== null ? { delta: deltaBanner } : {}),
+      ...(payload.headline_rarity !== null ? { headline_rarity: payload.headline_rarity } : {}),
     }),
   );
 

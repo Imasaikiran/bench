@@ -9,6 +9,7 @@ import { readMcp } from "./mcp.js";
 import { readSessions } from "./sessions.js";
 import type { SessionsReport } from "./sessions.js";
 import { readGitSignals } from "./git.js";
+import { sessionConfidence } from "./confidence.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -24,16 +25,28 @@ function clamp(min: number, max: number, value: number): number {
 }
 
 /**
- * Count how many skill names from skills.items appear in sessions.usedSkills.
- * Match by exact equality on the frontmatter `name` field.
+ * Normalize a skill name/invocation slug for matching: strip any plugin
+ * namespace prefix (`superpowers:brainstorming` -> `brainstorming`), trim,
+ * and lowercase.
  */
-function computeActiveSkills(skills: SkillsReport, sessions: SessionsReport): number {
-  const usedSet = new Set(sessions.usedSkills);
+export function normalizeSkillName(name: string): string {
+  const afterColon = name.includes(":") ? name.slice(name.lastIndexOf(":") + 1) : name;
+  return afterColon.trim().toLowerCase();
+}
+
+/**
+ * Count how many skill names from skills.items appear in sessions.usedSkills.
+ * Match on normalized names (namespace-stripped, trimmed, lowercased), also
+ * falling back to the skill's directory slug when frontmatter `name` is null.
+ */
+export function computeActiveSkills(skills: SkillsReport, sessions: SessionsReport): number {
+  const usedSet = new Set(sessions.usedSkills.map(normalizeSkillName));
   let active = 0;
   for (const skill of skills.items) {
-    if (skill.name !== null && usedSet.has(skill.name)) {
-      active++;
-    }
+    const candidates = [skill.name, skill.dir.split("/").pop() ?? null]
+      .filter((n): n is string => n !== null)
+      .map(normalizeSkillName);
+    if (candidates.some((c) => usedSet.has(c))) active++;
   }
   return active;
 }
@@ -87,6 +100,45 @@ function permissionsAllowCount(settings: Record<string, unknown>): number {
   if (perms === null || typeof perms !== "object" || Array.isArray(perms)) return 0;
   const allow = (perms as Record<string, unknown>)["allow"];
   return Array.isArray(allow) ? allow.length : 0;
+}
+
+/**
+ * Best state across a set of event names: "present" > "referenced" > "missing".
+ * Used to collapse SessionStart/SessionEnd into the single `session_hook` field.
+ * Returns the literal string "missing" (rather than undefined) so the field
+ * always serializes — canonicalJson (payload.ts, used for the HMAC signature)
+ * rejects `undefined` values, and score.ts's predicates already treat any
+ * value other than "present"/"referenced" as missing.
+ */
+function bestEventState(
+  eventStates: Record<string, string>,
+  eventNames: string[],
+): string {
+  let best = "missing";
+  for (const name of eventNames) {
+    const state = eventStates[name];
+    if (state === "present") return "present";
+    if (state === "referenced") best = "referenced";
+  }
+  return best;
+}
+
+/**
+ * Dim 20 ("Verification before commit"): rubric.yaml criteria is "hook exists
+ * that runs tests or typecheck pre-commit". Claude Code has no dedicated
+ * pre-commit hook event, so the closest available signal is a PreToolUse (or
+ * PostToolUse) hook command whose text names a verification step — tests,
+ * typecheck, lint, or format — run before/around tool use.
+ */
+const VERIFY_COMMAND_RE = /verify|test|check|lint|typecheck|format/i;
+
+function verifyHookPresent(hooks: HooksReport): boolean {
+  for (const cmds of Object.values(hooks.events)) {
+    for (const cmd of cmds) {
+      if (VERIFY_COMMAND_RE.test(cmd)) return true;
+    }
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -146,6 +198,10 @@ export async function scan(
     orphaned_hooks_fraction: round(orphanFrac, 3),
     any_hook_present:
       hooks.configured > 0 || Object.keys(hooks.events).length > 0,
+    post_tool_use_hook: hooks.eventStates["PostToolUse"] ?? "missing",
+    pre_tool_use_hook: hooks.eventStates["PreToolUse"] ?? "missing",
+    session_hook: bestEventState(hooks.eventStates, ["SessionStart", "SessionEnd"]),
+    verify_hook_present: verifyHookPresent(hooks),
     agents_configured: agents.total,
     review_agent: agents.reviewAgent,
     test_agent: agents.testAgent,
@@ -193,6 +249,12 @@ export async function scan(
       ],
       skipped_files: 0, // TODO(1.10+): track files skipped during scan
       elapsed_ms: 0, // TODO(1.15): wall-clock measurement around scan()
+    },
+    confidence: {
+      tool_derived: sessionConfidence({
+        sessionsTotal: sessions.sessionsTotal,
+        toolUseCount: sessions.toolUseCount,
+      }),
     },
     raw: { cfg, skills, hooks, cmds, agents, mcp, sessions, git },
   };

@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 061: implement feature 939"}],"timestamp":"2026-04-08T04:54:10.554Z","cwd":"/home/user/work/tinkerer"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_061_0_skill","name":"Skill","input":{"skill":"using-git"}},{"type":"text","text":"Done with step 1 of session 061."}],"timestamp":"2026-04-08T04:54:26.554Z","cwd":"/home/user/work/tinkerer"}
+{"type":"user","timestamp":"2026-04-08T04:54:10.554Z","cwd":"/home/user/work/tinkerer","message":{"role":"user","content":[{"type":"text","text":"Task 061: implement feature 939"}]}}
+{"type":"assistant","timestamp":"2026-04-08T04:54:26.554Z","cwd":"/home/user/work/tinkerer","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_061_0_skill","name":"Skill","input":{"skill":"using-git"}},{"type":"text","text":"Done with step 1 of session 061."}]}}

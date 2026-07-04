@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 036: implement feature 705"}],"timestamp":"2026-03-28T17:14:25.664Z","cwd":"/Users/dev/projects/tinkerer-app"}
-{"role":"assistant","content":[{"type":"tool_use","id":"tu_036_0_skill","name":"Skill","input":{"skill":"using-fixtures"}},{"type":"text","text":"Done with step 1 of session 036."}],"timestamp":"2026-03-28T17:14:38.664Z","cwd":"/Users/dev/projects/tinkerer-app"}
+{"type":"user","timestamp":"2026-03-28T17:14:25.664Z","cwd":"/Users/dev/projects/tinkerer-app","message":{"role":"user","content":[{"type":"text","text":"Task 036: implement feature 705"}]}}
+{"type":"assistant","timestamp":"2026-03-28T17:14:38.664Z","cwd":"/Users/dev/projects/tinkerer-app","message":{"role":"assistant","content":[{"type":"tool_use","id":"tu_036_0_skill","name":"Skill","input":{"skill":"using-fixtures"}},{"type":"text","text":"Done with step 1 of session 036."}]}}

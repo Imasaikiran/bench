@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 083: implement feature 773"}],"timestamp":"2026-04-17T11:14:09.828Z","cwd":"/home/user/work/tinkerer"}
-{"role":"assistant","content":[{"type":"text","text":"Done with step 1 of session 083."}],"timestamp":"2026-04-17T11:15:00.828Z","cwd":"/home/user/work/tinkerer"}
+{"type":"user","timestamp":"2026-04-17T11:14:09.828Z","cwd":"/home/user/work/tinkerer","message":{"role":"user","content":[{"type":"text","text":"Task 083: implement feature 773"}]}}
+{"type":"assistant","timestamp":"2026-04-17T11:15:00.828Z","cwd":"/home/user/work/tinkerer","message":{"role":"assistant","content":[{"type":"text","text":"Done with step 1 of session 083."}]}}

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "main": "./rubric.yaml",
-  "files": ["rubric.yaml", "schema.json"],
+  "files": ["rubric.yaml", "schema.json", "prevalence.json"],
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit"

@@ -29,6 +29,7 @@ const basePayload: Payload = {
   hours_meaning: "y",
   hours_label: "hours with Claude Code",
   chapter_note: "z",
+  headline_rarity: null,
   diagnostics: {
     redaction_hits: 0,
     parse_warnings: [],

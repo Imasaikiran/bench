@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 041: implement feature 823"}],"timestamp":"2026-03-30T19:50:45.134Z","cwd":"/home/user/work/tinkerer"}
-{"role":"assistant","content":[{"type":"text","text":"Done with step 1 of session 041."}],"timestamp":"2026-03-30T19:51:38.134Z","cwd":"/home/user/work/tinkerer"}
+{"type":"user","timestamp":"2026-03-30T19:50:45.134Z","cwd":"/home/user/work/tinkerer","message":{"role":"user","content":[{"type":"text","text":"Task 041: implement feature 823"}]}}
+{"type":"assistant","timestamp":"2026-03-30T19:51:38.134Z","cwd":"/home/user/work/tinkerer","message":{"role":"assistant","content":[{"type":"text","text":"Done with step 1 of session 041."}]}}

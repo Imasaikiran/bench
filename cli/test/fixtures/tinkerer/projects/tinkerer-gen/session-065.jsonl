@@ -1,2 +1,2 @@
-{"role":"user","content":[{"type":"text","text":"Task 065: implement feature 39"}],"timestamp":"2026-04-09T21:35:20.942Z","cwd":"/home/user/work/tinkerer"}
-{"role":"assistant","content":[{"type":"text","text":"Done with step 1 of session 065."}],"timestamp":"2026-04-09T21:36:18.942Z","cwd":"/home/user/work/tinkerer"}
+{"type":"user","timestamp":"2026-04-09T21:35:20.942Z","cwd":"/home/user/work/tinkerer","message":{"role":"user","content":[{"type":"text","text":"Task 065: implement feature 39"}]}}
+{"type":"assistant","timestamp":"2026-04-09T21:36:18.942Z","cwd":"/home/user/work/tinkerer","message":{"role":"assistant","content":[{"type":"text","text":"Done with step 1 of session 065."}]}}

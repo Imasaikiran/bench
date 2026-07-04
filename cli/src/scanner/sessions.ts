@@ -3,6 +3,7 @@ import type { Dirent } from "node:fs";
 import { createReadStream } from "node:fs";
 import { createInterface } from "node:readline";
 import { join } from "node:path";
+import { normalizeEntry } from "./message-shape.js";
 
 const GAP_CAP_MS = 15 * 60 * 1000;
 
@@ -129,67 +130,47 @@ export async function readSessions(claudeHome: string): Promise<SessionsReport> 
           continue;
         }
 
-        report.messageCount++;
+        const entry = normalizeEntry(msg);
 
-        // Bug 3 fix: typeof guards at each use site
-        if (typeof msg["timestamp"] === "string") {
-          const t = Date.parse(msg["timestamp"]);
-          if (!Number.isNaN(t)) {
-            timestamps.push(t);
-          }
+        if (entry.timestamp) {
+          const t = Date.parse(entry.timestamp);
+          if (!Number.isNaN(t)) timestamps.push(t);
         }
 
-        if (
-          msg["role"] === "assistant" &&
-          Array.isArray(msg["content"])
-        ) {
+        if (entry.role === "assistant" && entry.content) {
+          report.messageCount++;
           // Sum bytes across ALL Read tool_use blocks in this message (not just
           // the first). Also count every distinct tool_use block.
-          for (const c of msg["content"] as unknown[]) {
-            if (
-              typeof c === "object" && c !== null &&
-              (c as Record<string, unknown>)["type"] === "tool_use"
-            ) {
+          for (const c of entry.content) {
+            if (typeof c === "object" && c !== null && (c as Record<string, unknown>)["type"] === "tool_use") {
               report.toolUseCount++;
-
-              if ((c as Record<string, unknown>)["name"] === "Read") {
-                const input = (c as Record<string, unknown>)["input"];
+              const block = c as Record<string, unknown>;
+              if (block["name"] === "Read") {
+                const input = block["input"];
                 const bytes = Number(
-                  input && typeof input === "object"
-                    ? (input as Record<string, unknown>)["bytes_read"]
-                    : undefined,
+                  input && typeof input === "object" ? (input as Record<string, unknown>)["bytes_read"] : undefined,
                 );
-                if (!Number.isNaN(bytes)) {
-                  report.readBytesSum += bytes;
-                  report.readBytesCount++;
-                }
+                if (!Number.isNaN(bytes)) { report.readBytesSum += bytes; report.readBytesCount++; }
               }
-
-              if ((c as Record<string, unknown>)["name"] === "Skill") {
-                const input = (c as Record<string, unknown>)["input"];
+              if (block["name"] === "Skill") {
+                const input = block["input"];
                 if (input && typeof input === "object") {
                   const skillName = (input as Record<string, unknown>)["skill"];
-                  if (typeof skillName === "string") {
-                    usedSkillsSet.add(skillName);
-                  }
+                  if (typeof skillName === "string") usedSkillsSet.add(skillName);
                 }
               }
             }
           }
-
           // Plan-mode detection: gated on assistant role to avoid false
           // positives from user text containing the phrase.
-          const blob = JSON.stringify(msg["content"]);
-          if (PLAN_MODE_RE.test(blob)) {
-            planMode = true;
-          }
+          const blob = JSON.stringify(entry.content);
+          if (PLAN_MODE_RE.test(blob)) planMode = true;
         }
 
-        // Bug 3 fix: typeof guard for cwd
-        if (typeof msg["cwd"] === "string") {
+        if (entry.cwd) {
           // TODO(1.10): normalise cwd before dedup — `~/foo` vs `/Users/x/foo` vs
           // trailing-slash variants currently dedupe wrong.
-          projectRootsSet.add(msg["cwd"] as string);
+          projectRootsSet.add(entry.cwd);
         }
       }
     } catch (e) {

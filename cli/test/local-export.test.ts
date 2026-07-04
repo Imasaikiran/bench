@@ -3,7 +3,13 @@ import { promises as fs } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
-import { writeLocalExport, substituteTemplate } from "../src/local-export.js";
+import {
+  writeLocalExport,
+  substituteTemplate,
+  patchScriptForRealPersona,
+  stripPersonaSwitcher,
+  stripSyntheticFooterMarker,
+} from "../src/local-export.js";
 import type { Payload } from "../src/payload.js";
 
 // Minimal valid payload for testing
@@ -32,6 +38,7 @@ function makePayload(): Payload {
     hours_meaning: "test meaning",
     hours_label: "hours with Claude Code",
     chapter_note: "test note",
+    headline_rarity: null,
     diagnostics: {
       redaction_hits: 0,
       parse_warnings: [],
@@ -167,6 +174,94 @@ describe("writeLocalExport", () => {
     expect(endIdx).toBeGreaterThan(-1);
     const personaJson = afterMarker.slice(0, endIdx);
     expect(JSON.parse(personaJson)).toEqual(xssPersona);
+  });
+
+  // C1: the scanned user's real data must render, not the synthetic Priya persona.
+  it("rendered offline HTML uses the injected persona, not priya", async () => {
+    const persona = {
+      handle: "@real_user",
+      hours: 161,
+      weeks: 9,
+      tier: "Tinkerer",
+      score: 55,
+    };
+    await writeLocalExport(tmpDir, makePayload(), persona);
+    const html = await fs.readFile(join(tmpDir, "bench-scan.html"), "utf8");
+
+    expect(html).not.toMatch(/applyPersona\(['"]priya['"]\)/);
+    expect(html).toMatch(/_current/);
+    expect(html).not.toMatch(/data-persona="maya"/);
+    expect(html).not.toMatch(/synthetic preview/i);
+  });
+});
+
+// C1: patchScriptForRealPersona — repoint the frozen v1 script at the injected persona
+describe("patchScriptForRealPersona", () => {
+  it("repoints currentPersona default and boot call at '_current'", () => {
+    const js = `
+      const PERSONAS = { priya: {} };
+      let currentPersona = 'priya';
+      document.addEventListener('DOMContentLoaded', () => {
+        applyPersona('priya');
+      });
+    `;
+    const result = patchScriptForRealPersona(js);
+    expect(result).toContain("const PERSONAS = { _current: window.__BENCH_PERSONA__,");
+    expect(result).toContain("let currentPersona = '_current';");
+    expect(result).toContain("applyPersona('_current')");
+    expect(result).not.toMatch(/applyPersona\(['"]priya['"]\)/);
+  });
+
+  it("throws when 'const PERSONAS = {' anchor is missing", () => {
+    const js = "let currentPersona = 'priya'; applyPersona('priya');";
+    expect(() => patchScriptForRealPersona(js)).toThrow(/frozen markup invariant violated/);
+  });
+
+  it("throws when \"let currentPersona = 'priya';\" anchor is missing", () => {
+    const js = "const PERSONAS = {}; applyPersona('priya');";
+    expect(() => patchScriptForRealPersona(js)).toThrow(/frozen markup invariant violated/);
+  });
+
+  it("throws when \"applyPersona('priya')\" anchor is missing", () => {
+    const js = "const PERSONAS = {}; let currentPersona = 'priya';";
+    expect(() => patchScriptForRealPersona(js)).toThrow(/frozen markup invariant violated/);
+  });
+});
+
+// C1: stripPersonaSwitcher — remove the preview persona-switcher chrome for real scans
+describe("stripPersonaSwitcher", () => {
+  it("removes the persona-switcher aside block", () => {
+    const body = `
+      <aside class="persona-switcher" aria-label="Persona preview">
+        <button data-persona="sam" class="ps-btn">Sam</button>
+        <button data-persona="priya" class="ps-btn is-active">Priya</button>
+      </aside>
+      <header>keep me</header>
+    `;
+    const result = stripPersonaSwitcher(body);
+    expect(result).not.toContain("persona-switcher");
+    expect(result).not.toContain('data-persona="maya"');
+    expect(result).toContain("<header>keep me</header>");
+  });
+
+  it("throws when the persona-switcher aside is missing", () => {
+    const body = "<header>no switcher here</header>";
+    expect(() => stripPersonaSwitcher(body)).toThrow(/frozen markup invariant violated/);
+  });
+});
+
+// C1: stripSyntheticFooterMarker — replace the synthetic-preview footer marker for real scans
+describe("stripSyntheticFooterMarker", () => {
+  it("replaces the synthetic preview marker with a local-scan label", () => {
+    const body = "<footer><span>v0.3 · synthetic preview</span></footer>";
+    const result = stripSyntheticFooterMarker(body);
+    expect(result).not.toMatch(/synthetic preview/i);
+    expect(result).toContain("v0.3 · local scan");
+  });
+
+  it("throws when the synthetic preview marker is missing", () => {
+    const body = "<footer><span>v0.3 · something else</span></footer>";
+    expect(() => stripSyntheticFooterMarker(body)).toThrow(/frozen markup invariant violated/);
   });
 });
 
