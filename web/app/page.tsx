@@ -423,7 +423,7 @@ export default async function Landing({
 
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero-text">
-            <p className="hero-eyebrow">one command · open rubric · nothing leaves your machine</p>
+            <p className="hero-eyebrow">one command · open scorecard · nothing leaves your machine</p>
             <h1 id="hero-title" className="hero-title">
               Is your Claude Code setup <em>any good?</em>
             </h1>
