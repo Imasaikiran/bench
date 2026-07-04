@@ -1,5 +1,19 @@
 {
-  "denominator": 0,
+  "denominator": 26,
   "denominator_label": "public setups benchmarked",
-  "dimensions": {}
+  "dimensions": {
+    "1": 1,
+    "2": 16,
+    "3": 6,
+    "5": 2,
+    "6": 5,
+    "7": 1,
+    "8": 5,
+    "9": 9,
+    "11": 7,
+    "12": 13,
+    "14": 3,
+    "15": 2,
+    "20": 8
+  }
 }
