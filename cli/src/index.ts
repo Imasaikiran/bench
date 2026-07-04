@@ -6,7 +6,7 @@ import { load } from "js-yaml";
 
 import { parseArgs } from "./args.js";
 import { formatWhy } from "./why.js";
-import { mapperToPersona } from "./persona-stub.js";
+import { mapperToPersona } from "./persona.js";
 import { ttyPrompt } from "./prompt.js";
 
 import { detectEnvironment, refuseIfUnsafe } from "./env.js";
