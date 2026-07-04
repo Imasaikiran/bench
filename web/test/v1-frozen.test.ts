@@ -18,9 +18,9 @@ import { fileURLToPath } from "node:url";
 // applyPersona, persona-switcher aside, synthetic-preview footer marker)
 // verified byte-intact via local-export tests.
 const PINNED: Record<string, string> = {
-  "index.html": "ec96b1a0403b7e20de3289190d0dc704ad404240c3314bbc651cb90382b0493d",
+  "index.html": "e0de024fbbf4854890e13fd6e54fefa1866592dd49989e0a5d6ee5ceb937579c",
   "styles.css":  "6f308b13a1bd4f2704e8c211562b53c34069e4c5ba9c35e69c6fa45229342691",
-  "script.js":   "de52b088b690efbe54a600fe07b0ca73390c49eac856d5ff69a5f022c2fe84b3",
+  "script.js":   "ca47ac5341e9b56284b4447be844c0e3b94cd914ab03fc4024a962f87457cd22",
 };
 
 const here = dirname(fileURLToPath(import.meta.url));

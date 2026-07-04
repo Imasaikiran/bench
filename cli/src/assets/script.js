@@ -426,7 +426,7 @@ function wireShare() {
   });
   document.getElementById('share-x').addEventListener('click', () => {
     const p = PERSONAS[currentPersona];
-    const text = `${p.hours} hours Claude gave back. ${p.signature}. Bench ${p.score} · ${p.tier}. bench.dev/${p.handle.replace('@','')}`;
+    const text = `${p.hours} hours with Claude Code. ${p.signature}. Bench ${p.score} · ${p.tier}. bench.dev/${p.handle.replace('@','')}`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
   });
   document.getElementById('share-li').addEventListener('click', () => {
