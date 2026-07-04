@@ -68,7 +68,7 @@ export default async function MetricsPage() {
             <tr key={e}>
               <td style={{ borderBottom: "1px solid #f0f0f0" }}>{e}</td>
               <td style={{ borderBottom: "1px solid #f0f0f0", textAlign: "right" }}>
-                {counts[i] ?? "—"}
+                {counts[i] ?? "-"}
               </td>
             </tr>
           ))}

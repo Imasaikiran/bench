@@ -33,7 +33,7 @@ export const PRIYA_PERSONA: PersonaShape = {
   signature: "you install · you prune · you question",
   score: 62,
   tier: "Tinkerer",
-  chapterNote: "Automation is dark — the fastest lever you have.",
+  chapterNote: "Automation is dark. The fastest lever you have.",
   chapterTags: ["partial", "weak", "partial", "strong", "strong"],
   clusters: {
     Foundation: ["have", "have", "partial", "missing", "missing"],

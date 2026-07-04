@@ -14,7 +14,7 @@ export default function HowWeScoredPage() {
   const parsed = load(readFileSync("../rubric/rubric.yaml", "utf8"));
   if (!isRubric(parsed)) {
     throw new Error(
-      "rubric.yaml missing or malformed — expected { version, chapters }",
+      "rubric.yaml missing or malformed: expected { version, chapters }",
     );
   }
   const md = renderRubricMarkdown(parsed);

@@ -95,7 +95,7 @@ const PAYLOAD: Payload = {
   identity: "You build.",
   hours_meaning: "~10 workdays",
   hours_label: "hours with Claude Code",
-  chapter_note: "Automation: 40/100 — focus area",
+  chapter_note: "Automation: 40/100. Focus area",
   headline_rarity: null,
   diagnostics: { redaction_hits: 0, parse_warnings: [], skipped_files: 0, elapsed_ms: 10 },
   integrity: { client_hmac: "abc", hmac_key_id: "v1" },

@@ -13,7 +13,7 @@ describe("/rubric page", () => {
 
   it("renders the page with version line", () => {
     expect(html).toContain(`rubric v${rubric.version}`);
-    expect(html).toContain("The bench rubric.");
+    expect(html).toContain("Scorecard.");
   });
 
   it("includes every chapter name from rubric.yaml", () => {

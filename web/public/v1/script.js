@@ -28,7 +28,7 @@ const CHAPTER_META = [
 ];
 
 /* =========================================================
-   PERSONAS — terse, each with a flex
+   PERSONAS - terse, each with a flex
    ========================================================= */
 const PERSONAS = {
 
@@ -39,11 +39,11 @@ const PERSONAS = {
     tiles: [
       { label: 'weeks',     value: '3',  equiv: 'past week-one hesitation' },
       { label: 'claude.md', value: '32', equiv: 'lines · plain english' },
-      { label: 'skills',    value: '2',  equiv: 'both in use — no bloat' },
+      { label: 'skills',    value: '2',  equiv: 'both in use, no bloat' },
       { label: 'plan mode', value: '4',  equiv: 'runs · ritual forming' },
     ],
     identity: "You opened the door. Rearranging the furniture comes later. That's the right order.",
-    hours: 18, hoursMeaning: 'two workdays you took back — a long weekend',
+    hours: 18, hoursMeaning: 'two workdays you took back, a long weekend',
     signature: 'you ask · you try · you read',
     score: 28, tier: 'Explorer',
     chapterNote: "Your <em>Foundation</em> is lit. The rest is weeks from now, not work.",
@@ -69,10 +69,10 @@ const PERSONAS = {
       { label: 'plan mode', value: '41',    equiv: 'runs · every other task' },
     ],
     identity: "You install to learn. You prune to focus. You keep asking if it fits.",
-    hours: 187, hoursMeaning: 'a full sprint back — 23 workdays, or a side-project shipped',
+    hours: 187, hoursMeaning: 'a full sprint back: 23 workdays, or a side-project shipped',
     signature: 'you install · you prune · you question',
     score: 62, tier: 'Tinkerer',
-    chapterNote: "<em>Automation</em> is dark — that's the fastest lever you have.",
+    chapterNote: "<em>Automation</em> is dark. That's the fastest lever you have.",
     chapterTags: ['partial', 'weak', 'partial', 'strong', 'strong'],
     clusters: {
       Foundation: ['have','have','partial','missing','missing'],
@@ -95,7 +95,7 @@ const PERSONAS = {
       { label: 'worktrees', value: '14',  equiv: 'parallel, no collisions' },
     ],
     identity: "Your craft is deliberate. Your tooling hasn't caught up yet.",
-    hours: 412, hoursMeaning: 'ten weeks of focus — enough to write the book everyone says you should write',
+    hours: 412, hoursMeaning: 'ten weeks of focus, enough to write the book everyone says you should write',
     signature: 'you shape · you test · you refine',
     score: 74, tier: 'Craftsman',
     chapterNote: "Four strong chapters. <em>Automation</em> is the visible gap.",
@@ -120,8 +120,8 @@ const PERSONAS = {
       { label: 'hooks',   value: '4',     equiv: '~2.4k steps/mo automated' },
       { label: 'prompts', value: '~2.1k', equiv: 'saved · ≈ 4 workdays back' },
     ],
-    identity: "You don't install — you compose. You don't chase — you prune.",
-    hours: 960, hoursMeaning: '120 workdays — or 40 full nights of sleep you could have taken',
+    identity: "You don't install, you compose. You don't chase, you prune.",
+    hours: 960, hoursMeaning: '120 workdays, or 40 full nights of sleep you could have taken',
     signature: 'you compose · you prune · you delegate',
     score: 88, tier: 'Orchestrator',
     chapterNote: "Almost every star is lit. The dim ones are on purpose.",
@@ -138,7 +138,7 @@ const PERSONAS = {
 };
 
 /* =========================================================
-   MUST-HAVES — terse outcomes + paste-ready snippets
+   MUST-HAVES - terse outcomes + paste-ready snippets
    ========================================================= */
 const MUSTHAVES = [
   { cat: 'Foundation', title: 'Root <code>CLAUDE.md</code>',
@@ -231,7 +231,7 @@ function renderHero(p) {
 }
 
 /* =========================================================
-   ATELIER — constellation + seal + foot
+   ATELIER - constellation + seal + foot
    ========================================================= */
 function renderAtelier(p) {
   document.getElementById('atelier-handle').textContent = p.handle;
@@ -339,7 +339,7 @@ function renderChapters(p) {
 }
 
 /* =========================================================
-   MUST-HAVES — expand/collapse inline
+   MUST-HAVES - expand/collapse inline
    ========================================================= */
 function renderMustHaves(p) {
   const ul = document.getElementById('mh-list');

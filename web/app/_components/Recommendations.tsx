@@ -75,8 +75,8 @@ export function Recommendations({ persona }: { persona: PersonaShape }): ReactEl
       <style>{styles}</style>
       <h2>What to do, in order</h2>
       <p>
-        Each step is a missing or partial dimension from rubric v{RUBRIC_VERSION}.
-        Copy is sourced from <code>rubric.yaml</code> &mdash; nothing here is editorial.
+        Each step is a missing or partial check from rubric v{RUBRIC_VERSION}.
+        Copy is sourced from <code>rubric.yaml</code>, nothing here is editorial.
       </p>
       {shown.map((r) => (
         <div key={r.dimensionId} className="bench-rec">

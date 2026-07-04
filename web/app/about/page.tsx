@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
-  title: "About bench — why this exists",
+  title: "About bench: why this exists",
   description: "bench is a side project that scores a Claude Code setup. Open rubric, no AI in scoring, zero revenue. Built for the anxious improver.",
 };
 
@@ -73,7 +73,7 @@ const styles = `
     border-bottom: 1px solid var(--border);
   }
   ul.bare li:last-child { border-bottom: 0; }
-  ul.bare li::before { content: "— "; color: var(--accent); }
+  ul.bare li::before { content: "- "; color: var(--accent); }
 
   footer {
     border-top: 1px solid var(--border);
@@ -103,7 +103,7 @@ export default function About() {
             <a href="/">Home</a>
             <a href="/demo">Demo</a>
             <a href="/about">About</a>
-            <a href="/rubric">Rubric</a>
+            <a href="/rubric">Scorecard</a>
             <a href="https://github.com/Imasaikiran/bench">GitHub</a>
           </nav>
         </header>
@@ -129,7 +129,7 @@ export default function About() {
           <h2>Why this exists</h2>
           <p>
             Adoption of Claude Code outran shared practice. Everyone has a{" "}
-            <code>CLAUDE.md</code>, a few skills, a hook or two — and no honest
+            <code>CLAUDE.md</code>, a few skills, a hook or two, and no honest
             read on whether any of it is actually making them better. Blog posts
             show what good looks like. None of them tell <em>you</em> if your
             setup is good.
@@ -139,7 +139,7 @@ export default function About() {
             weeks on Claude Code, has invested real time, suspects the setup
             could be tighter, doesn't know where. This is the fat middle of the
             distribution. If you're brand new, the score will be honest about
-            that — come back in a week. If you're already posting your setup
+            that. Come back in a week. If you're already posting your setup
             publicly, the rubric won't tell you anything you don't know.
           </p>
         </section>
@@ -212,7 +212,7 @@ export default function About() {
         <footer>
           <span>v0.1 alpha · scored with rubric v0.1.0</span>
           <span>
-            <a href="/">Home</a> · <a href="/rubric">Rubric</a> · <a href="/how-we-scored">How we scored</a>
+            <a href="/">Home</a> · <a href="/rubric">Scorecard</a> · <a href="/how-we-scored">How we scored</a>
           </span>
         </footer>
       </div>

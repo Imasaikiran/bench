@@ -35,9 +35,9 @@ const payloadFixture: Payload = {
   signature_verbs: ["build", "refactor", "test"],
   tiles: [{ label: "weeks", value: "16", equiv: "" }],
   identity: "You build to learn. You refactor to focus. You keep testing if it fits.",
-  hours_meaning: "~29 workdays of pair-programming — whatever you made, you made it together",
+  hours_meaning: "~29 workdays of pair-programming. Whatever you made, you made it together",
   hours_label: "hours with Claude Code",
-  chapter_note: "Automation: 60/100 — focus area",
+  chapter_note: "Automation: 60/100. Focus area",
   headline_rarity: null,
   diagnostics: {
     redaction_hits: 0,

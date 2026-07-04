@@ -142,7 +142,7 @@ function lowestChapter(scored: ScoreResult): { name: ChapterName; score: number 
  */
 function buildChapterNote(scored: ScoreResult): string {
   const { name, score } = lowestChapter(scored);
-  return `${name}: ${score}/100 — focus area`;
+  return `${name}: ${score}/100. Focus area`;
 }
 
 /**

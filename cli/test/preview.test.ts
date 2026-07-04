@@ -180,12 +180,12 @@ describe("renderPreview terminal card", () => {
     expect(lines[lines.length - 1]).toBe("  bench.dev");
   });
 
-  // S-2/S-3 predecessor: exact hero byte sequence — now covered structurally
+  // S-2/S-3 predecessor: exact hero byte sequence, now covered structurally
   // above (hero hours, label, tier/score/wk line) rather than a full-string
   // pin, since the card now carries chapters + identity + url too.
   it("exact fallback substrings still present without hours", () => {
     const s = renderPreview({ ...BASE, hours_with_cc: null }, { color: false });
-    expect(s).toContain("(scoring without hours yet — come back in a week)");
+    expect(s).toContain("(scoring without hours yet, come back in a week)");
     expect(s).toContain("Tinkerer · Bench 62 · Wk 14");
   });
 });
