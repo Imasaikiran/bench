@@ -131,6 +131,44 @@ const PREDICATES: Record<number, (c: Counts) => State> = {
   },
 };
 
+// Every counts-object key a PREDICATES[n] function reads. This is the
+// scorer's contract with the scanner: cli/test/rubric/contract.test.ts
+// asserts a real scan() output has every one of these keys present, so a
+// predicate that starts reading a new field without the scanner emitting
+// it fails CI instead of silently scoring every user "missing" or "partial"
+// on that dimension forever.
+export const REQUIRED_COUNT_FIELDS = [
+  "claude_md_lines",
+  "settings_valid",
+  "settings_nonempty",
+  "permissions_allow_count",
+  "sub_dir_claude_md_count",
+  "docs_dir_nonempty",
+  "post_tool_use_hook",
+  "pre_tool_use_hook",
+  "session_hook",
+  "commands_total",
+  "automation_events",
+  "skills_total",
+  "skills_unused_ratio",
+  "mcp_has_github",
+  "mcp_servers",
+  "review_agent",
+  "agents_configured",
+  "test_agent",
+  "plan_mode_ratio",
+  "avg_bytes_per_read",
+  "worktrees_detected",
+  "conventional_ratio",
+  "verify_hook_present",
+  "any_hook_present",
+  "project_root_count",
+  "orphaned_hooks_fraction",
+  "duplicate_skill_fraction",
+  "clean_frontmatter_ratio",
+  "distinct_heading_count",
+] as const;
+
 const STATE_VAL: Record<State, number> = { have: 1, partial: 0.5, missing: 0 };
 
 export type ChapterResult = { score: number; states: State[] };

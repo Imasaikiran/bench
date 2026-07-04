@@ -13,6 +13,14 @@ describe("readSkills", () => {
     expect(r.total).toBe(1);
     expect(r.items[0].name).toBeNull();
   });
+  it("withDescription counts skills with a non-blank description", async () => {
+    const r = await readSkills("test/fixtures/tinkerer");
+    expect(r.withDescription).toBe(r.total);
+  });
+  it("withDescription excludes skills with unparsed/missing description", async () => {
+    const r = await readSkills("test/fixtures/bad-frontmatter");
+    expect(r.withDescription).toBe(0);
+  });
   it("happy path: parseWarnings is empty array", async () => {
     const r = await readSkills("test/fixtures/tinkerer");
     expect(r.parseWarnings).toEqual([]);

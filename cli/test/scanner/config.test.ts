@@ -24,6 +24,37 @@ describe("readConfigSurface", () => {
     expect(r.parseWarnings[0]).toMatch(/settings\.json/);
     expect(r.settings).toEqual({});
   });
+
+  it("settingsValid is false when settings.json is missing", async () => {
+    const r = await readConfigSurface("test/fixtures/explorer/projects");
+    expect(r.settingsValid).toBe(false);
+  });
+
+  it("settingsValid is false when settings.json is invalid JSON", async () => {
+    const r = await readConfigSurface("test/fixtures/broken-json");
+    expect(r.settingsValid).toBe(false);
+  });
+
+  it("settingsValid is true for valid JSON, even an empty object", async () => {
+    const r = await readConfigSurface("test/fixtures/explorer");
+    expect(r.settings).toEqual({});
+    expect(r.settingsValid).toBe(true);
+  });
+
+  it("settingsValid is true for a valid, non-empty settings.json", async () => {
+    const r = await readConfigSurface("test/fixtures/tinkerer");
+    expect(r.settingsValid).toBe(true);
+  });
+
+  it("docsDirNonempty is false when there is no docs/ dir", async () => {
+    const r = await readConfigSurface("test/fixtures/explorer");
+    expect(r.docsDirNonempty).toBe(false);
+  });
+
+  it("docsDirNonempty is true when docs/ exists with content", async () => {
+    const r = await readConfigSurface("test/fixtures/with-docs-dir");
+    expect(r.docsDirNonempty).toBe(true);
+  });
   it("truncates files over 100KB", async () => {
     const r = await readConfigSurface("test/fixtures/huge-md");
     expect(r.claudeMd?.truncated).toBe(true);

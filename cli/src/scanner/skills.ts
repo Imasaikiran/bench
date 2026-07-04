@@ -9,11 +9,17 @@ export type Skill = {
   name: string | null;
   description: string | null;
 };
-export type SkillsReport = { total: number; items: Skill[]; parseWarnings: string[] };
+export type SkillsReport = {
+  total: number;
+  items: Skill[];
+  withDescription: number;
+  parseWarnings: string[];
+};
 
 export async function readSkills(claudeHome: string): Promise<SkillsReport> {
   const root = join(claudeHome, "skills");
   const items: Skill[] = [];
+  let withDescription = 0;
   const warnings: string[] = [];
 
   async function walk(dir: string): Promise<void> {
@@ -47,11 +53,14 @@ export async function readSkills(claudeHome: string): Promise<SkillsReport> {
           typeof fm["name"] === "string" ? fm["name"] : null;
         const description =
           typeof fm["description"] === "string" ? fm["description"] : null;
+        if (description !== null && description.trim().length > 0) {
+          withDescription++;
+        }
         items.push({ dir, name, description });
       }
     }
   }
 
   await walk(root);
-  return { total: items.length, items, parseWarnings: warnings };
+  return { total: items.length, items, withDescription, parseWarnings: warnings };
 }
