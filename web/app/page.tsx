@@ -359,6 +359,24 @@ const styles = `
     color: var(--fg-2);
   }
 
+  /* ---- how to run it ---- */
+  .run { padding: 72px 0; border-bottom: 1px solid var(--border); }
+  .run-steps { display: grid; gap: 28px; max-width: 720px; margin-top: 36px; }
+  .run-step { display: grid; grid-template-columns: 40px 1fr; gap: 16px; }
+  .run-step .num { font-family: var(--serif); font-style: italic; color: var(--accent); font-size: 20px; }
+  .run-step h3 { margin: 0 0 6px; font-size: 17px; font-weight: 600; }
+  .run-step p { margin: 0 0 10px; color: var(--fg-2); font-size: 15px; }
+  .run-step pre {
+    background: #0D0D10; border: 1px solid var(--border-2); border-radius: 8px;
+    padding: 14px 16px; overflow-x: auto; font-family: var(--mono);
+    font-size: 13px; line-height: 1.7; color: var(--fg-2); margin: 0 0 6px;
+  }
+  .run-step code { font-family: var(--mono); font-size: 13px; color: var(--accent-2); }
+  .run-flags { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+  .run-flags li { font-size: 14px; color: var(--fg-2); }
+  .run-flags code { color: var(--accent-2); }
+  .run-note { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
   @media (max-width: 900px) {
     /* Stack the hero teaser below the text on tablet/mobile. */
     .hero { grid-template-columns: 1fr; gap: 36px; }
@@ -454,6 +472,84 @@ export default async function Landing({
               <div className="teaser-foot">bench.dev/u/priya_dev</div>
             </div>
           </aside>
+        </section>
+
+        <section className="run" aria-label="how to run bench">
+          <p className="what-label">How to run it</p>
+          <div className="run-steps">
+            <div className="run-step">
+              <span className="num">1.</span>
+              <div>
+                <h3>What you need</h3>
+                <p>
+                  Node 20.10 or newer, and a Claude Code setup on your machine
+                  (the <code>~/.claude</code> directory it creates). That's it.
+                  No account, no install.
+                </p>
+              </div>
+            </div>
+            <div className="run-step">
+              <span className="num">2.</span>
+              <div>
+                <h3>Run the scan</h3>
+                <pre>npx @imasaikiran/bench</pre>
+                <p className="run-note">
+                  Until the alpha is on npm, run it from source:
+                </p>
+                <pre>{`git clone https://github.com/Imasaikiran/bench
+cd bench && pnpm install && pnpm -C cli build
+node cli/dist/index.js --offline`}</pre>
+              </div>
+            </div>
+            <div className="run-step">
+              <span className="num">3.</span>
+              <div>
+                <h3>Read your card in the terminal</h3>
+                <p>
+                  Hours with Claude Code, your score and tier, five chapter
+                  bars, and one line about how you work. At this point nothing
+                  has left your machine.
+                </p>
+              </div>
+            </div>
+            <div className="run-step">
+              <span className="num">4.</span>
+              <div>
+                <h3>Keep it local or share it</h3>
+                <p>
+                  The scan asks before anything uploads. Press Enter to keep it
+                  local: it writes <code>bench-scan.json</code> and{" "}
+                  <code>bench-scan.html</code> in your current folder. Open the
+                  html for the full card, or render the json at{" "}
+                  <a href="/scan/local">/scan/local</a>. Type <code>y</code> to
+                  upload the numbers and get a shareable link.
+                </p>
+              </div>
+            </div>
+            <div className="run-step">
+              <span className="num">5.</span>
+              <div>
+                <h3>Useful flags</h3>
+                <ul className="run-flags">
+                  <li><code>--offline</code> never asks, never uploads, writes local files only</li>
+                  <li><code>--why</code> explains every number the scorecard produced</li>
+                  <li><code>--dry-run</code> scan and preview only, writes nothing</li>
+                  <li><code>--handle yourname</code> pre-fills the handle on your card</li>
+                </ul>
+              </div>
+            </div>
+            <div className="run-step">
+              <span className="num">6.</span>
+              <div>
+                <h3>Run it again after you change something</h3>
+                <p>
+                  bench reads your previous scan and shows what moved:{" "}
+                  <code>+8 since last scan</code>. Prune unused skills, wire a
+                  hook, rescan. Progress is the point.
+                </p>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section className="what" aria-label="what bench shows you">
