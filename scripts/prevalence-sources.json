@@ -38,5 +38,69 @@
   {
     "repo": "posthog/posthog",
     "note": "verified via `gh api .../contents/.claude` -> agents/, commands/, hooks/, rules/, settings.json, skills/"
+  },
+  {
+    "repo": "getsentry/sentry",
+    "note": "verified via `gh api .../contents/.claude` -> commands/, plans/, settings.json, skills/ (symlink)"
+  },
+  {
+    "repo": "calcom/cal.com",
+    "note": "verified via `gh api .../contents/.claude` -> rules/ (symlink), settings.json, skills/ (symlink)"
+  },
+  {
+    "repo": "n8n-io/n8n",
+    "note": "verified via `gh api .../contents/.claude` -> README.md, plugins/, settings.json"
+  },
+  {
+    "repo": "airbytehq/airbyte",
+    "note": "verified via `gh api .../contents/.claude` -> skills/ (my-prs/) only, no settings.json seen in listing"
+  },
+  {
+    "repo": "makeplane/plane",
+    "note": "verified via `gh api .../contents/.claude` -> skills/ (branch-name/, create-pull-request/, react-doctor/, release-notes/, translate/)"
+  },
+  {
+    "repo": "cline/cline",
+    "note": "verified via `gh api .../contents/.claude` -> commands/, hooks/, settings.json, skills/"
+  },
+  {
+    "repo": "continuedev/continue",
+    "note": "verified via `gh api .../contents/.claude` -> skills/ (docs-style/) only, no settings.json seen in listing"
+  },
+  {
+    "repo": "facebook/react",
+    "note": "verified via `gh api .../contents/.claude` -> instructions.md, settings.json, skills/"
+  },
+  {
+    "repo": "clerk/javascript",
+    "note": "verified via `gh api .../contents/.claude` -> settings.json, skills/ (clerk-monorepo/, mosaic-machine/)"
+  },
+  {
+    "repo": "directus/directus",
+    "note": "verified via `gh api .../contents/.claude` -> CLAUDE.md, hooks/, settings.json"
+  },
+  {
+    "repo": "payloadcms/payload",
+    "note": "verified via `gh api .../contents/.claude` -> commands/, hooks/, settings.json, skills/"
+  },
+  {
+    "repo": "medusajs/medusa",
+    "note": "verified via `gh api .../contents/.claude` -> agents/, commands/, skills/ (no settings.json seen in listing)"
+  },
+  {
+    "repo": "coder/coder",
+    "note": "verified via `gh api .../contents/.claude` -> docs/, scripts/, settings.json, skills/"
+  },
+  {
+    "repo": "oven-sh/bun",
+    "note": "verified via `gh api .../contents/.claude` -> commands/, docs/, hooks/, settings.json, skills/"
+  },
+  {
+    "repo": "biomejs/biome",
+    "note": "verified via `gh api .../contents/.claude` -> agents/, settings.json, skills/"
+  },
+  {
+    "repo": "astral-sh/ruff",
+    "note": "verified via `gh api .../contents/.claude` -> hooks/, settings.json only, no skills/agents/commands seen (sparse but real hook config)"
   }
 ]
