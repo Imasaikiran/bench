@@ -6,15 +6,15 @@ import { plausible } from "../../lib/plausible";
 const MAX_REASON_LEN = 500;
 
 const DIMENSION_OPTIONS = [
-  { value: "", label: "(pick one — optional)" },
+  { value: "", label: "(pick one, optional)" },
   { value: "hours", label: "Hours number" },
   { value: "tier", label: "Tier" },
   { value: "score", label: "Score" },
-  { value: "Foundation", label: "Chapter — Foundation" },
-  { value: "Automation", label: "Chapter — Automation" },
-  { value: "Delegation", label: "Chapter — Delegation" },
-  { value: "Craft", label: "Chapter — Craft" },
-  { value: "Coherence", label: "Chapter — Coherence" },
+  { value: "Foundation", label: "Chapter: Foundation" },
+  { value: "Automation", label: "Chapter: Automation" },
+  { value: "Delegation", label: "Chapter: Delegation" },
+  { value: "Craft", label: "Chapter: Craft" },
+  { value: "Hygiene", label: "Chapter: Hygiene" },
   { value: "other", label: "Other" },
 ] as const;
 
@@ -120,7 +120,7 @@ export type FeedbackPayload = {
 /**
  * Pure helper: builds the JSON payload sent to /api/feedback.
  * Trims whitespace, normalises empty dimension to null, clamps reason length.
- * Exported for unit tests — no React imports here.
+ * Exported for unit tests, no React imports here.
  */
 export function buildFeedbackPayload(
   scanId: string,
@@ -144,7 +144,7 @@ type Status = null | "submitting" | "ok" | "error" | "rate_limited" | "not_found
 
 export function ShortStatusMessage(s: Exclude<Status, null | "submitting">): string {
   switch (s) {
-    case "ok": return "Thanks — we read every one.";
+    case "ok": return "Thanks, we read every one.";
     case "error": return "Couldn't reach the server. Try again in a moment.";
     case "rate_limited": return "Too many submissions. Try again in a few minutes.";
     case "not_found": return "This scan no longer exists. Refresh the page.";
@@ -153,7 +153,7 @@ export function ShortStatusMessage(s: Exclude<Status, null | "submitting">): str
 
 export function FeedbackForm({ scanId }: { scanId: string | undefined }): React.ReactElement | null {
   // Anonymous demo or unclaimed pages without a scanId render no form.
-  // Spec note: /demo uses synthetic Priya — feedback there pollutes signal (§5.8).
+  // Spec note: /demo uses synthetic Priya, feedback there pollutes signal (§5.8).
   const [open, setOpen] = useState(false);
   const [dimension, setDimension] = useState<string>("");
   const [reason, setReason] = useState<string>("");
@@ -224,7 +224,7 @@ export function FeedbackForm({ scanId }: { scanId: string | undefined }): React.
               onChange={(e) => setReason(e.target.value)}
               disabled={status === "submitting"}
               data-bench-feedback-reason
-              placeholder="e.g. Hours feels low — I had a 3-day block off but the scan still shows ~80h."
+              placeholder="e.g. Hours feels low. I had a 3-day block off but the scan still shows ~80h."
             />
             <div className="bench-feedback-counter">
               {reason.length}/{MAX_REASON_LEN}

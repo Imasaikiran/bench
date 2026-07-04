@@ -149,7 +149,7 @@ export default function RubricPage() {
   const parsed = load(readFileSync("../rubric/rubric.yaml", "utf8"));
   if (!isRubric(parsed)) {
     throw new Error(
-      "rubric.yaml missing or malformed — expected { version, chapters }",
+      "rubric.yaml missing or malformed: expected { version, chapters }",
     );
   }
   const totalDimensions = Object.values(parsed.chapters).reduce(
@@ -161,9 +161,9 @@ export default function RubricPage() {
     <main style={page}>
       <div style={wrap}>
         <div style={eyebrow}>open rubric · community-editable</div>
-        <h1 style={h1}>The bench rubric.</h1>
+        <h1 style={h1}>Scorecard.</h1>
         <p style={lede}>
-          {`${totalDimensions} dimensions across ${Object.keys(parsed.chapters).length} chapters. Every score on every card derives from this file. No closed weighting. No daily re-scoring theatre.`}
+          {`${totalDimensions} checks across ${Object.keys(parsed.chapters).length} chapters. Every score on every card derives from this file. No closed weighting. No daily re-scoring theatre.`}
         </p>
         <p style={versionLine}>
           {`rubric v${parsed.version} · `}
@@ -185,7 +185,7 @@ export default function RubricPage() {
               <header style={chapterHead}>
                 <h2 style={chapterName}>{name}</h2>
                 <span style={chapterMeta}>
-                  {`${ch.dimensions.length} dimensions · weight ${totalWeight}`}
+                  {`${ch.dimensions.length} checks · weight ${totalWeight}`}
                 </span>
               </header>
               {ch.dimensions.map((d) => (

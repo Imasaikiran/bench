@@ -37,7 +37,7 @@ export type RescoreResult = {
   score: number;
   tier: Tier;
   chapters: Record<
-    "Foundation" | "Automation" | "Delegation" | "Craft" | "Coherence",
+    "Foundation" | "Automation" | "Delegation" | "Craft" | "Hygiene",
     { score: number; states: State[] }
   >;
   rubricVersion: string;
@@ -193,7 +193,7 @@ const CHAPTER_NAMES = [
   "Automation",
   "Delegation",
   "Craft",
-  "Coherence",
+  "Hygiene",
 ] as const;
 
 // ---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "bench — over capacity",
+  title: "bench: over capacity",
   robots: "noindex",
 };
 
@@ -40,7 +40,7 @@ export default function OverCapacityPage() {
       <main>
         <h1>bench is over capacity right now.</h1>
         <p>
-          We&apos;re hitting our daily compute cap. Come back in a few hours —
+          We&apos;re hitting our daily compute cap. Come back in a few hours,
           your scan will land then. Nothing&apos;s broken; we just bought a
           small allowance and the day&apos;s worth has been used.
         </p>

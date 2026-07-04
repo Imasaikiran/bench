@@ -49,10 +49,10 @@ describe("scoreFromCounts", () => {
     const r = scoreFromCounts(counts, rubric);
     expect(Object.keys(r.chapters).sort()).toEqual([
       "Automation",
-      "Coherence",
       "Craft",
       "Delegation",
       "Foundation",
+      "Hygiene",
     ]);
     const allStates = Object.values(r.chapters).flatMap((c) => c.states);
     expect(allStates).toHaveLength(25);
@@ -158,8 +158,8 @@ describe("scoreFromCounts — per-chapter exact scoring", () => {
     expect(r.chapters.Automation!.score).toBe(52);
   });
 
-  it("Coherence: all-have fixture lands chapter score 100", () => {
-    // Coherence weights: 0.6 + 0.8 + 1.0 + 0.6 + 0.6 = 3.6
+  it("Hygiene: all-have fixture lands chapter score 100", () => {
+    // Hygiene weights: 0.6 + 0.8 + 1.0 + 0.6 + 0.6 = 3.6
     const counts = {
       project_root_count: 3, // dim21: ≤5 → have
       orphaned_hooks_fraction: 0,
@@ -169,7 +169,7 @@ describe("scoreFromCounts — per-chapter exact scoring", () => {
       distinct_heading_count: 3, // dim25: ≤5 → have
     };
     const r = scoreFromCounts(counts, rubric);
-    expect(r.chapters.Coherence!.score).toBe(100);
+    expect(r.chapters.Hygiene!.score).toBe(100);
   });
 });
 
@@ -236,7 +236,7 @@ describe("scoreFromCounts — total score invariant", () => {
       worktrees_detected: 2,
       conventional_ratio: 0.95,
       verify_hook_present: true,
-      // Coherence
+      // Hygiene
       project_root_count: 3,
       orphaned_hooks_fraction: 0,
       duplicate_skill_fraction: 0,

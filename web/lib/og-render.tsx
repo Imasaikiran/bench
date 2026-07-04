@@ -114,7 +114,7 @@ export function ogCard(payload: OgPayload): ReactElement {
   const signatureLine = hasVerbs
     ? verbs.map((v) => `you ${v}`).join("  ·  ")
     : "scanned just now";
-  const heroLine = payload.hours_with_cc !== null ? `${payload.hours_with_cc}h` : "—h";
+  const heroLine = payload.hours_with_cc !== null ? `${payload.hours_with_cc}h` : "-h";
   const heroSubtitle =
     payload.hours_with_cc !== null ? "hours with Claude Code" : "scanning still in progress";
   const sealLine = `Bench ${payload.score} · ${payload.tier}`;

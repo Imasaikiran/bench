@@ -106,7 +106,7 @@ function validPayload(): Record<string, unknown> {
       Automation: { score: 0, states: ["missing", "missing", "missing", "missing", "missing"] },
       Delegation: { score: 0, states: ["missing", "missing", "missing", "missing", "missing"] },
       Craft: { score: 0, states: ["missing", "missing", "missing", "missing", "missing"] },
-      Coherence: { score: 0, states: ["missing", "missing", "missing", "missing", "missing"] },
+      Hygiene: { score: 0, states: ["missing", "missing", "missing", "missing", "missing"] },
     },
     chapter_tags: ["weak", "weak", "weak", "weak", "weak"],
     musthaves: Array(15).fill("missing"),

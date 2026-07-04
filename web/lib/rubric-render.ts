@@ -15,7 +15,7 @@ export type Rubric = {
 
 export function renderRubricMarkdown(r: Rubric): string {
   const lines: string[] = [];
-  lines.push(`# How we scored — rubric v${r.version}\n`);
+  lines.push(`# How we scored: rubric v${r.version}\n`);
   for (const [name, ch] of Object.entries(r.chapters)) {
     lines.push(`## ${name}\n`);
     for (const d of ch.dimensions) {

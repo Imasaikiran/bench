@@ -13,7 +13,7 @@ describe("toPersonaShape", () => {
       Automation: { score: 10, states: ["missing","missing","missing","missing","missing"] },
       Delegation: { score: 60, states: ["have","partial","have","missing","missing"] },
       Craft:      { score: 82, states: ["have","have","partial","have","missing"] },
-      Coherence:  { score: 76, states: ["have","have","partial","have","partial"] }
+      Hygiene:    { score: 76, states: ["have","have","partial","have","partial"] }
     },
     chapter_tags: ["partial","weak","partial","strong","strong"],
     musthaves: Array(15).fill("missing"),

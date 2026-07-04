@@ -6,13 +6,13 @@ import { CopyInstall } from "./_components/CopyInstall";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "bench — score your Claude Code setup",
+  title: "bench: score your Claude Code setup",
   description:
-    "A one-page honest portrait of your Claude Code setup. 25-dimension open rubric. Local scan. No AI in scoring. Zero accounts unless you claim a handle.",
+    "A one-page honest portrait of your Claude Code setup. 25-check open scorecard. Local scan. No AI in scoring. Zero accounts unless you claim a handle.",
   openGraph: {
-    title: "bench — score your Claude Code setup",
+    title: "bench: score your Claude Code setup",
     description:
-      "A one-page honest portrait of your Claude Code setup. 25-dimension open rubric. Local scan. No AI in scoring.",
+      "A one-page honest portrait of your Claude Code setup. 25-check open scorecard. Local scan. No AI in scoring.",
   },
 };
 
@@ -76,7 +76,7 @@ const styles = `
   .hero-text { display: flex; flex-direction: column; }
   .hero-teaser { display: flex; justify-content: flex-end; }
 
-  /* Mini-portrait teaser — uses the OG-card visual language so the landing
+  /* Mini-portrait teaser: uses the OG-card visual language so the landing
      literally previews what the user will get. Audit §4.5. */
   .teaser-card {
     width: 100%;
@@ -329,7 +329,7 @@ const styles = `
   footer a { color: var(--muted); border-bottom: 0; }
   footer a:hover { color: var(--accent); }
 
-  /* Phase-0 banner — shown until BENCH_LAUNCH_PHASE=1. Spec §13 Phase 0 gate. */
+  /* Phase-0 banner: shown until BENCH_LAUNCH_PHASE=1. Spec §13 Phase 0 gate. */
   .phase-banner {
     background: #0E0E12;
     border-bottom: 1px solid var(--border);
@@ -344,7 +344,7 @@ const styles = `
   .phase-banner a { color: var(--fg); border-bottom-color: var(--muted); }
   .phase-banner a:hover { border-bottom-color: var(--accent); }
 
-  /* Local-preview link — debug only, only renders when NODE_ENV !== production
+  /* Local-preview link: debug only, only renders when NODE_ENV !== production
      OR ?preview=1 is in the URL. Spec §5.7 --offline output → /scan/local. */
   .local-preview {
     margin-top: 14px;
@@ -401,7 +401,7 @@ export default async function Landing({
       <style dangerouslySetInnerHTML={{ __html: styles }} />
       {showBanner && (
         <div className="phase-banner" data-phase-banner>
-          <b>Phase 0</b> · the rubric is open · the CLI ships May 22, 2026 if it earns it.{" "}
+          <b>Phase 0</b> · the scorecard is open · the CLI ships if it earns it.{" "}
           <a href="https://github.com/Imasaikiran/bench/blob/main/docs/plans/phase0-signal.md">
             Read the bet →
           </a>
@@ -415,7 +415,7 @@ export default async function Landing({
           <nav className="land-nav" aria-label="primary">
             <a href="/demo">Demo</a>
             <a href="/about">About</a>
-            <a href="/rubric">Rubric</a>
+            <a href="/rubric">Scorecard</a>
             <a href="/how-we-scored">How we scored</a>
             <a href="https://github.com/Imasaikiran/bench">GitHub</a>
           </nav>
@@ -472,8 +472,8 @@ export default async function Landing({
               <span className="num">ii.</span>
               <h3>What's working, what to prune</h3>
               <p>
-                Five chapters — Foundation, Automation, Delegation, Craft, Coherence —
-                each with five concrete dimensions. Plus a curated 15-item must-have
+                Five chapters: Foundation, Automation, Delegation, Craft, Hygiene,
+                each with five concrete checks. Plus a curated 15-item must-have
                 list with code snippets for the gaps.
               </p>
             </div>
@@ -540,7 +540,7 @@ export default async function Landing({
           <h2>See what one looks like.</h2>
           <p>
             This is a sample card for a made-up developer. Yours uses your
-            real setup — your number, your score, your gaps.
+            real setup: your number, your score, your gaps.
           </p>
           <a href="/demo" className="btn">Open the sample →</a>
         </section>
@@ -555,9 +555,9 @@ export default async function Landing({
         </section>
 
         <footer>
-          <span>alpha · scored with rubric v0.1.0</span>
+          <span>alpha · scored with scorecard v0.2.0</span>
           <span>
-            <a href="/rubric">Rubric</a> · <a href="/how-we-scored">How we scored</a> ·{" "}
+            <a href="/rubric">Scorecard</a> · <a href="/how-we-scored">How we scored</a> ·{" "}
             <a href="https://github.com/Imasaikiran/bench">github</a>
           </span>
         </footer>

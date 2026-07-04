@@ -16,7 +16,7 @@ import { PRIYA_OG } from "./__fixtures__/priya";
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
-// PRIYA_OG without handle — pre-claim anonymous render path. Keeps the
+// PRIYA_OG without handle: pre-claim anonymous render path. Keeps the
 // renderToBuffer() byte-shape test scoped to the minimal payload contract
 // (no handle dependence in the PNG signature).
 const PRIYA_OG_ANON = { ...PRIYA_OG, handle: null };
@@ -72,7 +72,7 @@ describe("og-render shared component", () => {
     expect(buf.length).toBeGreaterThan(1000);
   }, 15_000);
 
-  // Visual regression catcher — locks key signal lines from the design audit
+  // Visual regression catcher: locks key signal lines from the design audit
   // §4.2 (constellation glyph, gold seal, signature row, handle footer).
   // We don't byte-diff the PNG (rendering is non-deterministic across font
   // versions); we assert the JSX structure produces the right text content
@@ -102,7 +102,7 @@ describe("og-render shared component", () => {
     expect(seen).not.toMatch(/bench\.dev\/u\//);
   });
 
-  it("uses '—h' + 'scanning still in progress' caption when hours hidden", () => {
+  it("uses '-h' + 'scanning still in progress' caption when hours hidden", () => {
     const tree = ogCard({
       hours_with_cc: null,
       score: 18,
@@ -110,7 +110,7 @@ describe("og-render shared component", () => {
       signature_verbs: [],
     });
     const seen = collectText(tree);
-    expect(seen).toContain("—h");
+    expect(seen).toContain("-h");
     expect(seen).toContain("scanning still in progress");
     expect(seen).toContain("scanned just now");
   });

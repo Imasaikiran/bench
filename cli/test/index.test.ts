@@ -49,7 +49,7 @@ const RUBRIC: Rubric = {
         { id: 20, name: "Verification before commit", weight: 1.0 },
       ],
     },
-    Coherence: {
+    Hygiene: {
       dimensions: [
         { id: 21, name: "Focus", weight: 0.6 },
         { id: 22, name: "Clean .claude/", weight: 0.8 },
@@ -68,7 +68,7 @@ const SCORED: ScoreResult = {
     Automation: { score: 40, states: ["have", "missing", "missing", "partial", "missing"] },
     Delegation: { score: 60, states: ["have", "have", "partial", "missing", "missing"] },
     Craft: { score: 65, states: ["have", "have", "missing", "partial", "have"] },
-    Coherence: { score: 70, states: ["have", "have", "have", "partial", "missing"] },
+    Hygiene: { score: 70, states: ["have", "have", "have", "partial", "missing"] },
   },
 };
 
@@ -95,7 +95,7 @@ const PAYLOAD: Payload = {
   identity: "You build.",
   hours_meaning: "~10 workdays",
   hours_label: "hours with Claude Code",
-  chapter_note: "Automation: 40/100 — focus area",
+  chapter_note: "Automation: 40/100. Focus area",
   headline_rarity: null,
   diagnostics: { redaction_hits: 0, parse_warnings: [], skipped_files: 0, elapsed_ms: 10 },
   integrity: { client_hmac: "abc", hmac_key_id: "v1" },

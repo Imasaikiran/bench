@@ -1,5 +1,5 @@
 /**
- * /scan/local — debug-only route that renders V1Page from a bench-scan.json
+ * /scan/local: debug-only route that renders V1Page from a bench-scan.json
  * file on the local disk. NOT exposed in production builds.
  *
  * Source path: BENCH_LOCAL_SCAN env var, or default /tmp/bench-real-run/bench-scan.json.
@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 const DEFAULT_PATH = "/tmp/bench-real-run/bench-scan.json";
 
 export const metadata = {
-  title: "bench — local scan",
+  title: "bench: local scan",
   robots: "noindex",
 };
 

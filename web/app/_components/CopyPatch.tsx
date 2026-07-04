@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 
 /**
- * CopyPatch — rewrites the static, hardcoded text nodes baked into the FROZEN
+ * CopyPatch: rewrites the static, hardcoded text nodes baked into the FROZEN
  * v1 markup (cli/src/assets/v1-index.html, hash-pinned). v1 cannot be edited,
  * so the v2 layer corrects its copy in the DOM after v1 has painted, the same
  * pattern HeroReveal uses.
@@ -17,9 +17,9 @@ import { useEffect } from "react";
 const TIER_BLURB: Record<string, string> = {
   Explorer: "Explorer: just getting started with Claude Code.",
   Tinkerer: "Tinkerer: past the basics, still pruning what doesn't earn its place.",
-  Craftsman: "Craftsman: a setup with rhythm — skills, hooks, and rules that fit together.",
+  Craftsman: "Craftsman: a setup with rhythm, skills, hooks, and rules that fit together.",
   Operator: "Operator: running Claude Code as a system, not a chat box.",
-  Conductor: "Conductor: a tuned studio — every part of the setup pulls weight.",
+  Conductor: "Conductor: a tuned studio, every part of the setup pulls weight.",
 };
 
 export function CopyPatch({ tier }: { tier: string }): null {
@@ -28,7 +28,7 @@ export function CopyPatch({ tier }: { tier: string }): null {
       // 1. "hours Claude gave back" → honest, no overclaim (§3.1)
       setText(".bench-label", "hours you've spent with Claude Code");
 
-      // 2. "Bench 62" → "Score 62 / 100" (anchor the number — §3.2)
+      // 2. "Bench 62" → "Score 62 / 100" (anchor the number, §3.2)
       const scoreB = document.getElementById("bench-score");
       if (scoreB && scoreB.parentElement) {
         const span = scoreB.parentElement;
@@ -53,11 +53,11 @@ export function CopyPatch({ tier }: { tier: string }): null {
         "Sourced from widely-shared Claude Code setups. Click a missing one to copy a snippet.",
       );
 
-      // 5. Button copy — say what they do (§3.2)
+      // 5. Button copy: say what they do (§3.2)
       setText("#download-art", "Save card (PNG)");
       setText("#share-li", "Share on LinkedIn");
 
-      // 6. Inject a one-line tier definition under the seal (§3.1 — the tier
+      // 6. Inject a one-line tier definition under the seal (§3.1: the tier
       //    is never defined anywhere on the page).
       const seal = document.getElementById("atelier-seal");
       if (seal && !document.querySelector("[data-bench-tierdef]")) {
@@ -70,7 +70,7 @@ export function CopyPatch({ tier }: { tier: string }): null {
         if (def.textContent) seal.insertAdjacentElement("afterend", def);
       }
 
-      // 7. Chapter legend — two states, defined once (§3.3)
+      // 7. Chapter legend: two states, defined once (§3.3)
       const strip = document.getElementById("chapters-strip");
       if (strip && !document.querySelector("[data-bench-legend]")) {
         const legend = document.createElement("p");

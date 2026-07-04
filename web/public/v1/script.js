@@ -8,7 +8,7 @@ const CLUSTER_FRAME = [
   { name: 'Automation', cx: 420, cy: 130, star_offsets: [[-30,-30],[20,-40],[40,0],[0,30],[-30,40]] },
   { name: 'Delegation', cx: 700, cy: 140, star_offsets: [[-40,-30],[10,-40],[40,10],[-20,40],[20,50]] },
   { name: 'Craft',      cx: 270, cy: 400, star_offsets: [[-30,-30],[30,-40],[40,10],[-20,30],[10,40]] },
-  { name: 'Coherence',  cx: 580, cy: 410, star_offsets: [[-30,-30],[30,-40],[40,10],[-20,30],[20,40]] },
+  { name: 'Hygiene',    cx: 580, cy: 410, star_offsets: [[-30,-30],[30,-40],[40,10],[-20,30],[20,40]] },
 ];
 
 const CLUSTER_LABELS = {
@@ -16,7 +16,7 @@ const CLUSTER_LABELS = {
   Automation: ['PostToolUse','PreToolUse','SessionStart','slash cmds','scripts'],
   Delegation: ['skills','pruned skills','github MCP','review agent','test agent'],
   Craft:      ['plan mode','reads craft','worktrees','commits','verify'],
-  Coherence:  ['focus','clean dir','no-bloat','names','single-topic'],
+  Hygiene:    ['focus','clean dir','no-bloat','names','single-topic'],
 };
 
 const CHAPTER_META = [
@@ -24,11 +24,11 @@ const CHAPTER_META = [
   { num: 'II',  name: 'Automation' },
   { num: 'III', name: 'Delegation' },
   { num: 'IV',  name: 'Craft' },
-  { num: 'V',   name: 'Coherence' },
+  { num: 'V',   name: 'Hygiene' },
 ];
 
 /* =========================================================
-   PERSONAS — terse, each with a flex
+   PERSONAS - terse, each with a flex
    ========================================================= */
 const PERSONAS = {
 
@@ -39,11 +39,11 @@ const PERSONAS = {
     tiles: [
       { label: 'weeks',     value: '3',  equiv: 'past week-one hesitation' },
       { label: 'claude.md', value: '32', equiv: 'lines · plain english' },
-      { label: 'skills',    value: '2',  equiv: 'both in use — no bloat' },
+      { label: 'skills',    value: '2',  equiv: 'both in use, no bloat' },
       { label: 'plan mode', value: '4',  equiv: 'runs · ritual forming' },
     ],
     identity: "You opened the door. Rearranging the furniture comes later. That's the right order.",
-    hours: 18, hoursMeaning: 'two workdays you took back — a long weekend',
+    hours: 18, hoursMeaning: 'two workdays you took back, a long weekend',
     signature: 'you ask · you try · you read',
     score: 28, tier: 'Explorer',
     chapterNote: "Your <em>Foundation</em> is lit. The rest is weeks from now, not work.",
@@ -53,7 +53,7 @@ const PERSONAS = {
       Automation: ['missing','missing','missing','missing','missing'],
       Delegation: ['partial','have','missing','missing','missing'],
       Craft:      ['have','partial','missing','missing','missing'],
-      Coherence:  ['have','have','have','partial','missing'],
+      Hygiene:    ['have','have','have','partial','missing'],
     },
     musthaves: ['have','partial','missing','missing','missing','missing','missing','missing','partial','missing','missing','have','missing','missing','have'],
   },
@@ -69,17 +69,17 @@ const PERSONAS = {
       { label: 'plan mode', value: '41',    equiv: 'runs · every other task' },
     ],
     identity: "You install to learn. You prune to focus. You keep asking if it fits.",
-    hours: 187, hoursMeaning: 'a full sprint back — 23 workdays, or a side-project shipped',
+    hours: 187, hoursMeaning: 'a full sprint back: 23 workdays, or a side-project shipped',
     signature: 'you install · you prune · you question',
     score: 62, tier: 'Tinkerer',
-    chapterNote: "<em>Automation</em> is dark — that's the fastest lever you have.",
+    chapterNote: "<em>Automation</em> is dark. That's the fastest lever you have.",
     chapterTags: ['partial', 'weak', 'partial', 'strong', 'strong'],
     clusters: {
       Foundation: ['have','have','partial','missing','missing'],
       Automation: ['missing','missing','missing','missing','missing'],
       Delegation: ['have','partial','have','missing','missing'],
       Craft:      ['have','have','partial','have','missing'],
-      Coherence:  ['have','have','partial','have','partial'],
+      Hygiene:    ['have','have','partial','have','partial'],
     },
     musthaves: ['have','partial','missing','missing','missing','missing','missing','have','partial','missing','missing','have','partial','missing','missing'],
   },
@@ -95,7 +95,7 @@ const PERSONAS = {
       { label: 'worktrees', value: '14',  equiv: 'parallel, no collisions' },
     ],
     identity: "Your craft is deliberate. Your tooling hasn't caught up yet.",
-    hours: 412, hoursMeaning: 'ten weeks of focus — enough to write the book everyone says you should write',
+    hours: 412, hoursMeaning: 'ten weeks of focus, enough to write the book everyone says you should write',
     signature: 'you shape · you test · you refine',
     score: 74, tier: 'Craftsman',
     chapterNote: "Four strong chapters. <em>Automation</em> is the visible gap.",
@@ -105,7 +105,7 @@ const PERSONAS = {
       Automation: ['missing','missing','missing','missing','missing'],
       Delegation: ['have','have','have','missing','missing'],
       Craft:      ['have','have','have','have','have'],
-      Coherence:  ['have','have','have','have','partial'],
+      Hygiene:    ['have','have','have','have','partial'],
     },
     musthaves: ['have','have','have','missing','missing','missing','missing','have','have','missing','missing','have','have','have','have'],
   },
@@ -120,8 +120,8 @@ const PERSONAS = {
       { label: 'hooks',   value: '4',     equiv: '~2.4k steps/mo automated' },
       { label: 'prompts', value: '~2.1k', equiv: 'saved · ≈ 4 workdays back' },
     ],
-    identity: "You don't install — you compose. You don't chase — you prune.",
-    hours: 960, hoursMeaning: '120 workdays — or 40 full nights of sleep you could have taken',
+    identity: "You don't install, you compose. You don't chase, you prune.",
+    hours: 960, hoursMeaning: '120 workdays, or 40 full nights of sleep you could have taken',
     signature: 'you compose · you prune · you delegate',
     score: 88, tier: 'Orchestrator',
     chapterNote: "Almost every star is lit. The dim ones are on purpose.",
@@ -131,14 +131,14 @@ const PERSONAS = {
       Automation: ['have','have','have','have','partial'],
       Delegation: ['have','have','have','have','have'],
       Craft:      ['have','have','have','have','have'],
-      Coherence:  ['have','have','have','partial','have'],
+      Hygiene:    ['have','have','have','partial','have'],
     },
     musthaves: ['have','have','have','have','have','have','have','have','have','have','have','have','have','have','partial'],
   },
 };
 
 /* =========================================================
-   MUST-HAVES — terse outcomes + paste-ready snippets
+   MUST-HAVES - terse outcomes + paste-ready snippets
    ========================================================= */
 const MUSTHAVES = [
   { cat: 'Foundation', title: 'Root <code>CLAUDE.md</code>',
@@ -197,7 +197,7 @@ const MUSTHAVES = [
     outcome: 'Tests + typecheck before commit. The line between vibes and craft.',
     snippet: `# add to CLAUDE.md "Do":\n- run npm test && npm run typecheck before every commit\n- if either fails, fix first\n- never --no-verify` },
 
-  { cat: 'Coherence', title: 'Pruned duplicates',
+  { cat: 'Hygiene', title: 'Pruned duplicates',
     outcome: 'Noise costs score. Removing one makes the rest sharper.',
     snippet: `ls ~/.claude/skills/\n# delete overlaps like:\n# code-review / pr-review / review-pr\n# keep one, remove the rest` },
 ];
@@ -231,7 +231,7 @@ function renderHero(p) {
 }
 
 /* =========================================================
-   ATELIER — constellation + seal + foot
+   ATELIER - constellation + seal + foot
    ========================================================= */
 function renderAtelier(p) {
   document.getElementById('atelier-handle').textContent = p.handle;
@@ -339,7 +339,7 @@ function renderChapters(p) {
 }
 
 /* =========================================================
-   MUST-HAVES — expand/collapse inline
+   MUST-HAVES - expand/collapse inline
    ========================================================= */
 function renderMustHaves(p) {
   const ul = document.getElementById('mh-list');

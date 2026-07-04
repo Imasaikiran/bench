@@ -1,4 +1,4 @@
-version: "0.1.0"
+version: "0.2.0"
 
 tiers:
   - name: Explorer
@@ -58,7 +58,7 @@ chapters:
         weight: 1.0
         have_criteria: "permissions.allow has >= 3 entries"
         partial_criteria: "permissions.allow has 1–2 entries"
-        rationale: "Allowlists cut prompt fatigue — three or more entries is the signal of deliberate tuning."
+        rationale: "Allowlists cut prompt fatigue. Three or more entries is the signal of deliberate tuning."
         sources:
           - "https://docs.claude.com/en/docs/claude-code/settings#permissions"
       - id: 4
@@ -115,7 +115,7 @@ chapters:
         weight: 0.6
         have_criteria: "automation_events > 100 in last 30 days"
         partial_criteria: "10 <= automation_events <= 100"
-        rationale: "A hook configured but rarely fired is cosmetic — real automation leaves a heartbeat in the logs."
+        rationale: "A hook configured but rarely fired is cosmetic. Real automation leaves a heartbeat in the logs."
         sources: []
 
   Delegation:
@@ -140,7 +140,7 @@ chapters:
         weight: 0.8
         have_criteria: "github or mcp-github server in MCP config"
         partial_criteria: "any MCP server configured"
-        rationale: "GitHub MCP is the highest-ROI MCP for most developer workflows — issues, PRs, code review, all in-session."
+        rationale: "GitHub MCP is the highest-ROI MCP for most developer workflows: issues, PRs, code review, all in-session."
         sources: []
       - id: 14
         name: "Code-review subagent"
@@ -179,14 +179,14 @@ chapters:
         weight: 0.6
         have_criteria: "any path under .trees/ OR `git worktree list` non-empty"
         partial_criteria: null
-        rationale: "Parallel worktrees unlock concurrent branches without resetting state — the closest thing to a second brain."
+        rationale: "Parallel worktrees unlock concurrent branches without resetting state. It's the closest thing to a second brain."
         sources: []
       - id: 19
         name: "Commit discipline"
         weight: 0.8
         have_criteria: ">= 80% of commits on CC-active repos have conventional prefix"
         partial_criteria: ">= 50% conventional commits"
-        rationale: "Conventional-prefix commits are a legible trace of intent — both the next human and the next agent benefit."
+        rationale: "Conventional-prefix commits are a legible trace of intent. Both the next human and the next agent benefit."
         sources:
           - "https://www.conventionalcommits.org/"
       - id: 20
@@ -197,7 +197,7 @@ chapters:
         rationale: "A pre-commit verification hook is the smallest reliable defense against regressions landing on main."
         sources: []
 
-  Coherence:
+  Hygiene:
     slot_labels: ["focus", "clean dir", "no-bloat", "names", "single-topic"]
     dimensions:
       - id: 21
@@ -212,21 +212,21 @@ chapters:
         weight: 0.8
         have_criteria: "no orphaned hooks AND no duplicate skill names"
         partial_criteria: "< 20% orphans"
-        rationale: "Orphaned hooks and duplicate skill names are the visible smell of drift — easy to fix, easy to ignore."
+        rationale: "Orphaned hooks and duplicate skill names are the visible smell of drift: easy to fix, easy to ignore."
         sources: []
       - id: 23
         name: "No-bloat"
         weight: 1.0
         have_criteria: "skills_unused_ratio <= 0.1"
         partial_criteria: "skills_unused_ratio <= 0.25"
-        rationale: "Fewer purposeful skills beat many half-used ones — less is more when the index has to stay scannable."
+        rationale: "Fewer purposeful skills beat many half-used ones. Less is more when the index has to stay scannable."
         sources: []
       - id: 24
         name: "Names"
         weight: 0.6
         have_criteria: "100% of skills/commands/agents have description in frontmatter"
         partial_criteria: ">= 80% have description in frontmatter"
-        rationale: "Descriptions in frontmatter are how skills and commands become discoverable — missing them means invisible tools."
+        rationale: "Descriptions in frontmatter are how skills and commands become discoverable. Missing them means invisible tools."
         sources: []
       - id: 25
         name: "Single-topic CLAUDE.md"

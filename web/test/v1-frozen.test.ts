@@ -10,10 +10,17 @@ import { fileURLToPath } from "node:url";
 //   3. Runs without git available (CI tarball, sandbox, shallow clone).
 // To intentionally update v1: bump these constants in the same commit as
 // the file change, with a clear "unfreeze" justification.
+//
+// Unfreeze (Task R1, plain-language copy sweep): index.html, script.js, and
+// styles.css bumped to remove em dashes from user-visible persona/meaning
+// copy and a comment header (founder no-em-dash rule). No structural/markup
+// changes; local-export.ts anchors (PERSONAS decl, currentPersona,
+// applyPersona, persona-switcher aside, synthetic-preview footer marker)
+// verified byte-intact via local-export tests.
 const PINNED: Record<string, string> = {
-  "index.html": "2aa6b1b0db3a1e6aeccc63cb3a2dfef28f90f9ccf5b358179bdf6d6f3e5fb2bf",
-  "styles.css":  "d4febfda09cc7c0082490767a58d860dead25b323d573c50f8c21dd52c6db03b",
-  "script.js":   "e22b49a299da3186f7c8698a7546ff9de6f09ed8180724d76afc6083d968f990",
+  "index.html": "ec96b1a0403b7e20de3289190d0dc704ad404240c3314bbc651cb90382b0493d",
+  "styles.css":  "6f308b13a1bd4f2704e8c211562b53c34069e4c5ba9c35e69c6fa45229342691",
+  "script.js":   "de52b088b690efbe54a600fe07b0ca73390c49eac856d5ff69a5f022c2fe84b3",
 };
 
 const here = dirname(fileURLToPath(import.meta.url));

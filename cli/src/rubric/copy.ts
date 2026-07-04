@@ -73,7 +73,7 @@ export function deriveCopy(ctx: CopyContext): DerivedCopy {
   const workdays = Math.round(h / 8);
   const hours_meaning =
     h >= HOURS_FLOOR
-      ? `~${workdays} workdays of pair-programming — whatever you made, you made it together`
+      ? `~${workdays} workdays of pair-programming. Whatever you made, you made it together`
       : "";
 
   return { signature_verbs: verbs, identity, hours_meaning, hours_label: "hours with Claude Code" };

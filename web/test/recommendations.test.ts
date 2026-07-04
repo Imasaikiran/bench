@@ -23,7 +23,7 @@ function persona(states: Record<string, State[]>): PersonaShape {
       Automation: states["Automation"] ?? Array(5).fill("have"),
       Delegation: states["Delegation"] ?? Array(5).fill("have"),
       Craft: states["Craft"] ?? Array(5).fill("have"),
-      Coherence: states["Coherence"] ?? Array(5).fill("have"),
+      Hygiene: states["Hygiene"] ?? Array(5).fill("have"),
     } as never,
     musthaves: Array(15).fill("missing") as never,
   };

@@ -63,7 +63,7 @@ describe("payload", () => {
   it("chapter_tags thresholds at boundaries", () => {
     const make = (s: number) => assemblePayload({
       counts: {} as any,
-      chapters: { Foundation: { score: s, states: [] }, Automation: { score: s, states: [] }, Delegation: { score: s, states: [] }, Craft: { score: s, states: [] }, Coherence: { score: s, states: [] } } as any,
+      chapters: { Foundation: { score: s, states: [] }, Automation: { score: s, states: [] }, Delegation: { score: s, states: [] }, Craft: { score: s, states: [] }, Hygiene: { score: s, states: [] } } as any,
       musthaves: [] as any,
       tier: "Explorer" as const, score: s,
       hours_with_cc: 10, weeks_on_cc: 1,

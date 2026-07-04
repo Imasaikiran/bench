@@ -68,7 +68,7 @@ describe("landing page copy invariants", () => {
 
   it("renders the Phase-0 banner when BENCH_LAUNCH_PHASE is unset (default)", () => {
     expect(html).toContain("data-phase-banner");
-    expect(html).toContain("the rubric is open");
+    expect(html).toContain("the scorecard is open");
   });
 
   it("renders the local-preview link in non-production NODE_ENV (default test env)", () => {

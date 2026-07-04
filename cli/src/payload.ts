@@ -6,7 +6,7 @@ import { createHmac } from "node:crypto";
 // NOT a secret — friction only. See rubric §10.3 item 10.
 const BUNDLED_HMAC_KEY = "bench-v1-integrity-key-public-do-not-treat-as-secret";
 
-const CHAPTER_NAMES = ["Foundation", "Automation", "Delegation", "Craft", "Coherence"] as const;
+const CHAPTER_NAMES = ["Foundation", "Automation", "Delegation", "Craft", "Hygiene"] as const;
 
 export type Tier = "Explorer" | "Tinkerer" | "Craftsman" | "Operator" | "Conductor";
 export type ChapterTag = "strong" | "partial" | "weak";

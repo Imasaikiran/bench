@@ -1,4 +1,4 @@
-const CHAPTER_ORDER = ["Foundation", "Automation", "Delegation", "Craft", "Coherence"] as const;
+const CHAPTER_ORDER = ["Foundation", "Automation", "Delegation", "Craft", "Hygiene"] as const;
 
 const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";
@@ -19,7 +19,7 @@ export type PreviewInput = {
   url: string;
   hours_meaning?: string;
   /** "Only N% of M setups benchmarked have X. You do." (Task D1). Rendered
-   * dim-styled under the tier line, only when present — omitted entirely
+   * dim-styled under the tier line, only when present. Omitted entirely
    * when the caller has no prevalence line to show (e.g. unpopulated
    * prevalence.json). See cli/src/rubric/prevalence.ts. */
   headline_rarity?: string;
@@ -51,7 +51,7 @@ function truncateIdentity(identity: string, maxWidth: number): string {
   if (lastSentenceEnd > 0) {
     return upToLimit.slice(0, lastSentenceEnd + 1);
   }
-  // No sentence boundary within the limit — fall back to the last word
+  // No sentence boundary within the limit, so fall back to the last word
   // boundary, with an ellipsis so the cut reads intentional.
   const lastSpace = upToLimit.lastIndexOf(" ");
   if (lastSpace > 0) {
@@ -83,7 +83,7 @@ export function renderPreview(p: PreviewInput, opts?: PreviewOptions): string {
       lines.push(`  ${dim}${p.hours_meaning}${reset}`);
     }
   } else {
-    lines.push("  (scoring without hours yet — come back in a week)");
+    lines.push("  (scoring without hours yet, come back in a week)");
   }
 
   lines.push("");

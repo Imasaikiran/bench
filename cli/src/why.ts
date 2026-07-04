@@ -6,7 +6,7 @@ const CHAPTER_ORDER = [
   "Automation",
   "Delegation",
   "Craft",
-  "Coherence",
+  "Hygiene",
 ] as const;
 
 const DOT_LEADER_WIDTH = 30;

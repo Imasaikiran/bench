@@ -13,14 +13,14 @@
     },
     "chapters": {
       "type": "object",
-      "required": ["Foundation", "Automation", "Delegation", "Craft", "Coherence"],
+      "required": ["Foundation", "Automation", "Delegation", "Craft", "Hygiene"],
       "additionalProperties": false,
       "properties": {
         "Foundation": { "$ref": "#/$defs/chapter" },
         "Automation": { "$ref": "#/$defs/chapter" },
         "Delegation": { "$ref": "#/$defs/chapter" },
         "Craft": { "$ref": "#/$defs/chapter" },
-        "Coherence": { "$ref": "#/$defs/chapter" }
+        "Hygiene": { "$ref": "#/$defs/chapter" }
       }
     }
   },

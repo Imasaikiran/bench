@@ -7,7 +7,7 @@ const BASE = {
   tier: "Tinkerer",
   weeks_on_cc: 14,
   identity: "445 skills across 73 projects.",
-  chapters: { Foundation: 48, Automation: 10, Delegation: 33, Craft: 28, Coherence: 8 },
+  chapters: { Foundation: 48, Automation: 10, Delegation: 33, Craft: 28, Hygiene: 8 },
   url: "bench.dev",
 };
 
@@ -26,7 +26,7 @@ describe("renderPreview terminal card", () => {
   it("shows the hero hours and all five chapter names", () => {
     const out = renderPreview(BASE, { color: false });
     expect(out).toMatch(/161|187/);
-    for (const c of ["Foundation", "Automation", "Delegation", "Craft", "Coherence"]) {
+    for (const c of ["Foundation", "Automation", "Delegation", "Craft", "Hygiene"]) {
       expect(out).toMatch(new RegExp(c));
     }
   });
@@ -108,7 +108,7 @@ describe("renderPreview terminal card", () => {
   it("bar proportionality: score 100 -> all filled cells, no empty", () => {
     const input = {
       ...BASE,
-      chapters: { Foundation: 100, Automation: 100, Delegation: 100, Craft: 100, Coherence: 100 },
+      chapters: { Foundation: 100, Automation: 100, Delegation: 100, Craft: 100, Hygiene: 100 },
     };
     const out = renderPreview(input, { color: false });
     const foundationLine = out.split("\n").find((l) => l.includes("Foundation"));
@@ -119,7 +119,7 @@ describe("renderPreview terminal card", () => {
   it("bar proportionality: score 0 -> all empty cells, no filled", () => {
     const input = {
       ...BASE,
-      chapters: { Foundation: 0, Automation: 0, Delegation: 0, Craft: 0, Coherence: 0 },
+      chapters: { Foundation: 0, Automation: 0, Delegation: 0, Craft: 0, Hygiene: 0 },
     };
     const out = renderPreview(input, { color: false });
     const foundationLine = out.split("\n").find((l) => l.includes("Foundation"));
@@ -180,12 +180,12 @@ describe("renderPreview terminal card", () => {
     expect(lines[lines.length - 1]).toBe("  bench.dev");
   });
 
-  // S-2/S-3 predecessor: exact hero byte sequence — now covered structurally
+  // S-2/S-3 predecessor: exact hero byte sequence, now covered structurally
   // above (hero hours, label, tier/score/wk line) rather than a full-string
   // pin, since the card now carries chapters + identity + url too.
   it("exact fallback substrings still present without hours", () => {
     const s = renderPreview({ ...BASE, hours_with_cc: null }, { color: false });
-    expect(s).toContain("(scoring without hours yet — come back in a week)");
+    expect(s).toContain("(scoring without hours yet, come back in a week)");
     expect(s).toContain("Tinkerer · Bench 62 · Wk 14");
   });
 });

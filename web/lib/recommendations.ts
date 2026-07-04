@@ -46,14 +46,14 @@ const CHAPTER_ORDER: ChapterName[] = [
   "Automation",
   "Delegation",
   "Craft",
-  "Coherence",
+  "Hygiene",
 ];
 
 /**
  * Compute the prioritized list of action items from a PersonaShape.
  *
  * Ordering: missing before partial; within each, heavier weight first;
- * within same weight, the chapter order (Foundation -> Coherence) wins.
+ * within same weight, the chapter order (Foundation -> Hygiene) wins.
  */
 export function recommend(persona: PersonaShape): Recommendation[] {
   const out: Recommendation[] = [];
