@@ -87,6 +87,18 @@ export type PersonaShape = {
   chapterTags: Array<"strong" | "weak">;
   clusters: Record<string, State[]>;
   musthaves: State[];
+  /**
+   * "Only N% of M setups benchmarked have X. You do." (Task D1). Null when
+   * the prevalence table is unpopulated or nothing qualifies — see
+   * cli/src/rubric/prevalence.ts:pickHeadlineRarity.
+   *
+   * The frozen v1 offline renderer (`script.js`'s renderHero/renderAtelier/
+   * renderChapters/renderMustHaves) has no slot that reads this field, so it
+   * is harmlessly ignored there today. Attached to the persona object so a
+   * future web/OG render surface can pick it up without another payload
+   * plumbing change.
+   */
+  headlineRarity: string | null;
 };
 
 export function titleForTier(t: string): string {
@@ -141,5 +153,6 @@ export function mapperToPersona(payload: Payload): PersonaShape {
     chapterTags: collapseChapterTags(payload.chapter_tags),
     clusters,
     musthaves: deriveMusthaveStates(payload),
+    headlineRarity: payload.headline_rarity,
   };
 }

@@ -189,3 +189,40 @@ describe("renderPreview terminal card", () => {
     expect(s).toContain("Tinkerer · Bench 62 · Wk 14");
   });
 });
+
+describe("renderPreview headline_rarity (Task D1)", () => {
+  it("is byte-identical whether headline_rarity is omitted or explicitly undefined", () => {
+    const withoutKey = renderPreview(BASE, { color: false });
+    const withUndefined = renderPreview({ ...BASE, headline_rarity: undefined }, { color: false });
+    expect(withUndefined).toBe(withoutKey);
+  });
+
+  it("renders no prevalence line when headline_rarity is absent", () => {
+    const out = renderPreview(BASE, { color: false });
+    expect(out).not.toMatch(/Only \d+% of/);
+  });
+
+  it("renders the prevalence line dim-styled under the tier line when present, within 16 lines", () => {
+    const out = renderPreview(
+      { ...BASE, headline_rarity: "Only 8% of 50 public setups benchmarked have a PreToolUse hook. You do." },
+      { color: true },
+    );
+    const lines = out.split("\n");
+    expect(lines.length).toBeLessThanOrEqual(16);
+    const tierIdx = lines.findIndex((l) => l.includes("Tinkerer · Bench 62 · Wk 14"));
+    expect(tierIdx).toBeGreaterThan(-1);
+    const rarityIdx = lines.findIndex((l) => l.includes("Only 8% of 50 public setups benchmarked"));
+    expect(rarityIdx).toBe(tierIdx + 1);
+    // eslint-disable-next-line no-control-regex
+    expect(lines[rarityIdx]).toMatch(/\x1b\[2m/); // DIM code
+  });
+
+  it("no color: prevalence line has no ANSI codes but text is present", () => {
+    const out = renderPreview(
+      { ...BASE, headline_rarity: "Only 8% of 50 public setups benchmarked have a PreToolUse hook. You do." },
+      { color: false },
+    );
+    expect(out).toContain("Only 8% of 50 public setups benchmarked have a PreToolUse hook. You do.");
+    expect(out).not.toMatch(/\[/);
+  });
+});

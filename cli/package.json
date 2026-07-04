@@ -4,9 +4,9 @@
   "type": "module",
   "engines": { "node": ">=20.10" },
   "bin": { "bench": "./dist/index.js" },
-  "files": ["dist/", "rubric.yaml", "package.json"],
+  "files": ["dist/", "rubric.yaml", "prevalence.json", "package.json"],
   "scripts": {
-    "copy:rubric": "cp ../rubric/rubric.yaml ./rubric.yaml",
+    "copy:rubric": "cp ../rubric/rubric.yaml ./rubric.yaml && cp ../rubric/prevalence.json ./prevalence.json",
     "copy:assets": "cp ../web/public/v1/styles.css src/assets/styles.css && cp ../web/public/v1/script.js src/assets/script.js && cp ../web/public/v1/index.html src/assets/v1-index.html",
     "pretest": "pnpm copy:rubric",
     "test": "vitest run",

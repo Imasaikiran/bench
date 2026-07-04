@@ -96,6 +96,7 @@ const PAYLOAD: Payload = {
   hours_meaning: "~10 workdays",
   hours_label: "hours with Claude Code",
   chapter_note: "Automation: 40/100 — focus area",
+  headline_rarity: null,
   diagnostics: { redaction_hits: 0, parse_warnings: [], skipped_files: 0, elapsed_ms: 10 },
   integrity: { client_hmac: "abc", hmac_key_id: "v1" },
 };
@@ -155,6 +156,11 @@ function makeDeps(overrides: Partial<Deps> = {}): Deps {
     }),
     refuseIfUnsafe: vi.fn(),
     loadRubric: vi.fn().mockReturnValue(RUBRIC),
+    loadPrevalenceTable: vi.fn().mockReturnValue({
+      denominator: 0,
+      denominator_label: "public setups benchmarked",
+      dimensions: {},
+    }),
     scan: vi.fn().mockResolvedValue(SCAN_RESULT),
     scoreFromCounts: vi.fn().mockReturnValue(SCORED),
     inferTier: vi.fn().mockReturnValue("Tinkerer"),
@@ -348,6 +354,55 @@ describe("main refuseIfUnsafe throws", () => {
     // The error should propagate as a rejected promise.
     await expect(main([], io, deps)).rejects.toThrow(
       "Run bench as your normal user, not root.",
+    );
+  });
+});
+
+describe("main headline_rarity wiring (Task D1)", () => {
+  it("with today's empty prevalence.json, assemblePayload receives headline_rarity: null", async () => {
+    const assemblePayload = vi.fn().mockReturnValue(PAYLOAD);
+    const deps = makeDeps({ assemblePayload });
+    const { io } = makeIO();
+    await main([], io, deps);
+    expect(assemblePayload).toHaveBeenCalledWith(
+      expect.objectContaining({ headline_rarity: null }),
+    );
+  });
+
+  it("with a populated prevalence table, assemblePayload receives the computed rarity line", async () => {
+    // SCORED fixture's Foundation states[0] ("Root CLAUDE.md", dim 1) is "have" —
+    // point the table at dim 1 so a real have-dimension qualifies.
+    const assemblePayload = vi.fn().mockReturnValue(PAYLOAD);
+    const deps = makeDeps({
+      assemblePayload,
+      loadPrevalenceTable: vi.fn().mockReturnValue({
+        denominator: 50,
+        denominator_label: "public setups benchmarked",
+        dimensions: { "1": 4 }, // Root CLAUDE.md, 8%
+      }),
+    });
+    const { io } = makeIO();
+    await main([], io, deps);
+    expect(assemblePayload).toHaveBeenCalledWith(
+      expect.objectContaining({
+        headline_rarity: "Only 8% of 50 public setups benchmarked have a Root CLAUDE.md. You do.",
+      }),
+    );
+  });
+
+  it("when loadPrevalenceTable throws (missing file), degrades to null rather than crashing", async () => {
+    const assemblePayload = vi.fn().mockReturnValue(PAYLOAD);
+    const deps = makeDeps({
+      assemblePayload,
+      loadPrevalenceTable: vi.fn().mockImplementation(() => {
+        throw new Error("ENOENT");
+      }),
+    });
+    const { io } = makeIO();
+    const code = await main([], io, deps);
+    expect(code).toBe(0);
+    expect(assemblePayload).toHaveBeenCalledWith(
+      expect.objectContaining({ headline_rarity: null }),
     );
   });
 });

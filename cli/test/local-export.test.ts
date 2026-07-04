@@ -38,6 +38,7 @@ function makePayload(): Payload {
     hours_meaning: "test meaning",
     hours_label: "hours with Claude Code",
     chapter_note: "test note",
+    headline_rarity: null,
     diagnostics: {
       redaction_hits: 0,
       parse_warnings: [],

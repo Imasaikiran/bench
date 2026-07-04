@@ -37,6 +37,14 @@ export type AssembleInput = {
     elapsed_ms: number;
   };
   tiles?: unknown[];
+  /**
+   * "Only N% of M setups benchmarked have X. You do." (Task D1). Null when
+   * the prevalence table is unpopulated, the user has no qualifying rare
+   * strength, or nothing clears the rarity ceiling — see
+   * cli/src/rubric/prevalence.ts:pickHeadlineRarity. Defaults to null so
+   * existing callers that don't pass it keep working unchanged.
+   */
+  headline_rarity?: string | null;
   /** Injectable for snapshot/HMAC determinism tests. Defaults to current ISO timestamp. */
   now?: () => string;
 };
@@ -65,6 +73,7 @@ export type Payload = {
   hours_meaning: string;
   hours_label: string;
   chapter_note: string;
+  headline_rarity: string | null;
   diagnostics: AssembleInput["diagnostics"];
   integrity: { client_hmac: string; hmac_key_id: "v1" };
 };
@@ -118,6 +127,7 @@ export function assemblePayload(input: AssembleInput): Payload {
     hours_meaning: input.hours_meaning,
     hours_label: "hours with Claude Code",
     chapter_note: input.chapter_note,
+    headline_rarity: input.headline_rarity ?? null,
     diagnostics: input.diagnostics,
     integrity,
   };

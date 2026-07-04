@@ -38,6 +38,7 @@ const payloadFixture: Payload = {
   hours_meaning: "~29 workdays of pair-programming — whatever you made, you made it together",
   hours_label: "hours with Claude Code",
   chapter_note: "Automation: 60/100 — focus area",
+  headline_rarity: null,
   diagnostics: {
     redaction_hits: 0,
     parse_warnings: [],
@@ -146,6 +147,21 @@ describe("mapperToPersona", () => {
     const a = mapperToPersona(payloadFixture);
     const b = mapperToPersona(payloadFixture);
     expect(JSON.stringify(a)).toBe(JSON.stringify(b));
+  });
+
+  it("headlineRarity passes through null verbatim (Task D1, today's empty prevalence table)", () => {
+    const persona = mapperToPersona(payloadFixture);
+    expect(persona.headlineRarity).toBeNull();
+  });
+
+  it("headlineRarity passes through a computed rarity line verbatim (extra field, ignored by frozen v1 script.js)", () => {
+    const persona = mapperToPersona({
+      ...payloadFixture,
+      headline_rarity: "Only 8% of 50 public setups benchmarked have a PreToolUse hook. You do.",
+    });
+    expect(persona.headlineRarity).toBe(
+      "Only 8% of 50 public setups benchmarked have a PreToolUse hook. You do.",
+    );
   });
 });
 

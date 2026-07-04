@@ -18,6 +18,11 @@ export type PreviewInput = {
   chapters: Record<string, number>;
   url: string;
   hours_meaning?: string;
+  /** "Only N% of M setups benchmarked have X. You do." (Task D1). Rendered
+   * dim-styled under the tier line, only when present — omitted entirely
+   * when the caller has no prevalence line to show (e.g. unpopulated
+   * prevalence.json). See cli/src/rubric/prevalence.ts. */
+  headline_rarity?: string;
 };
 
 export type PreviewOptions = {
@@ -78,6 +83,9 @@ export function renderPreview(p: PreviewInput, opts?: PreviewOptions): string {
 
   lines.push("");
   lines.push(`  ${p.tier} · Bench ${p.score} · Wk ${p.weeks_on_cc}`);
+  if (p.headline_rarity) {
+    lines.push(`  ${dim}${p.headline_rarity}${reset}`);
+  }
   lines.push("");
 
   const nameWidth = Math.max(...CHAPTER_ORDER.map((n) => n.length));

@@ -16,6 +16,8 @@ import { inferTier, computeHoursWithCc } from "./rubric/persona.js";
 import { deriveCopy } from "./rubric/copy.js";
 import { renderMustHaves } from "./rubric/musthave-copy.js";
 import type { MustHaveItem } from "./rubric/musthave-copy.js";
+import { loadPrevalenceTable, pickHeadlineRarity } from "./rubric/prevalence.js";
+import type { PrevalenceTable } from "./rubric/prevalence.js";
 import { assemblePayload } from "./payload.js";
 import { renderPreview } from "./preview.js";
 import { askConsent } from "./consent.js";
@@ -51,6 +53,7 @@ export type Deps = {
   detectEnvironment?: typeof detectEnvironment;
   refuseIfUnsafe?: typeof refuseIfUnsafe;
   loadRubric?: typeof loadRubric;
+  loadPrevalenceTable?: typeof loadPrevalenceTable;
   scan?: typeof scan;
   scoreFromCounts?: typeof scoreFromCounts;
   inferTier?: typeof inferTier;
@@ -93,6 +96,10 @@ export function readRubricVersion(rubricPath: string): string {
 
 export function bundledRubricPath(): string {
   return resolve(here, "..", "rubric.yaml");
+}
+
+export function bundledPrevalencePath(): string {
+  return resolve(here, "..", "prevalence.json");
 }
 
 // ---------------------------------------------------------------------------
@@ -164,6 +171,40 @@ function deriveMusthaves(scored: ScoreResult, rubric: Rubric): MustHaveItem[] {
   return results;
 }
 
+/**
+ * Every dimension id the user "has", across all chapters. Mirrors persona.ts's
+ * MUSTHAVE_SLOTS pattern: `states` is positional per rubric.yaml's dimension
+ * order within a chapter, so zip the two arrays rather than re-parsing
+ * rubric.yaml. Used by pickHeadlineRarity (Task D1) to find the user's
+ * rarest strength.
+ */
+function collectHaveDimensionIds(scored: ScoreResult, rubric: Rubric): number[] {
+  const ids: number[] = [];
+  for (const chapterName of Object.keys(scored.chapters)) {
+    const chapter = scored.chapters[chapterName];
+    const dims = rubric.chapters[chapterName]?.dimensions ?? [];
+    if (!chapter) continue;
+    for (let i = 0; i < chapter.states.length; i++) {
+      if (chapter.states[i] === "have") {
+        const dim = dims[i];
+        if (dim) ids.push(dim.id);
+      }
+    }
+  }
+  return ids;
+}
+
+/** id -> human name, across every chapter's dimensions, for prevalence copy. */
+function buildDimensionNameMap(rubric: Rubric): Map<number, string> {
+  const names = new Map<number, string>();
+  for (const chapter of Object.values(rubric.chapters)) {
+    for (const dim of chapter.dimensions) {
+      names.set(dim.id, dim.name);
+    }
+  }
+  return names;
+}
+
 // ---------------------------------------------------------------------------
 // Main pipeline
 // ---------------------------------------------------------------------------
@@ -181,6 +222,7 @@ export async function main(
   const _detectEnv = deps.detectEnvironment ?? detectEnvironment;
   const _refuseIfUnsafe = deps.refuseIfUnsafe ?? refuseIfUnsafe;
   const _loadRubric = deps.loadRubric ?? loadRubric;
+  const _loadPrevalenceTable = deps.loadPrevalenceTable ?? loadPrevalenceTable;
   const _scan = deps.scan ?? scan;
   const _scoreFromCounts = deps.scoreFromCounts ?? scoreFromCounts;
   const _inferTier = deps.inferTier ?? inferTier;
@@ -275,6 +317,21 @@ export async function main(
     confidence: scanResult.confidence.tool_derived,
   });
 
+  // Prevalence (Task D1): a missing/unreadable prevalence.json degrades to
+  // an empty table rather than crashing the CLI — pickHeadlineRarity already
+  // returns null for an empty table, same as the honest today's-empty-seed case.
+  let prevalenceTable: PrevalenceTable;
+  try {
+    prevalenceTable = _loadPrevalenceTable(bundledPrevalencePath());
+  } catch {
+    prevalenceTable = { denominator: 0, denominator_label: "public setups benchmarked", dimensions: {} };
+  }
+  const headlineRarity = pickHeadlineRarity(
+    collectHaveDimensionIds(scored, rubric),
+    buildDimensionNameMap(rubric),
+    prevalenceTable,
+  );
+
   // 12. Assemble payload
   const weeksOnCc =
     typeof scanResult.counts["weeks_on_cc"] === "number"
@@ -293,6 +350,7 @@ export async function main(
     identity: copy.identity,
     hours_meaning: copy.hours_meaning,
     chapter_note,
+    headline_rarity: headlineRarity,
     handle: flags.handle,
     previous_scan_id: null,
     scanner_version: VERSION,
@@ -320,6 +378,7 @@ export async function main(
       hours_meaning: payload.hours_meaning,
       chapters: chapterScores,
       url: "bench.dev",
+      ...(payload.headline_rarity !== null ? { headline_rarity: payload.headline_rarity } : {}),
     }),
   );
 
