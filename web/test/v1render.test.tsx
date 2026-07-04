@@ -73,7 +73,7 @@ describe("V1Page", () => {
         Automation: ["have", "have", "have", "have", "have"],
         Delegation: ["have", "have", "have", "have", "have"],
         Craft: ["have", "have", "have", "have", "have"],
-        Coherence: ["have", "have", "have", "have", "have"],
+        Hygiene: ["have", "have", "have", "have", "have"],
       },
     };
     const html = renderToString(<V1Page persona={allHave as never} />);

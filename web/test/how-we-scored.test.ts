@@ -15,6 +15,6 @@ describe("renderRubricMarkdown", () => {
       expect(md).toMatch(new RegExp(`#${id}\\b`));
     }
     expect(md).toContain("## Foundation");
-    expect(md).toContain("## Coherence");
+    expect(md).toContain("## Hygiene");
   });
 });

@@ -188,7 +188,7 @@ export default function About() {
           <h2>Open by design</h2>
           <ul className="bare">
             <li>
-              The rubric is open: <a href="/rubric">/rubric</a> renders{" "}
+              The scorecard is open: <a href="/rubric">/rubric</a> renders{" "}
               <code>rubric/rubric.yaml</code> straight from the repo.
             </li>
             <li>
@@ -210,7 +210,7 @@ export default function About() {
         </section>
 
         <footer>
-          <span>v0.1 alpha · scored with rubric v0.1.0</span>
+          <span>v0.1 alpha · scored with scorecard v0.2.0</span>
           <span>
             <a href="/">Home</a> · <a href="/rubric">Scorecard</a> · <a href="/how-we-scored">How we scored</a>
           </span>

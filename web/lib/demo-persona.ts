@@ -4,7 +4,7 @@ import { toPersonaShape, type PersonaShape } from "./mapper";
 // All numbers are hand-chosen to land in the Tinkerer band with realistic shape.
 const priyaPayload = {
   schema_version: "1.0",
-  rubric_version: "0.1.0",
+  rubric_version: "0.2.0",
   scanner_version: "0.0.1-alpha.0",
   scanned_at: "2026-04-25T12:00:00.000Z",
   handle: "priya_dev",
@@ -22,7 +22,7 @@ const priyaPayload = {
     Automation: { score: 10, states: ["missing", "missing", "missing", "missing", "missing"] },
     Delegation: { score: 60, states: ["have", "partial", "have", "missing", "missing"] },
     Craft:      { score: 82, states: ["have", "have", "partial", "have", "missing"] },
-    Coherence:  { score: 76, states: ["have", "have", "partial", "have", "partial"] },
+    Hygiene:    { score: 76, states: ["have", "have", "partial", "have", "partial"] },
   },
   // Two-state only. v1 script.js maps weak→"Needs work", strong→"Strong".
   // Dropping "partial" removes the ambiguous third "building" label (UX audit §3.3).

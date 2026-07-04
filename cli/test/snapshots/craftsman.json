@@ -40,7 +40,7 @@
         "missing"
       ]
     },
-    "Coherence": {
+    "Hygiene": {
       "score": 39,
       "states": [
         "have",
@@ -87,6 +87,6 @@
     "active_hours_total": 0,
     "avg_bytes_per_read": 0
   },
-  "rubric_version": "0.1.0",
+  "rubric_version": "0.2.0",
   "score": 24
 }

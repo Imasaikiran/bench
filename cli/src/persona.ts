@@ -30,7 +30,7 @@ import type { State } from "./rubric/score.js";
  *      Derive it the same way script.js's static list is structured: each of
  *      the 15 hardcoded items corresponds to one rubric.yaml dimension within
  *      a chapter (3 Foundation + 4 Automation + 4 Delegation + 3 Craft +
- *      1 Coherence == 15), so pull the matching per-dimension `state` out of
+ *      1 Hygiene == 15), so pull the matching per-dimension `state` out of
  *      `payload.chapters[chapter].states` by position.
  */
 
@@ -52,7 +52,7 @@ const MUSTHAVE_SLOTS: ReadonlyArray<{ chapter: string; stateIndex: number }> = [
   { chapter: "Craft", stateIndex: 0 }, // dim 16 plan mode used
   { chapter: "Craft", stateIndex: 2 }, // dim 18 worktrees
   { chapter: "Craft", stateIndex: 4 }, // dim 20 verification before commit
-  { chapter: "Coherence", stateIndex: 2 }, // dim 23 no-bloat / pruned duplicates
+  { chapter: "Hygiene", stateIndex: 2 }, // dim 23 no-bloat / pruned duplicates
 ];
 
 function deriveMusthaveStates(payload: Payload): State[] {
@@ -128,7 +128,7 @@ export function mapperToPersona(payload: Payload): PersonaShape {
   // The outer `payload.handle ?` guard ensures handle is truthy (non-empty string).
   const initial = payload.handle ? payload.handle.charAt(0).toUpperCase() : "•";
 
-  const chapterNames = ["Foundation", "Automation", "Delegation", "Craft", "Coherence"];
+  const chapterNames = ["Foundation", "Automation", "Delegation", "Craft", "Hygiene"];
   const clusters: Record<string, State[]> = {};
   for (const name of chapterNames) {
     clusters[name] = (payload.chapters[name]?.states as State[] | undefined) ?? [];

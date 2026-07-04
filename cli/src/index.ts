@@ -113,7 +113,7 @@ const CHAPTER_ORDER = [
   "Automation",
   "Delegation",
   "Craft",
-  "Coherence",
+  "Hygiene",
 ] as const;
 
 type ChapterName = (typeof CHAPTER_ORDER)[number];

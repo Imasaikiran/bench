@@ -14,7 +14,7 @@ const DIMENSION_OPTIONS = [
   { value: "Automation", label: "Chapter: Automation" },
   { value: "Delegation", label: "Chapter: Delegation" },
   { value: "Craft", label: "Chapter: Craft" },
-  { value: "Coherence", label: "Chapter: Coherence" },
+  { value: "Hygiene", label: "Chapter: Hygiene" },
   { value: "other", label: "Other" },
 ] as const;
 

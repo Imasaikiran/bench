@@ -2,7 +2,7 @@
 
 export type State = "have" | "partial" | "missing";
 export type ChapterTag = "strong" | "partial" | "weak";
-export type ChapterName = "Foundation" | "Automation" | "Delegation" | "Craft" | "Coherence";
+export type ChapterName = "Foundation" | "Automation" | "Delegation" | "Craft" | "Hygiene";
 
 export type PersonaShape = {
   handle: string;
@@ -98,7 +98,7 @@ export function toPersonaShape(payload: any): PersonaShape {
       Automation: payload.chapters.Automation.states,
       Delegation: payload.chapters.Delegation.states,
       Craft:      payload.chapters.Craft.states,
-      Coherence:  payload.chapters.Coherence.states,
+      Hygiene:    payload.chapters.Hygiene.states,
     },
     musthaves: payload.musthaves,
   };

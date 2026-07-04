@@ -8,7 +8,7 @@ const CLUSTER_FRAME = [
   { name: 'Automation', cx: 420, cy: 130, star_offsets: [[-30,-30],[20,-40],[40,0],[0,30],[-30,40]] },
   { name: 'Delegation', cx: 700, cy: 140, star_offsets: [[-40,-30],[10,-40],[40,10],[-20,40],[20,50]] },
   { name: 'Craft',      cx: 270, cy: 400, star_offsets: [[-30,-30],[30,-40],[40,10],[-20,30],[10,40]] },
-  { name: 'Coherence',  cx: 580, cy: 410, star_offsets: [[-30,-30],[30,-40],[40,10],[-20,30],[20,40]] },
+  { name: 'Hygiene',    cx: 580, cy: 410, star_offsets: [[-30,-30],[30,-40],[40,10],[-20,30],[20,40]] },
 ];
 
 const CLUSTER_LABELS = {
@@ -16,7 +16,7 @@ const CLUSTER_LABELS = {
   Automation: ['PostToolUse','PreToolUse','SessionStart','slash cmds','scripts'],
   Delegation: ['skills','pruned skills','github MCP','review agent','test agent'],
   Craft:      ['plan mode','reads craft','worktrees','commits','verify'],
-  Coherence:  ['focus','clean dir','no-bloat','names','single-topic'],
+  Hygiene:    ['focus','clean dir','no-bloat','names','single-topic'],
 };
 
 const CHAPTER_META = [
@@ -24,7 +24,7 @@ const CHAPTER_META = [
   { num: 'II',  name: 'Automation' },
   { num: 'III', name: 'Delegation' },
   { num: 'IV',  name: 'Craft' },
-  { num: 'V',   name: 'Coherence' },
+  { num: 'V',   name: 'Hygiene' },
 ];
 
 /* =========================================================
@@ -53,7 +53,7 @@ const PERSONAS = {
       Automation: ['missing','missing','missing','missing','missing'],
       Delegation: ['partial','have','missing','missing','missing'],
       Craft:      ['have','partial','missing','missing','missing'],
-      Coherence:  ['have','have','have','partial','missing'],
+      Hygiene:    ['have','have','have','partial','missing'],
     },
     musthaves: ['have','partial','missing','missing','missing','missing','missing','missing','partial','missing','missing','have','missing','missing','have'],
   },
@@ -79,7 +79,7 @@ const PERSONAS = {
       Automation: ['missing','missing','missing','missing','missing'],
       Delegation: ['have','partial','have','missing','missing'],
       Craft:      ['have','have','partial','have','missing'],
-      Coherence:  ['have','have','partial','have','partial'],
+      Hygiene:    ['have','have','partial','have','partial'],
     },
     musthaves: ['have','partial','missing','missing','missing','missing','missing','have','partial','missing','missing','have','partial','missing','missing'],
   },
@@ -105,7 +105,7 @@ const PERSONAS = {
       Automation: ['missing','missing','missing','missing','missing'],
       Delegation: ['have','have','have','missing','missing'],
       Craft:      ['have','have','have','have','have'],
-      Coherence:  ['have','have','have','have','partial'],
+      Hygiene:    ['have','have','have','have','partial'],
     },
     musthaves: ['have','have','have','missing','missing','missing','missing','have','have','missing','missing','have','have','have','have'],
   },
@@ -131,7 +131,7 @@ const PERSONAS = {
       Automation: ['have','have','have','have','partial'],
       Delegation: ['have','have','have','have','have'],
       Craft:      ['have','have','have','have','have'],
-      Coherence:  ['have','have','have','partial','have'],
+      Hygiene:    ['have','have','have','partial','have'],
     },
     musthaves: ['have','have','have','have','have','have','have','have','have','have','have','have','have','have','partial'],
   },
@@ -197,7 +197,7 @@ const MUSTHAVES = [
     outcome: 'Tests + typecheck before commit. The line between vibes and craft.',
     snippet: `# add to CLAUDE.md "Do":\n- run npm test && npm run typecheck before every commit\n- if either fails, fix first\n- never --no-verify` },
 
-  { cat: 'Coherence', title: 'Pruned duplicates',
+  { cat: 'Hygiene', title: 'Pruned duplicates',
     outcome: 'Noise costs score. Removing one makes the rest sharper.',
     snippet: `ls ~/.claude/skills/\n# delete overlaps like:\n# code-review / pr-review / review-pr\n# keep one, remove the rest` },
 ];

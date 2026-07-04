@@ -1,4 +1,4 @@
-const CHAPTER_ORDER = ["Foundation", "Automation", "Delegation", "Craft", "Coherence"] as const;
+const CHAPTER_ORDER = ["Foundation", "Automation", "Delegation", "Craft", "Hygiene"] as const;
 
 const BOLD = "\x1b[1m";
 const DIM = "\x1b[2m";

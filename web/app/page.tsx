@@ -401,7 +401,7 @@ export default async function Landing({
       <style dangerouslySetInnerHTML={{ __html: styles }} />
       {showBanner && (
         <div className="phase-banner" data-phase-banner>
-          <b>Phase 0</b> · the rubric is open · the CLI ships if it earns it.{" "}
+          <b>Phase 0</b> · the scorecard is open · the CLI ships if it earns it.{" "}
           <a href="https://github.com/Imasaikiran/bench/blob/main/docs/plans/phase0-signal.md">
             Read the bet →
           </a>
@@ -472,7 +472,7 @@ export default async function Landing({
               <span className="num">ii.</span>
               <h3>What's working, what to prune</h3>
               <p>
-                Five chapters: Foundation, Automation, Delegation, Craft, Coherence,
+                Five chapters: Foundation, Automation, Delegation, Craft, Hygiene,
                 each with five concrete checks. Plus a curated 15-item must-have
                 list with code snippets for the gaps.
               </p>
@@ -555,7 +555,7 @@ export default async function Landing({
         </section>
 
         <footer>
-          <span>alpha · scored with rubric v0.1.0</span>
+          <span>alpha · scored with scorecard v0.2.0</span>
           <span>
             <a href="/rubric">Scorecard</a> · <a href="/how-we-scored">How we scored</a> ·{" "}
             <a href="https://github.com/Imasaikiran/bench">github</a>

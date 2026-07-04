@@ -136,7 +136,7 @@ const STATE_VAL: Record<State, number> = { have: 1, partial: 0.5, missing: 0 };
 export type ChapterResult = { score: number; states: State[] };
 export type ScoreResult = { chapters: Record<string, ChapterResult>; score: number };
 
-const CHAPTER_NAMES = ["Foundation", "Automation", "Delegation", "Craft", "Coherence"] as const;
+const CHAPTER_NAMES = ["Foundation", "Automation", "Delegation", "Craft", "Hygiene"] as const;
 
 export function scoreFromCounts(counts: Counts, rubric: Rubric): ScoreResult {
   const out: Record<string, ChapterResult> = {};

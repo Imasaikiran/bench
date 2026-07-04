@@ -19,7 +19,7 @@ export type ScanDelta = {
   gainedMusthaves: string[];
 };
 
-const CHAPTER_ORDER = ["Foundation", "Automation", "Delegation", "Craft", "Coherence"] as const;
+const CHAPTER_ORDER = ["Foundation", "Automation", "Delegation", "Craft", "Hygiene"] as const;
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);

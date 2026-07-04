@@ -32,7 +32,7 @@ export const payloadSchema = z.object({
     Automation: chapterSchema,
     Delegation: chapterSchema,
     Craft: chapterSchema,
-    Coherence: chapterSchema,
+    Hygiene: chapterSchema,
   }),
   chapter_tags: z.array(chapterTagSchema).length(5),
   musthaves: z.array(stateSchema).length(15),

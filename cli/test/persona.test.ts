@@ -25,7 +25,7 @@ const payloadFixture: Payload = {
     Automation: { score: 60, states: ["have", "missing", "missing", "have", "partial"] },
     Delegation: { score: 70, states: ["have", "partial", "partial", "missing", "have"] },
     Craft: { score: 75, states: ["have", "have", "partial", "missing", "have"] },
-    Coherence: { score: 85, states: ["have", "have", "have", "partial", "missing"] },
+    Hygiene: { score: 85, states: ["have", "have", "have", "partial", "missing"] },
   },
   chapter_tags: ["strong", "partial", "partial", "strong", "strong"],
   musthaves: [
@@ -116,7 +116,7 @@ describe("mapperToPersona", () => {
     expect(persona.clusters["Automation"]).toEqual(["have", "missing", "missing", "have", "partial"]);
     expect(persona.clusters["Delegation"]).toEqual(["have", "partial", "partial", "missing", "have"]);
     expect(persona.clusters["Craft"]).toEqual(["have", "have", "partial", "missing", "have"]);
-    expect(persona.clusters["Coherence"]).toEqual(["have", "have", "have", "partial", "missing"]);
+    expect(persona.clusters["Hygiene"]).toEqual(["have", "have", "have", "partial", "missing"]);
   });
 
   it("musthaves is a 15-slot have/partial/missing array (script.js's static MUSTHAVES length), derived from chapter states by position — NOT the payload's short human-readable musthave strings", () => {
@@ -128,7 +128,7 @@ describe("mapperToPersona", () => {
     // Automation[0,1,3,2] = have, missing, have, missing
     // Delegation[2,0,3,4] = partial, have, missing, have
     // Craft[0,2,4] = have, partial, have
-    // Coherence[2] = have
+    // Hygiene[2] = have
     expect(persona.musthaves).toEqual([
       "have", "partial", "missing",
       "have", "missing", "have", "missing",

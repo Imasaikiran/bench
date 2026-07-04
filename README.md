@@ -71,7 +71,7 @@ All env vars are documented in [`.env.example`](./.env.example): purpose, file:l
 
 Note: `BENCH_HMAC_KEY` is **not** an env var. The integrity key is hard-coded in `cli/src/payload.ts` and `web/lib/hmac.ts` as a public constant. It exists to deter casual tampering, not as an auth secret. See `.env.example` for context.
 
-## The rubric is open
+## The scorecard is open
 
 `rubric/rubric.yaml` is the single source of truth for scoring. Versioned, community-editable. PRs that propose new checks, retune thresholds, or add tier conditions are welcome. See `docs/specs/2026-04-25-bench-v2-design.md` §10 for the rubric contract.
 

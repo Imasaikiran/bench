@@ -33,7 +33,7 @@ describe("rubric.yaml", () => {
   });
 
   it("has exactly 25 dimensions across 5 chapters of 5 each", () => {
-    const chapterNames = ["Foundation", "Automation", "Delegation", "Craft", "Coherence"];
+    const chapterNames = ["Foundation", "Automation", "Delegation", "Craft", "Hygiene"];
     for (const name of chapterNames) {
       const ch = rubric.chapters[name];
       expect(ch).toBeDefined();

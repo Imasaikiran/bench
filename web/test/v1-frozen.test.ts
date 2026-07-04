@@ -20,7 +20,7 @@ import { fileURLToPath } from "node:url";
 const PINNED: Record<string, string> = {
   "index.html": "ec96b1a0403b7e20de3289190d0dc704ad404240c3314bbc651cb90382b0493d",
   "styles.css":  "6f308b13a1bd4f2704e8c211562b53c34069e4c5ba9c35e69c6fa45229342691",
-  "script.js":   "ad86131519e802a2d48c55427c845e52b6ce83a447c647847913656f1a9f0fe7",
+  "script.js":   "de52b088b690efbe54a600fe07b0ca73390c49eac856d5ff69a5f022c2fe84b3",
 };
 
 const here = dirname(fileURLToPath(import.meta.url));

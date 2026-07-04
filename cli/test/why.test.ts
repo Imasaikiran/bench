@@ -23,7 +23,7 @@ const rubricFixture: Rubric = {
     },
     Delegation: { dimensions: [] },
     Craft: { dimensions: [] },
-    Coherence: { dimensions: [] },
+    Hygiene: { dimensions: [] },
   },
 };
 
@@ -40,7 +40,7 @@ const scoredFixture: ScoreResult = {
     },
     Delegation: { score: 50, states: [] },
     Craft: { score: 60, states: [] },
-    Coherence: { score: 70, states: [] },
+    Hygiene: { score: 70, states: [] },
   },
 };
 
@@ -51,7 +51,7 @@ describe("formatWhy", () => {
     expect(out).toContain("have");
   });
 
-  it("chapter order matches [Foundation, Automation, Delegation, Craft, Coherence]", () => {
+  it("chapter order matches [Foundation, Automation, Delegation, Craft, Hygiene]", () => {
     const out = formatWhy(scoredFixture, rubricFixture);
     const chapterLines = out
       .split("\n")
@@ -62,7 +62,7 @@ describe("formatWhy", () => {
       "Automation",
       "Delegation",
       "Craft",
-      "Coherence",
+      "Hygiene",
     ]);
   });
 
@@ -91,7 +91,7 @@ describe("formatWhy", () => {
         Automation: { score: 50, states: [] },
         Delegation: { score: 50, states: [] },
         Craft: { score: 50, states: [] },
-        Coherence: { score: 50, states: [] },
+        Hygiene: { score: 50, states: [] },
       },
     };
     expect(() => formatWhy(scored, rubricFixture)).not.toThrow();

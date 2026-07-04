@@ -40,7 +40,7 @@ export const PRIYA_PERSONA: PersonaShape = {
     Automation: ["missing", "missing", "missing", "missing", "missing"],
     Delegation: ["have", "partial", "have", "missing", "missing"],
     Craft:      ["have", "have", "partial", "have", "missing"],
-    Coherence:  ["have", "have", "partial", "have", "partial"],
+    Hygiene:    ["have", "have", "partial", "have", "partial"],
   },
   musthaves: [
     "have", "partial", "missing", "missing", "missing",

@@ -1,4 +1,4 @@
-version: "0.1.0"
+version: "0.2.0"
 
 tiers:
   - name: Explorer
@@ -197,7 +197,7 @@ chapters:
         rationale: "A pre-commit verification hook is the smallest reliable defense against regressions landing on main."
         sources: []
 
-  Coherence:
+  Hygiene:
     slot_labels: ["focus", "clean dir", "no-bloat", "names", "single-topic"]
     dimensions:
       - id: 21
