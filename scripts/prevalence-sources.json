@@ -1,0 +1,42 @@
+[
+  {
+    "repo": "anthropics/claude-code",
+    "note": "verified via `gh api repos/anthropics/claude-code/contents/.claude` -> commands/"
+  },
+  {
+    "repo": "anthropics/claude-code-action",
+    "note": "verified via `gh api .../contents/.claude` -> agents/, commands/, settings.json, workflows/"
+  },
+  {
+    "repo": "anthropics/claude-agent-sdk-python",
+    "note": "verified via `gh api .../contents/.claude` -> agents/, commands/, settings.json"
+  },
+  {
+    "repo": "anthropics/claude-cookbooks",
+    "note": "verified via `gh api .../contents/.claude` -> agents/, commands/, skills/"
+  },
+  {
+    "repo": "anthropics/anthropic-cookbook",
+    "note": "verified via `gh api .../contents/.claude` -> agents/, commands/, skills/"
+  },
+  {
+    "repo": "vercel/next.js",
+    "note": "verified via `gh api .../contents/.claude` -> skills/"
+  },
+  {
+    "repo": "supabase/supabase",
+    "note": "verified via `gh api .../contents/.claude` -> CLAUDE.md, scripts/, settings.json, skills/"
+  },
+  {
+    "repo": "shadcn-ui/ui",
+    "note": "verified via `gh api .../contents/.claude` -> settings.local.json"
+  },
+  {
+    "repo": "block/goose",
+    "note": "verified via `gh api .../contents/.claude` -> skills/ (repo now redirects to aaif-goose/goose)"
+  },
+  {
+    "repo": "posthog/posthog",
+    "note": "verified via `gh api .../contents/.claude` -> agents/, commands/, hooks/, rules/, settings.json, skills/"
+  }
+]
