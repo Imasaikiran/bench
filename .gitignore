@@ -16,3 +16,4 @@ bench-scan.html
 cli/rubric.yaml
 cli/prevalence.json
 .gstack/
+.vercel
